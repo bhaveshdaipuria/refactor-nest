@@ -4,17 +4,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
-import { CandidateSchema } from './candidate.schema';
-import { PartySchema } from './party.schema';
 import { ElectionCandidateSchema } from './election-candidate.schema';
 import { TempElectionSchema } from "./temp-election.schema"
+import {ElectionPartyResultSchema} from './party-election.schema'
 
 @Controller('election')
 export class ElectionController {
   constructor(
-    @InjectModel('Candidate') private candidateModel: Model<typeof CandidateSchema>,
-    @InjectModel('Party') private partyModel: Model<typeof PartySchema>,
     @InjectModel('ElectionCandidate') private electionCandidateModel: Model<typeof ElectionCandidateSchema>,
+    @InjectModel('ElectionPartyResult') private partyElectionModel: Model<typeof ElectionPartyResultSchema>,
     @InjectModel('TempElection') private tempElectionModel: Model<typeof TempElectionSchema>,
     @InjectRedis() private readonly redis: Redis,
   ) {}
@@ -477,6 +475,157 @@ export class ElectionController {
 		res.status(500).json({
 			success: false,
 			message: "Internal server error",
+		});
+	}
+
+  }
+
+  @Get('map/top-candidates')
+  async getTopCandidates(
+	@Res() res: Response, 
+	@Query('state') state?: string, 
+	@Query('year') year?: string
+  ){
+
+	try {
+
+		if (!state || !year) {
+			return res.status(400).json({
+				success: false,
+				message: "State, year are required query parameters",
+			});
+		}
+
+		const key = `widget_bihar_election_map_${state}_${year}`;
+		const cachedResults = await this.redis.get(key);
+
+		if (cachedResults) {
+			return res.json(JSON.parse(cachedResults));
+		}
+
+		// First, find the election to get its ID
+		const election = await this.tempElectionModel.findOne({
+			state: state,
+			year: parseInt(year),
+		}).lean() as any;  // Type assertion to fix property access errors
+
+		if (!election) {
+			return res.status(404).json({
+				success: false,
+				message: "Election not found",
+			});
+		}
+		const type = election.electionType;
+
+		// Get all participating parties first
+		const allParties = await this.partyElectionModel.aggregate([
+			{ $match: { election: election._id } },
+			{
+				$lookup: {
+					from: "parties",
+					localField: "party",
+					foreignField: "_id",
+					as: "partyData",
+				},
+			},
+			{ $unwind: "$partyData" },
+			{
+				$project: {
+					_id: 0,
+					partyName: "$partyData.party",
+					seatsWon: "$seatsWon",
+					partyColor: "$partyData.color_code",
+				},
+			},
+			{ $sort: { seatsWon: -1 } },
+		]);
+
+		// Get constituency data with top candidates
+		const constituencies = await this.electionCandidateModel.aggregate([
+			{ $match: { election: election._id } },
+			{ $sort: { constituency: 1, votesReceived: -1 } },
+			{
+				$lookup: {
+					from: "candidates",
+					localField: "candidate",
+					foreignField: "_id",
+					as: "candidate",
+				},
+			},
+			{ $unwind: "$candidate" },
+			{
+				$lookup: {
+					from: "parties",
+					localField: "candidate.party",
+					foreignField: "_id",
+					as: "party",
+				},
+			},
+			{ $unwind: "$party" },
+			{
+				$lookup: {
+					from: "constituencies",
+					localField: "constituency",
+					foreignField: "_id",
+					as: "constituency",
+				},
+			},
+			{ $unwind: "$constituency" },
+			{
+				$group: {
+					_id: "$constituency._id",
+					constituencyName: { $first: "$constituency.name" },
+					constituencyId: { $first: "$constituency.constituencyId" },
+
+					candidates: {
+						$push: {
+							name: "$candidate.name",
+							partyName: "$party.party",
+							votesReceived: "$votesReceived",
+							status: "$status",
+							partyColor: "$party.color_code",
+						},
+					},
+				},
+			},
+			{
+				$project: {
+					_id: 0,
+					constituencyName: 1,
+					constituencyId: 1,
+					candidates: { $slice: ["$candidates", 2] },
+				},
+			},
+		]);
+
+		this.redis.set(key, JSON.stringify({
+			success: true,
+			data: {
+				electionId: election._id,
+				electionName: `${state} ${type} election ${year}`,
+				totalSeats: election.totalSeats,
+				halfWayMark: election.halfWayMark,
+				constituencies: constituencies,
+				parties: allParties,
+			},
+		}));
+
+		res.status(200).json({
+			success: true,
+			data: {
+				electionId: election._id,
+				electionName: `${state} ${type} election ${year}`,
+				totalSeats: election.totalSeats,
+				halfWayMark: election.halfWayMark,
+				constituencies: constituencies,
+				parties: allParties,
+			}
+		});	
+	} catch (error) {
+		console.error("Error:", error);
+		res.status(500).json({
+			success: false,
+			message: "Internal server error"
 		});
 	}
 
