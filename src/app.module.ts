@@ -3,6 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PartiesModule } from './parties/modules/party.module';
+import { ElectionModule } from './elections/election.module';
+import { ConstituencyModule } from './constituencies/constituency.module';
 import { CandidatesModule } from './candidates/candidates.module';
 
 @Module({
@@ -17,6 +20,9 @@ import { CandidatesModule } from './candidates/candidates.module';
       inject: [ConfigService],
     }),
     CandidatesModule,
+    PartiesModule,
+    ElectionModule,
+    ConstituencyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
