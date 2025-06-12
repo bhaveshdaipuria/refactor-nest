@@ -48,7 +48,7 @@ export class ElectionController {
         year,
         constituencyId,
       );
-      return result;
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -64,13 +64,13 @@ export class ElectionController {
     @Query('year') year: string,
   ) {
     try {
-      return await this.electionService.getHotCandidates(state, year);
+      const result = await this.electionService.getHotCandidates(state, year);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
-      console.error('Error:', error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Internal server error',
-      });
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to fetch results');
     }
   }
 
@@ -81,13 +81,13 @@ export class ElectionController {
     @Query('year') year?: string,
   ) {
     try {
-      return this.electionService.getTopCandidates(state, year);
+      const result = await this.electionService.getTopCandidates(state, year);
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-      });
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to fetch results');
     }
   }
 }

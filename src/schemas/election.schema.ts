@@ -45,5 +45,5 @@ export const ElectionSchema = new Schema(
       default: 'upcoming',
     },
   },
-  { timestamps: true },
+  { strictPopulate: false, timestamps: true },
 );

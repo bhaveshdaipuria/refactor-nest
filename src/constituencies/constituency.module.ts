@@ -1,11 +1,11 @@
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConstituencySchema } from './schemas/constituency.schema';
-import { ElectionConstituencySchema } from './schemas/constituency.election.schema';
+import { ConstituencySchema } from '../schemas/constituency.schema';
+import { ElectionConstituencySchema } from '../schemas/constituency.election.schema';
 import { ConstituencyController } from './constituency.controller';
 import { ConstituencyService } from './constituency.service';
-import { ElectionSchema } from 'src/elections/election.schema';
+import { ElectionSchema } from 'src/schemas/election.schema';
 
 @Module({
   imports: [

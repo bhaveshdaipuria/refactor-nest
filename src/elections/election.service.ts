@@ -8,9 +8,9 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
-import { ElectionCandidateSchema } from 'src/candidates/schemas/candidate.election.schema';
-import { ElectionPartyResultSchema } from 'src/parties/schemas/party.election.schema';
-import { ElectionSchema } from './election.schema';
+import { ElectionCandidateSchema } from 'src/schemas/candidate.election.schema';
+import { ElectionPartyResultSchema } from 'src/schemas/party.election.schema';
+import { ElectionSchema } from '../schemas/election.schema';
 import Redis from 'ioredis';
 
 @Injectable()
@@ -360,234 +360,212 @@ export class ElectionService {
   }
 
   async getHotCandidates(state: string, year: string) {
-    try {
-      if (!state || !year) {
-        throw new BadRequestException('State and year are required parameters');
-      }
+    if (!state || !year) {
+      throw new BadRequestException('State and year are required parameters');
+    }
 
-      const key = `widget_bihar_hot_candidate_${state}_${year}`;
-      const cachedResults = await this.redis.get(key);
+    const key = `widget_bihar_hot_candidate_${state}_${year}`;
+    const cachedResults = await this.redis.get(key);
 
-      if (cachedResults) {
-        return JSON.parse(cachedResults);
-      }
+    if (cachedResults) {
+      return JSON.parse(cachedResults);
+    }
 
-      const result = await this.ElectionModel.aggregate([
-        // Match the election
-        { $match: { state: state, year: Number(year) } },
+    const result = await this.ElectionModel.aggregate([
+      // Match the election
+      { $match: { state: state, year: Number(year) } },
 
-        // Lookup candidates with population
-        {
-          $lookup: {
-            from: 'candidates',
-            let: { candidateIds: '$electionInfo.candidates' },
-            pipeline: [
-              {
-                $match: {
-                  $expr: { $in: ['$_id', '$$candidateIds'] },
-                  hotCandidate: true,
-                },
+      // Lookup candidates with population
+      {
+        $lookup: {
+          from: 'candidates',
+          let: { candidateIds: '$electionInfo.candidates' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ['$_id', '$$candidateIds'] },
+                hotCandidate: true,
               },
-              // Populate party
-              {
-                $lookup: {
-                  from: 'parties',
-                  localField: 'party',
-                  foreignField: '_id',
-                  as: 'party',
-                  pipeline: [
-                    { $project: { party: 1, color_code: 1 } }, // Only get party name and color
-                  ],
-                },
-              },
-              // Populate constituency
-              {
-                $lookup: {
-                  from: 'constituencies',
-                  localField: 'constituency',
-                  foreignField: '_id',
-                  as: 'constituency',
-                  pipeline: [
-                    { $project: { name: 1 } }, // Only get constituency name
-                  ],
-                },
-              },
-              // Project only needed fields
-              {
-                $project: {
-                  name: 1,
-                  image: 1,
-                  party: { $arrayElemAt: ['$party', 0] }, // Unwind party
-                  constituency: { $arrayElemAt: ['$constituency', 0] }, // Get first constituency
-                },
-              },
-            ],
-            as: 'hotCandidates',
-          },
-        },
-
-        // Project final structure
-        {
-          $project: {
-            _id: 0,
-            hotCandidates: {
-              name: 1,
-              image: 1,
-              'party.party': 1,
-              'party.color_code': 1,
-              'constituency.name': 1,
             },
+            // Populate party
+            {
+              $lookup: {
+                from: 'parties',
+                localField: 'party',
+                foreignField: '_id',
+                as: 'party',
+                pipeline: [
+                  { $project: { party: 1, color_code: 1 } }, // Only get party name and color
+                ],
+              },
+            },
+            // Populate constituency
+            {
+              $lookup: {
+                from: 'constituencies',
+                localField: 'constituency',
+                foreignField: '_id',
+                as: 'constituency',
+                pipeline: [
+                  { $project: { name: 1 } }, // Only get constituency name
+                ],
+              },
+            },
+            // Project only needed fields
+            {
+              $project: {
+                name: 1,
+                image: 1,
+                party: { $arrayElemAt: ['$party', 0] }, // Unwind party
+                constituency: { $arrayElemAt: ['$constituency', 0] }, // Get first constituency
+              },
+            },
+          ],
+          as: 'hotCandidates',
+        },
+      },
+
+      // Project final structure
+      {
+        $project: {
+          _id: 0,
+          hotCandidates: {
+            name: 1,
+            image: 1,
+            'party.party': 1,
+            'party.color_code': 1,
+            'constituency.name': 1,
           },
         },
-      ]);
+      },
+    ]);
 
-      if (!result.length) {
-        throw new BadRequestException('Election not found');
-      }
-      this.redis.set(
-        key,
-        JSON.stringify({
-          success: true,
-          data: result[0].hotCandidates,
-        }),
-      );
-
-      return {
+    if (!result.length) {
+      throw new BadRequestException('Election not found');
+    }
+    this.redis.set(
+      key,
+      JSON.stringify({
         success: true,
         data: result[0].hotCandidates,
-      };
-    } catch (error) {
-      console.error('Error:', error);
-      throw new HttpException(
-        'Failed to retrieve parties',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+      }),
+    );
+
+    return {
+      success: true,
+      data: result[0].hotCandidates,
+    };
   }
 
   async getTopCandidates(state: string | undefined, year: string | undefined) {
-    try {
-      if (!state || !year) {
-        throw new BadRequestException(
-          'State, year are required query parameters',
-        );
-      }
+    if (!state || !year) {
+      throw new BadRequestException(
+        'State, year are required query parameters',
+      );
+    }
 
-      const key = `widget_bihar_election_map_${state}_${year}`;
-      const cachedResults = await this.redis.get(key);
+    const key = `widget_bihar_election_map_${state}_${year}`;
+    const cachedResults = await this.redis.get(key);
 
-      if (cachedResults) {
-        return JSON.parse(cachedResults);
-      }
+    if (cachedResults) {
+      return JSON.parse(cachedResults);
+    }
 
-      // First, find the election to get its ID
-      const election = (await this.ElectionModel.findOne({
-        state: state,
-        year: parseInt(year),
-      }).lean()) as any; // Type assertion to fix property access errors
+    // First, find the election to get its ID
+    const election = (await this.ElectionModel.findOne({
+      state: state,
+      year: parseInt(year),
+    }).lean()) as any; // Type assertion to fix property access errors
 
-      if (!election) {
-        throw new BadRequestException('Election not found');
-      }
-      const type = election.electionType;
+    if (!election) {
+      throw new BadRequestException('Election not found');
+    }
+    const type = election.electionType;
 
-      // Get all participating parties first
-      const allParties = await this.partyElectionModel.aggregate([
-        { $match: { election: election._id } },
-        {
-          $lookup: {
-            from: 'parties',
-            localField: 'party',
-            foreignField: '_id',
-            as: 'partyData',
-          },
+    // Get all participating parties first
+    const allParties = await this.partyElectionModel.aggregate([
+      { $match: { election: election._id } },
+      {
+        $lookup: {
+          from: 'parties',
+          localField: 'party',
+          foreignField: '_id',
+          as: 'partyData',
         },
-        { $unwind: '$partyData' },
-        {
-          $project: {
-            _id: 0,
-            partyName: '$partyData.party',
-            seatsWon: '$seatsWon',
-            partyColor: '$partyData.color_code',
-          },
+      },
+      { $unwind: '$partyData' },
+      {
+        $project: {
+          _id: 0,
+          partyName: '$partyData.party',
+          seatsWon: '$seatsWon',
+          partyColor: '$partyData.color_code',
         },
-        { $sort: { seatsWon: -1 } },
-      ]);
+      },
+      { $sort: { seatsWon: -1 } },
+    ]);
 
-      // Get constituency data with top candidates
-      const constituencies = await this.electionCandidateModel.aggregate([
-        { $match: { election: election._id } },
-        { $sort: { constituency: 1, votesReceived: -1 } },
-        {
-          $lookup: {
-            from: 'candidates',
-            localField: 'candidate',
-            foreignField: '_id',
-            as: 'candidate',
-          },
+    // Get constituency data with top candidates
+    const constituencies = await this.electionCandidateModel.aggregate([
+      { $match: { election: election._id } },
+      { $sort: { constituency: 1, votesReceived: -1 } },
+      {
+        $lookup: {
+          from: 'candidates',
+          localField: 'candidate',
+          foreignField: '_id',
+          as: 'candidate',
         },
-        { $unwind: '$candidate' },
-        {
-          $lookup: {
-            from: 'parties',
-            localField: 'candidate.party',
-            foreignField: '_id',
-            as: 'party',
-          },
+      },
+      { $unwind: '$candidate' },
+      {
+        $lookup: {
+          from: 'parties',
+          localField: 'candidate.party',
+          foreignField: '_id',
+          as: 'party',
         },
-        { $unwind: '$party' },
-        {
-          $lookup: {
-            from: 'constituencies',
-            localField: 'constituency',
-            foreignField: '_id',
-            as: 'constituency',
-          },
+      },
+      { $unwind: '$party' },
+      {
+        $lookup: {
+          from: 'constituencies',
+          localField: 'constituency',
+          foreignField: '_id',
+          as: 'constituency',
         },
-        { $unwind: '$constituency' },
-        {
-          $group: {
-            _id: '$constituency._id',
-            constituencyName: { $first: '$constituency.name' },
-            constituencyId: { $first: '$constituency.constituencyId' },
+      },
+      { $unwind: '$constituency' },
+      {
+        $group: {
+          _id: '$constituency._id',
+          constituencyName: { $first: '$constituency.name' },
+          constituencyId: { $first: '$constituency.constituencyId' },
 
-            candidates: {
-              $push: {
-                name: '$candidate.name',
-                partyName: '$party.party',
-                votesReceived: '$votesReceived',
-                status: '$status',
-                partyColor: '$party.color_code',
-              },
+          candidates: {
+            $push: {
+              name: '$candidate.name',
+              partyName: '$party.party',
+              votesReceived: '$votesReceived',
+              status: '$status',
+              partyColor: '$party.color_code',
             },
           },
         },
-        {
-          $project: {
-            _id: 0,
-            constituencyName: 1,
-            constituencyId: 1,
-            candidates: { $slice: ['$candidates', 2] },
-          },
+      },
+      {
+        $project: {
+          _id: 0,
+          constituencyName: 1,
+          constituencyId: 1,
+          candidates: { $slice: ['$candidates', 2] },
         },
-      ]);
+      },
+    ]);
 
-      this.redis.set(
-        key,
-        JSON.stringify({
-          success: true,
-          data: {
-            electionId: election._id,
-            electionName: `${state} ${type} election ${year}`,
-            totalSeats: election.totalSeats,
-            halfWayMark: election.halfWayMark,
-            constituencies: constituencies,
-            parties: allParties,
-          },
-        }),
-      );
-
-      return {
+    this.redis.set(
+      key,
+      JSON.stringify({
         success: true,
         data: {
           electionId: election._id,
@@ -597,13 +575,19 @@ export class ElectionService {
           constituencies: constituencies,
           parties: allParties,
         },
-      };
-    } catch (error) {
-      console.error('Error:', error);
-      throw new HttpException(
-        'Failed to retrieve parties',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+      }),
+    );
+
+    return {
+      success: true,
+      data: {
+        electionId: election._id,
+        electionName: `${state} ${type} election ${year}`,
+        totalSeats: election.totalSeats,
+        halfWayMark: election.halfWayMark,
+        constituencies: constituencies,
+        parties: allParties,
+      },
+    };
   }
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, HttpStatus, Query, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  InternalServerErrorException,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { ConstituencyService } from './constituency.service';
 import { Response } from 'express';
 
@@ -12,13 +20,17 @@ export class ConstituencyController {
     @Query('year') year: string,
   ) {
     try {
-      return this.constituencyService.getConstituencies(state, year);
+      const result = await this.constituencyService.getConstituencies(
+        state,
+        year,
+      );
+      return result;
     } catch (error) {
-      console.error('Error:', error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Internal server error',
-      });
+      console.log(error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to fetch results');
     }
   }
 }

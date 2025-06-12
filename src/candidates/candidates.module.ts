@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ElectionCandidateSchema } from './schemas/candidate.election.schema';
+import { ElectionCandidateSchema } from '../schemas/candidate.election.schema';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { CandidateController } from './candidate.controller';
 import { CandidateService } from './candidate.service';
-import { ConstituencySchema } from 'src/constituencies/schemas/constituency.schema';
-import { PartySchema } from 'src/parties/schemas/party.schema';
+import { ConstituencySchema } from 'src/schemas/constituency.schema';
+import { PartySchema } from 'src/schemas/party.schema';
 
 @Module({
   imports: [
