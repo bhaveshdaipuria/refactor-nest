@@ -4,6 +4,8 @@ import { AppService } from "./app.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { WidgetsModule } from "./widgets/election.module";
+import { DashBoardModule } from "./dashboard/dashboard.module";
+import { RedisModule } from "@nestjs-modules/ioredis";
 
 @Module({
 	imports: [
@@ -16,7 +18,14 @@ import { WidgetsModule } from "./widgets/election.module";
 			}),
 			inject: [ConfigService],
 		}),
+
+		RedisModule.forRoot({
+		type: "single",
+		url: process.env.REDIS_URL || "redis://localhost:6379",
+		}),
+
 		WidgetsModule,
+		DashBoardModule
 	],
 	controllers: [AppController],
 	providers: [AppService],
