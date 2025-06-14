@@ -47,4 +47,3 @@ export const TempElectionSchema = new Schema(
 	},
 	{ timestamps: true },
 );
-

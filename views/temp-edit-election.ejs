@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Edit Election Data</title>
+	<link rel="stylesheet" href="/stylesheets/style.css" />
+	<link rel="stylesheet" href="/stylesheets/tailwind.css" />
+	<!-- Add Font Awesome for icons -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+	<!-- Add multiselect styles -->
+	<style>
+
+thead{
+	position: sticky;
+	top: 0;
+}
+
+		.multiselect-container {
+			position: relative;
+		}
+
+		.multiselect-dropdown {
+			border: 1px solid #e2e8f0;
+			border-radius: 0.375rem;
+			padding: 0.5rem;
+			background-color: white;
+			width: 100%;
+			cursor: pointer;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.multiselect-options {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			max-height: 250px;
+			overflow-y: auto;
+			background-color: white;
+			border: 1px solid #e2e8f0;
+			border-radius: 0.375rem;
+			z-index: 10;
+			margin-top: 2px;
+			box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+				0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		}
+
+		.multiselect-option {
+			padding: 0.5rem;
+			display: flex;
+			align-items: center;
+		}
+
+		.multiselect-option:hover {
+			background-color: #f3f4f6;
+		}
+
+		.selected-option {
+			background-color: #f3f4f6;
+		}
+
+		.multiselect-search {
+			width: 100%;
+			padding: 0.5rem;
+			border-bottom: 1px solid #e2e8f0;
+		}
+	</style>
+</head>
+
+<body class="bg-gray-50">
+	<%- include('navbar.ejs') %>
+
+		<div class="container mx-auto px-4 py-8">
+			<div class="mb-6 flex justify-between items-center"></div>
+
+			<form id="electionForm" class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+				<!-- Hidden fields -->
+				<input type="hidden" name="_id" value="<%= election._id %>" />
+				<input type="hidden" id="currentUserId" value="<%= user._id %>" />
+
+				<!-- Main State Info -->
+				<div class="space-y-6 mb-8 w-40">
+					<h2 class="text-2xl font-bold text-gray-800 mb-6">
+						Edit Election: <%= election.state %>
+							<%= election.year %>
+					</h2>
+
+					<% if (userRole==='admin' ) { %>
+						<div class="grid grid-cols-2 gap-4">
+							<div>
+								<label
+									class="block text-sm font-medium text-gray-700">State</label>
+								<input type="text" name="state"
+									value="<%= election.state %>"
+									class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+									required />
+							</div>
+
+							<div>
+								<label class="block text-sm font-medium text-gray-700">Total
+									Seats</label>
+								<input type="number" name="totalSeats"
+									value="<%= election.totalSeats %>"
+									class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+									required />
+							</div>
+
+
+							<div>
+								<label class="block text-sm font-medium text-gray-700">Election
+									Type</label>
+								<select id="election-type" name="election-type"
+									class="mt-1 block w-full border border-gray-300 p-2 rounded"
+									required>
+									<option value="general"
+										<%=election.electionType==='general'
+										? 'selected' : '' %>>General Election
+									</option>
+									<option value="assembly"
+										<%=election.electionType==='assembly'
+										? 'selected' : '' %>>Assembly Election
+									</option>
+								</select>
+							</div>
+
+							<div>
+								<label
+									class="block text-sm font-medium text-gray-700">Year</label>
+								<input type="number" name="year"
+									value="<%= election.year %>"
+									class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+									required />
+							</div>
+
+							<div>
+								<label class="block text-sm font-medium text-gray-700">Half
+									Way
+									Mark</label>
+								<input type="number" name="halfWayMark"
+									value="<%= election.halfWayMark %>"
+									class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+									required />
+							</div>
+							<div>
+								<label
+									class="block text-sm font-medium text-gray-700">Status</label>
+								<select name="status"
+									class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+									required>
+									<option value="upcoming" <%=(typeof election
+										!=='undefined' &&
+										election.status==='upcoming' )
+										? 'selected' : '' %>>Upcoming</option>
+									<option value="ongoing" <%=(typeof election
+										!=='undefined' &&
+										election.status==='ongoing' )
+										? 'selected' : '' %>>Ongoing</option>
+									<option value="completed" <%=(typeof election
+										!=='undefined' &&
+										election.status==='completed' )
+										? 'selected' : '' %>>Completed</option>
+								</select>
+							</div>
+						</div>
+						<% } %>
+				</div>
+
+				<!-- Update Main Info Button -->
+				<% if (userRole==='admin' ) { %>
+					<div class="flex justify-end mb-6">
+						<button type="button" id="updateMainInfoBtn"
+							class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+							<i class="fas fa-sync-alt mr-2"></i>Update Main Info
+						</button>
+					</div>
+					<% } %>
+
+						<!-- Parties Section -->
+						<div class="mb-8 border-b pb-4" style="height: 400px;">
+							<div class="flex justify-between items-center mb-4">
+								<h2 class="text-xl font-bold text-gray-800">Parties</h2>
+
+								<% if (userRole==='admin' ) { %>
+									<button type="button" id="addPartyBtn"
+										class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+										<i class="fas fa-plus mr-2"></i>Add
+										Party
+									</button>
+									<% } %>
+
+							</div>
+							<div class="party-table overflow-x-auto" style="height: 350px;">
+								<table class="min-w-full divide-y divide-gray-200">
+									<thead  class="bg-gray-50">
+										<tr>
+											<th scope="col"
+												class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+												Party Name
+											</th>
+											<th scope="col"
+												class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+												Seats Won
+											</th>
+											<th scope="col"
+												class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+												Color
+											</th>
+											<th scope="col"
+												class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+												Actions
+											</th>
+										</tr>
+									</thead>
+									<tbody id="partiesTableBody"
+										class="bg-white divide-y divide-gray-200">
+										<% if (partyElectionDetails.length> 0) {
+											%> <% partyElectionDetails.forEach((party,
+												index)=> { %>
+												<tr
+													id="party-row-<%= index %>">
+													<td
+														class="px-6 py-4">
+														<%= party.party.party
+															|| ''
+															%>
+													</td>
+													<td
+														class="px-6 py-4">
+														<input type="number"
+															name="parties[<%= index %>][votes]"
+															value="<%= party.seatsWon || 0 %>"
+															class="block rounded-md w-20 shadow-sm p-1 px-2" />
+													</td>
+													<td
+														class="px-6 py-4">
+														<div class="w-6 h-4 rounded-md"
+															style="
+                        background-color: <%= party?.party?.color_code ||
+                          '#000000' %>;
+                      "></div>
+													</td>
+													<td
+														class="px-6 py-4">
+														<button type="button"
+															onclick="updatePartyVotes('<%= party.party._id %>')"
+															class="px-2 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 mr-2">
+															<i
+																class="fas fa-save"></i>
+														</button>
+														<button type="button"
+															onclick="editParty('<%= party.party._id %>')"
+															style="background-color: rgb(244, 179, 68)"
+															class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 mr-2">
+															<i
+																class="fas fa-edit"></i>
+														</button>
+
+														<% if (userRole==='admin'
+															)
+															{
+															%>
+															<button type="button"
+																onclick="deleteParty('<%= party.party._id %>')"
+																class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 mr-2">
+																<i
+																	class="fas fa-trash"></i>
+															</button>
+															<% }
+																%>
+													</td>
+												</tr>
+												<% }); %>
+													<% } %>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<!-- Candidates Section -->
+						<div class="mb-8 border-b pb-4" style="height: 700px;">
+							<div
+								class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+								<h2 class="text-xl font-bold text-gray-800 mb-4">
+									Candidate Directory</h2>
+
+								<!-- Search and filters container -->
+								<div class="flex gap-4">
+									<!-- Search input -->
+									<div class="md:col-span-1">
+										<label for="candidateTableSearch"
+											class="block text-sm font-lg text-gray-700 mb-2">
+											Search Candidates
+										</label>
+										<div class="relative">
+											<input type="text"
+												id="candidateTableSearch"
+												name="searchTerm"
+												value="<%= locals.searchTerm || '' %>"
+												placeholder="Search by name..."
+												class="p-2 w-full h-10 rounded-md border shadow-sm" />
+										</div>
+									</div>
+
+									<!-- Party filter -->
+									<div>
+										<label for="candidatePartyFilter"
+											class="block text-sm font-medium text-gray-700 mb-2">
+											Filter by Party
+										</label>
+										<select id="candidatePartyFilter"
+											name="partyFilter"
+											class="w-full h-10 p-2 rounded-md border border-gray-300 shadow-sm  outline-none">
+											<option value="">All Parties
+											</option>
+											<% if(locals.parties) { %>
+												<% parties.forEach(function(party)
+													{ %>
+													<option value="<%= party.value %>"
+														<%=locals.selectedParty
+														&&
+														locals.selectedParty===party.value
+														? 'selected'
+														: '' %>>
+														<%= party.name
+															%>
+													</option>
+													<% }); %>
+														<% } %>
+										</select>
+									</div>
+
+									<!-- Constituency filter -->
+									<div>
+										<label for="candidateConstituencyFilter"
+											class="block text-sm font-medium text-gray-700 mb-2">
+											Filter by Constituency
+										</label>
+										<select id="candidateConstituencyFilter"
+											name="constituencyFilter"
+											class="w-full h-10 p-2 rounded-md border border-gray-300 shadow-sm  outline-none">
+											<option value="">All
+												Constituencies</option>
+											<% if(locals.constituencies) {
+												%>
+												<% constituencies.forEach(function(constituency)
+													{ %>
+													<option value="<%= constituency.value %>"
+														<%=locals.selectedConstituency
+														&&
+														locals.selectedConstituency===constituency.value
+														? 'selected'
+														: '' %>>
+														<%= constituency.name
+															%>
+													</option>
+													<% }); %>
+														<% } %>
+										</select>
+									</div>
+								</div>
+
+								<!-- Filters active indicator -->
+								<div id="activeFilters"
+									class="<%= (locals.searchTerm || locals.selectedParty || locals.selectedConstituency) ? 'flex' : 'hidden' %> items-center mb-4 py-2 px-3 bg-blue-50 text-sm text-blue-600 rounded-md">
+
+									<span id="activeFiltersText"
+										class="ml-1 font-medium">
+										<% let filterTexts=[];
+											if(locals.searchTerm)
+											filterTexts.push(`"${locals.searchTerm}"`);
+											if(locals.selectedParty) { const
+											partyName=locals.parties.find(p=>
+											p.value ===
+											locals.selectedParty)?.name ||
+											locals.selectedParty;
+											filterTexts.push(`Party:
+											${partyName}`);
+											}
+											if(locals.selectedConstituency)
+											{
+											const constituencyName =
+											locals.constituencies.find(c =>
+											c.value ===
+											locals.selectedConstituency)?.name
+											|| locals.selectedConstituency;
+											filterTexts.push(`Constituency:
+											${constituencyName}`);
+											}
+											%>
+
+									</span>
+									<button id="clearFilters"
+										class="ml-auto flex items-center text-red-500 hover:text-red-700"
+										>
+										<svg xmlns="http://www.w3.org/2000/svg"
+											width="16" height="16"
+											viewBox="0 0 24 24" fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											class="mr-1">
+											<circle cx="12" cy="12" r="10">
+											</circle>
+											<line x1="15" y1="9" x2="9"
+												y2="15"></line>
+											<line x1="9" y1="9" x2="15"
+												y2="15"></line>
+										</svg>
+										Clear
+									</button>
+								</div>
+							</div>
+
+							<div class="flex justify-between items-center mb-4">
+								<h2 class="text-xl font-bold text-gray-800">Candidates
+								</h2>
+								<% if (userRole==='admin' ) { %>
+									<button type="button" id="addCandidateBtn"
+										class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+										<i class="fas fa-plus mr-2"></i>Add
+										Candidate
+									</button>
+									<% } %>
+							</div>
+							<div style="height: 400px;" class="overflow-x-auto">
+								<table style="height: 400px; overflow: scroll;" class="min-w-full divide-y divide-gray-200">
+									<thead class="bg-gray-50">
+										<tr>
+											<th scope="col"
+												class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+												Name
+											</th>
+											<th scope="col"
+												class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+												Party
+											</th>
+											<th scope="col"
+												class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+												Constituency
+											</th>
+											<th scope="col"
+												class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+												Votes
+											</th>
+											<th scope="col"
+												class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+												Actions
+											</th>
+										</tr>
+									</thead>
+									<tbody id="candidatesTableBody" style="height: 500px;"
+										class="bg-white divide-y divide-gray-200">
+										<% if (candidateElectionDetails.length>
+											0) { %> <%
+												candidateElectionDetails.forEach((candidate,
+												index)=> { %>
+												<tr
+													id="candidate-row-<%= index %>">
+													<td
+														class="px-6 py-4">
+														<%= candidate.candidate.name
+															|| ''
+															%>
+													</td>
+													<td
+														class="px-6 py-4">
+														<%= candidate.candidate.party.party
+															|| ''
+															%>
+													</td>
+
+													<td
+														class="px-6 py-4">
+														<%= candidate.candidate.constituency.name
+															|| ''
+															%>
+															(
+															<%= candidate.constituencyStatus
+																%>
+																)
+													</td>
+													<td
+														class="px-6 py-4">
+														<input type="number"
+															name="candidates[<%= index %>][votes]"
+															value="<%= candidate.candidate.votesReceived %>"
+															class="block rounded-md w-20 shadow-sm p-1 px-2"
+															<%=candidate.constituencyStatus==='ongoing'
+															? ''
+															: 'readonly'
+															%>
+														/>
+													</td>
+													<td style="display: flex; flex-wrap: wrap; gap: 5px;"
+														class="px-6 py-4">
+														<button type="button"
+															onclick="updateCandidateVotes('<%= candidate.candidate._id %>')"
+															class="px-2 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 mr-2">
+															<i
+																class="fas fa-save"></i>
+														</button>
+														<button type="button"
+															onclick="editCandidate('<%= candidate.candidate._id %>')"
+															style="background-color: rgb(244, 179, 68)"
+															class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 mr-2">
+															<i
+																class="fas fa-edit"></i>
+														</button>
+
+														<% if (userRole==='admin'
+															)
+															{
+															%>
+															<button type="button"
+																onclick="deleteCandidate('<%= candidate.candidate._id %>')"
+																class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 mr-2">
+																<i
+																	class="fas fa-trash"></i>
+															</button>
+															<% }
+																%>
+													</td>
+												</tr>
+												<% }); %>
+													<% } %>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<!-- constituencies section -->
+						<div class="mb-8 border-b pb-4" style="height: 500px;">
+							<% if (userRole==='admin' || userRole==='superadmin' ) { %>
+								<div class="flex justify-between items-center mb-4">
+									<h2 class="text-xl font-bold text-gray-800">
+										Constituencies</h2>
+									<button type="button"
+										id="manageConstituenciesBtn"
+										class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+										<i
+											class="fas fa-list-check mr-2"></i>Manage
+										Constituencies
+									</button>
+								</div>
+								<% } %>
+
+									<!-- Filter Input -->
+									<div class="mb-4">
+										<input type="text"
+											id="constituencyFilter"
+											placeholder="Filter constituencies..."
+											class="w-full max-w-md px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+											onkeyup="filterConstituencies()">
+									</div>
+
+									<div style="height: 400px;" class="overflow-x-auto">
+										<table
+											class="min-w-full divide-y divide-gray-200">
+											<thead class="bg-gray-50">
+												<tr>
+													<th scope="col"
+														class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+														Constituency
+														Name
+													</th>
+													<th scope="col"
+														class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+														Status
+													</th>
+												</tr>
+											</thead>
+											<tbody id="constituenciesTableBody"
+												class="bg-white divide-y divide-gray-200">
+												<% if (electionConstituencies
+													&&
+													electionConstituencies.length>
+													0) { %>
+													<% electionConstituencies.forEach((constituency,
+														index)=>
+														{ %>
+														<tr
+															id="constituency-row-<%= index %>">
+															<td
+																class="px-6 py-4">
+																<%= constituency.constituency.name
+																	|| ''
+																	%>
+															</td>
+															<td
+																class="px-6 py-4">
+																<span
+																	class="px-2 py-1 text-xs font-medium rounded-full <%= constituency.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+																	<%= constituency.status==='completed'
+																		? 'Completed'
+																		: 'Ongoing'
+																		%>
+																</span>
+															</td>
+														</tr>
+														<% });
+															%>
+															<% } else
+																{
+																%>
+																<tr>
+																	<td colspan="2"
+																		class="px-6 py-4 text-center text-gray-500">
+																		No
+																		constituencies
+																		found
+																		for
+																		this
+																		election
+																	</td>
+																</tr>
+																<% }
+																	%>
+											</tbody>
+										</table>
+									</div>
+						</div>
+
+						<!-- Constituency Management Dialog -->
+						<div id="constituencyManagementDialog"
+							class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+							<div class="bg-white rounded-lg shadow-lg max-w-lg w-full" style="height: 400px; overflow-y: scroll;">
+								<div class="p-4 border-b">
+									<div class="flex justify-between items-center">
+										<h3
+											class="text-xl font-bold text-gray-800">
+											Manage Constituencies</h3>
+										<button type="button"
+											id="closeConstituencyDialogBtn"
+											class="text-gray-500 hover:text-gray-700">
+											<i class="fas fa-times"></i>
+										</button>
+									</div>
+								</div>
+								<div class="p-4">
+									<!-- Filter Input -->
+									<div class="mb-4">
+										<input type="text"
+											id="constituencyManagementFilter"
+											placeholder="Filter constituencies..."
+											class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+											onkeyup="filterManagementConstituencies()">
+									</div>
+
+									<div class="max-h-96 overflow-y-auto">
+										<table
+											class="min-w-full divide-y divide-gray-200">
+											<thead
+												class="bg-gray-50 sticky top-0">
+												<tr>
+													<th scope="col"
+														class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+														Constituency
+													</th>
+													<th scope="col"
+														class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+														Status
+													</th>
+													<th scope="col"
+														class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+														Action
+													</th>
+												</tr>
+											</thead>
+											<tbody
+												id="constituencyManagementBody">
+												<!-- Will be populated by JavaScript -->
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="p-4 border-t flex justify-end">
+									<button type="button"
+										id="closeConstituencyManagementBtn"
+										class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 mr-2">
+										Close
+									</button>
+									<button type="button"
+										id="saveConstituencyChangesBtn"
+										class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+										<i class="fas fa-save mr-2"></i>Save All
+										Changes
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<div class="mt-8 flex justify-between">
+							<button type="button" onclick="window.history.back()"
+								class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+								<i class="fas fa-arrow-left mr-2"></i>
+							</button>
+						</div>
+			</form>
+		</div>
+
+		<!-- Party Selection Dialog -->
+		<div id="partySelectionDialog"
+			class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+			<div class="bg-white rounded-lg shadow-lg max-w-md w-full">
+				<div class="p-4 border-b">
+					<div class="flex justify-between items-center">
+						<h3 class="text-xl font-bold text-gray-800">Select Parties</h3>
+						<button type="button" id="closeDialogBtn"
+							class="text-gray-500 hover:text-gray-700">
+							<i class="fas fa-times"></i>
+						</button>
+					</div>
+				</div>
+				<div class="p-4">
+					<!-- Multi-select dropdown -->
+					<div class="multiselect-container mb-4">
+						<div class="multiselect-dropdown" id="multiselectDropdown">
+							<span id="dropdownPlaceholder">Select parties</span>
+							<i class="fas fa-chevron-down"></i>
+						</div>
+						<div class="multiselect-options hidden" id="multiselectOptions">
+							<div class="multiselect-search">
+								<input type="text" id="partySearchInput"
+									placeholder="Search parties..."
+									class="w-full px-2 py-1 border-0 focus:outline-none focus:ring-0" />
+							</div>
+							<div id="partyOptionsContainer">
+								<!-- Party options will be inserted here by JavaScript -->
+							</div>
+						</div>
+					</div>
+					<div id="selectedPartiesContainer" class="mb-4">
+						<div class="text-sm font-medium text-gray-700 mb-2">
+							Selected Parties:
+						</div>
+						<div id="selectedPartiesList" class="flex flex-wrap gap-2">
+							<!-- Selected parties will appear here -->
+						</div>
+					</div>
+				</div>
+				<div class="p-4 border-t flex justify-end">
+					<button type="button" id="cancelPartySelectionBtn"
+						class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 mr-2">
+						Cancel
+					</button>
+					<button type="button" id="submitPartySelectionBtn"
+						class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+						<i class="fas fa-check mr-2"></i>Add Selected Parties
+					</button>
+				</div>
+			</div>
+		</div>
+		<!-- Candidate Selection Dialog -->
+		<div id="candidateSelectionDialog"
+			class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+			<div class="bg-white rounded-lg shadow-lg max-w-md w-full">
+				<div class="p-4 border-b">
+					<div class="flex justify-between items-center">
+						<h3 class="text-xl font-bold text-gray-800">Select Candidates</h3>
+						<button type="button" id="closeCandidateDialogBtn"
+							class="text-gray-500 hover:text-gray-700">
+							<i class="fas fa-times"></i>
+						</button>
+					</div>
+				</div>
+				<div class="p-4">
+					<!-- Multi-select dropdown -->
+					<div class="multiselect-container mb-4">
+						<div class="multiselect-dropdown" id="candidateMultiselectDropdown">
+							<span id="candidateDropdownPlaceholder">Select candidates</span>
+							<i class="fas fa-chevron-down"></i>
+						</div>
+						<div class="multiselect-options hidden"
+							id="candidateMultiselectOptions">
+							<div class="multiselect-search">
+								<input type="text" id="candidateSearchInput"
+									placeholder="Search candidates..."
+									class="w-full px-2 py-1 border-0 focus:outline-none focus:ring-0" />
+							</div>
+							<div id="candidateOptionsContainer">
+								<!-- Candidate options will be inserted here by JavaScript -->
+							</div>
+						</div>
+					</div>
+					<div id="selectedCandidatesContainer" class="mb-4">
+						<div class="text-sm font-medium text-gray-700 mb-2">
+							Selected Candidates:
+						</div>
+						<div id="selectedCandidatesList" class="flex flex-wrap gap-2">
+							<!-- Selected candidates will appear here -->
+						</div>
+					</div>
+				</div>
+				<div class="p-4 border-t flex justify-end">
+					<button type="button" id="cancelCandidateSelectionBtn"
+						class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 mr-2">
+						Cancel
+					</button>
+					<button type="button" id="submitCandidateSelectionBtn"
+						class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+						<i class="fas fa-check mr-2"></i>Add Selected Candidates
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<script>
+
+			// get year, state and type of election to clear cache from redis
+			const electionDetails = <%-JSON.stringify(election)%>;
+			const electionState = electionDetails.state
+			const electionYear = electionDetails.year
+			const electionType = electionDetails.electionType
+			
+
+			function filterManagementConstituencies() {
+				const filter = document.getElementById('constituencyManagementFilter').value.toLowerCase();
+				const rows = document.querySelectorAll('#constituencyManagementBody tr');
+
+				rows.forEach(row => {
+					const nameCell = row.getElementsByTagName('td')[0];
+					if (nameCell) {
+						const name = nameCell.textContent.toLowerCase();
+						row.style.display = name.includes(filter) ? '' : 'none';
+					}
+				});
+			}
+
+			function filterConstituencies() {
+				const filter = document.getElementById('constituencyFilter').value.toLowerCase();
+				const rows = document.querySelectorAll('#constituenciesTableBody tr');
+
+				rows.forEach(row => {
+					const nameCell = row.getElementsByTagName('td')[0];
+					if (nameCell) {
+						const name = nameCell.textContent.toLowerCase();
+						row.style.display = name.includes(filter) ? '' : 'none';
+					}
+				});
+			}
+
+			const manageConstituenciesBtn = document.getElementById('manageConstituenciesBtn');
+			const constituencyManagementDialog = document.getElementById('constituencyManagementDialog');
+			const closeConstituencyDialogBtn = document.getElementById('closeConstituencyDialogBtn');
+			const closeConstituencyManagementBtn = document.getElementById('closeConstituencyManagementBtn');
+			const saveConstituencyChangesBtn = document.getElementById('saveConstituencyChangesBtn');
+			const constituencyManagementBody = document.getElementById('constituencyManagementBody');
+
+			// Initialize constituencies data
+			const electionConstituencies = <%- JSON.stringify(electionConstituencies || []) %>;
+			let constituencyChanges = {};
+
+			// Open constituency management dialog
+			manageConstituenciesBtn?.addEventListener('click', function () {
+				populateConstituencyManagement(electionConstituencies);
+				constituencyManagementDialog.classList.remove('hidden');
+			});
+
+			// Close constituency dialog
+			closeConstituencyDialogBtn.addEventListener('click', function () {
+				constituencyManagementDialog.classList.add('hidden');
+			});
+
+			// Close constituency management
+			closeConstituencyManagementBtn.addEventListener('click', function () {
+				constituencyManagementDialog.classList.add('hidden');
+			});
+
+			// Populate constituency management table
+			function populateConstituencyManagement(constituencies) {
+				constituencyManagementBody.innerHTML = '';
+
+				if (!constituencies || constituencies.length === 0) {
+					const emptyRow = document.createElement('tr');
+					emptyRow.innerHTML = `
+      <td colspan="3" class="px-4 py-4 text-center text-gray-500">
+        No constituencies found for this election
+      </td>
+    `;
+					constituencyManagementBody.appendChild(emptyRow);
+					return;
+				}
+
+				constituencies.forEach(constituency => {
+					const row = document.createElement('tr');
+					row.className = 'hover:bg-gray-50';
+
+					// Current status (or pending change)
+					const currentStatus = constituencyChanges[constituency._id] || constituency.status || 'ongoing';
+
+					row.innerHTML = `
+      <td class="px-4 py-4">
+        ${constituency.constituency.name}
+      </td>
+      <td class="px-4 py-4">
+        <span class="px-2 py-1 text-xs font-medium rounded-full ${currentStatus === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+						}">
+          ${currentStatus === 'completed' ? 'Completed' : 'Ongoing'}
+        </span>
+      </td>
+      <td class="px-4 py-4">
+        <select class="constituency-status-select block rounded-md shadow-sm text-sm"
+                data-constituency-id="${constituency._id}">
+          <option value="ongoing" ${currentStatus === 'ongoing' ? 'selected' : ''}>Mark as Ongoing</option>
+          <option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>Mark as Completed</option>
+        </select>
+      </td>
+    `;
+
+					constituencyManagementBody.appendChild(row);
+				});
+
+				// Add event listeners to all select dropdowns
+				document.querySelectorAll('.constituency-status-select').forEach(select => {
+					select.addEventListener('change', function () {
+						const constituencyId = this.getAttribute('data-constituency-id');
+						constituencyChanges[constituencyId] = this.value;
+
+						// Update the status display
+						const statusCell = this.closest('tr').querySelector('td:nth-child(2)');
+						const statusSpan = statusCell.querySelector('span');
+
+						if (this.value === 'completed') {
+							statusSpan.className = 'px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800';
+							statusSpan.textContent = 'Completed';
+						} else {
+							statusSpan.className = 'px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800';
+							statusSpan.textContent = 'Ongoing';
+						}
+					});
+				});
+			}
+
+			// Save constituency status changes
+			saveConstituencyChangesBtn.addEventListener('click', function () {
+				const electionId = document.querySelector('input[name="_id"]').value;
+				console.log(electionId, constituencyChanges)
+
+				if (Object.keys(constituencyChanges).length === 0) {
+					alert('No changes to save');
+					return;
+				}
+
+				fetch(`/api/elections/temp-election/constituencies/update-status`, {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({constituencies: constituencyChanges, redisKeys:{state: electionState, year: electionYear, type: electionType}})
+				})
+					.then(res => res.json())
+					.then(data => {
+						if (data.success) {
+							alert('Constituency statuses updated successfully');
+
+							window.location.reload()
+
+
+						} else {
+							alert('Failed to update constituency statuses: ' + (data.message || 'Unknown error'));
+						}
+					})
+					.catch(error => {
+						alert('Error updating constituency statuses: ' + error.message);
+					});
+			});
+
+			document.getElementById('updateMainInfoBtn')?.addEventListener('click', () => {
+				const state = document.querySelector("input[name='state']").value
+				const year = document.querySelector("input[name='year']").value
+				const halfWayMark = document.querySelector("input[name='halfWayMark']").value
+				const electionType = document.getElementById('election-type').value
+				const totalSeats = document.querySelector("input[name='totalSeats']").value
+				const status = document.querySelector("select[name='status']").value
+				const electionId = document.querySelector('input[name="_id"]').value;
+
+
+				const updateBody = {
+					state, year, halfWayMark, totalSeats, status, electionType
+				}
+
+				fetch(`/api/elections/temp-election/main-info-update/${electionId}`, {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(updateBody)
+				}).then((res) =>
+					res.json()
+				).then((data) => {
+					if (data.success) {
+						alert('Election Updated Successfully');
+						window.location.reload()
+					}
+				}).catch((error) => {
+					alert('Failed to update')
+					window.location.reload()
+				})
+			})
+
+			// Admin IDs list
+			const adminIds = ['671001c39c1da4fb1e16d48b', '673c2689d9ec4b86f6b11974', '673c2673d9ec4b86f6b11972', '673c25d0d9ec4b86f6b11962', '673c25b4d9ec4b86f6b11960', '673c3a56509816ac0d2b9e10', '673ef26add6de67520b364f3', "67a21755aede35a3487141a6"];
+			const currentUserId = document.getElementById('currentUserId').value;
+			const isAdmin = adminIds.includes(currentUserId);
+			const allPartiesList = <%- JSON.stringify(allPartiesList || []) %>;
+			const allCandidatesList = <%- JSON.stringify(allCandidatesList || []) %>
+			const something = <%- JSON.stringify(candidateElectionDetails || []) %>
+				console.log(something)
+
+			// Dialog elements
+			const dialog = document.getElementById('partySelectionDialog');
+			const closeDialogBtn = document.getElementById('closeDialogBtn');
+			const addPartyBtn = document.getElementById('addPartyBtn');
+			const cancelPartySelectionBtn = document.getElementById('cancelPartySelectionBtn');
+			const submitPartySelectionBtn = document.getElementById('submitPartySelectionBtn');
+			const partyOptionsContainer = document.getElementById('partyOptionsContainer');
+			const partySearchInput = document.getElementById('partySearchInput');
+			const multiselectDropdown = document.getElementById('multiselectDropdown');
+			const multiselectOptions = document.getElementById('multiselectOptions');
+			const dropdownPlaceholder = document.getElementById('dropdownPlaceholder');
+			const selectedPartiesList = document.getElementById('selectedPartiesList');
+
+			// Track selected parties
+			let selectedParties = [];
+
+			// Initialize the form with access controls
+			function initializeForm() {
+				// Show/hide admin controls
+				if (!isAdmin) {
+					// Disable all remove buttons
+					const removeButtons = document.querySelectorAll('button[onclick^="remove"]');
+					removeButtons.forEach(button => {
+						button.classList.add('hidden');
+					});
+				}
+			}
+
+			// Open dialog when Add Party button is clicked
+			addPartyBtn?.addEventListener('click', function () {
+				selectedParties = [];
+				updateSelectedPartiesDisplay();
+				populatePartyOptions(allPartiesList);
+				dialog.classList.remove('hidden');
+			});
+
+			// Toggle dropdown
+			multiselectDropdown.addEventListener('click', function () {
+				multiselectOptions.classList.toggle('hidden');
+			});
+
+			// Close dropdown when clicking outside
+			document.addEventListener('click', function (event) {
+				if (!multiselectDropdown.contains(event.target) && !multiselectOptions.contains(event.target)) {
+					multiselectOptions.classList.add('hidden');
+				}
+			});
+
+			// Close dialog when close button is clicked
+			closeDialogBtn.addEventListener('click', function () {
+				dialog.classList.add('hidden');
+			});
+
+			// Close dialog when cancel button is clicked
+			cancelPartySelectionBtn.addEventListener('click', function () {
+				dialog.classList.add('hidden');
+			});
+
+			// Handle party search functionality
+			partySearchInput.addEventListener('input', function () {
+				const searchTerm = this.value.toLowerCase();
+				const filteredParties = allPartiesList.filter(party =>
+					party.party.toLowerCase().includes(searchTerm)
+				);
+				populatePartyOptions(filteredParties);
+			});
+
+			// Populate party options in the dropdown
+			function populatePartyOptions(parties) {
+				partyOptionsContainer.innerHTML = '';
+
+				if (parties.length === 0) {
+					partyOptionsContainer.innerHTML = '<div class="text-gray-500 text-center py-4">No parties found</div>';
+					return;
+				}
+
+				parties.forEach(party => {
+					const isSelected = selectedParties.some(p => p.id === party._id);
+
+					const option = document.createElement('div');
+					option.className = `multiselect-option ${isSelected ? 'selected-option' : ''}`;
+
+					const checkbox = document.createElement('input');
+					checkbox.type = 'checkbox';
+					checkbox.id = `party-option-${party._id}`;
+					checkbox.className = 'mr-2';
+					checkbox.checked = isSelected;
+
+					const label = document.createElement('label');
+					label.htmlFor = `party-option-${party._id}`;
+					label.className = 'flex-1 cursor-pointer';
+					label.textContent = party.party;
+
+					option.appendChild(checkbox);
+					option.appendChild(label);
+
+					option.addEventListener('click', function (e) {
+						// Toggle checkbox
+						checkbox.checked = !checkbox.checked;
+
+						if (checkbox.checked) {
+							// Add to selected parties if not already there
+							if (!selectedParties.some(p => p.id === party._id)) {
+								selectedParties.push({
+									id: party._id,
+									name: party.party
+								});
+							}
+							option.classList.add('selected-option');
+						} else {
+							// Remove from selected parties
+							selectedParties = selectedParties.filter(p => p.id !== party._id);
+							option.classList.remove('selected-option');
+						}
+
+						updateSelectedPartiesDisplay();
+
+						// Prevent event bubbling
+						e.stopPropagation();
+					});
+
+					partyOptionsContainer.appendChild(option);
+				});
+			}
+
+			// Update selected parties display
+			function updateSelectedPartiesDisplay() {
+				selectedPartiesList.innerHTML = '';
+
+				if (selectedParties.length === 0) {
+					dropdownPlaceholder.textContent = 'Select parties';
+					selectedPartiesList.innerHTML = '<div class="text-gray-500">No parties selected</div>';
+					return;
+				}
+
+				dropdownPlaceholder.textContent = `${selectedParties.length} parties selected`;
+
+				selectedParties.forEach(party => {
+					const tag = document.createElement('div');
+					tag.className = 'bg-blue-100 text-blue-800 px-2 py-1 rounded-md flex items-center text-sm';
+
+					const name = document.createElement('span');
+					name.textContent = party.name;
+
+					const removeBtn = document.createElement('button');
+					removeBtn.className = 'ml-2 text-blue-600 hover:text-blue-800';
+					removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+					removeBtn.addEventListener('click', function () {
+						// Remove from selected parties
+						selectedParties = selectedParties.filter(p => p.id !== party.id);
+						updateSelectedPartiesDisplay();
+
+						// Update checkbox in options if visible
+						const checkbox = document.getElementById(`party-option-${party.id}`);
+						if (checkbox) {
+							checkbox.checked = false;
+							checkbox.closest('.multiselect-option').classList.remove('selected-option');
+						}
+					});
+
+					tag.appendChild(name);
+					tag.appendChild(removeBtn);
+					selectedPartiesList.appendChild(tag);
+				});
+			}
+
+			// Submit selected parties
+			submitPartySelectionBtn.addEventListener('click', function () {
+				if (selectedParties.length === 0) {
+					alert('Please select at least one party');
+					return;
+				}
+
+				addSelectedParties(selectedParties);
+			});
+
+			// Add selected parties to the election
+			function addSelectedParties(selectedParties) {
+				const electionId = document.querySelector('input[name="_id"]').value;
+
+				// Create the data to send
+				const requestData = {
+					election: electionId,
+					parties: selectedParties.map(party => party.id),
+					redisKeys:{state: electionState, year: electionYear, type: electionType}
+				};
+
+				// Send the PATCH request to add parties
+				fetch('/api/elections/temp-election/party/add', {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(requestData)
+				})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Failed to add parties');
+						}
+						return response.json();
+					})
+					.then(data => {
+						alert('Parties added successfully!');
+						dialog.classList.add('hidden');
+						window.location.reload()
+					})
+					.catch(error => {
+						alert('Failed to add parties. Please try again.');
+						console.error('Error:', error);
+					});
+			}
+
+			function updateCandidateVotes(candidateId) {
+				// Find the row containing this candidate
+				const rowElement = document.querySelector(`tr:has(button[onclick*="${candidateId}"])`);
+				if (!rowElement) {
+					alert('Candidate not found in the table.');
+					return;
+				}
+
+				// Get the candidate votes and status from the row
+				const votesInput = rowElement.querySelector('input[name^="candidates"][name$="[votes]"]');
+
+				const votes = votesInput ? parseInt(votesInput.value, 10) : 0;
+
+				// Get election ID from the hidden field
+				const electionId = document.querySelector('input[name="_id"]').value;
+
+				// Create the data to send
+				const updateData = {
+					election: electionId,
+					candidate: candidateId,
+					votesReceived: votes,
+					redisKeys:{state: electionState, year: electionYear, type: electionType}
+				};
+
+				// Send the update request
+				fetch('/api/elections/temp-election/candidate/update', {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(updateData)
+				})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Failed to update candidate data');
+							window.location.reload()
+						}
+						return response.json();
+					})
+					.then(data => {
+						alert('Candidate data updated successfully!');
+						window.location.reload()
+					})
+					.catch(error => {
+						alert('Failed to update candidate data. Please try again.');
+						window.location.reload()
+					});
+			}
+
+			// Function to edit party details
+			function editParty(partyId) {
+				if (!isAdmin) {
+					alert('You do not have permission to edit party details.');
+					return;
+				}
+				window.location.href = `/edit-party/${partyId}?state=${electionState}&year=${electionYear}&type=${electionType}`;
+			}
+
+
+			function deleteParty(partyId) {
+				const electionId = document.querySelector('input[name="_id"]').value;
+				fetch(`/api/elections/temp-election/party/delete/${partyId}/${electionId}`, {
+					method: 'DELETE',
+					body: JSON.stringify({redisKeys:{state: electionState, year: electionYear, type: electionType}})
+				}).then(res => res.json()).then((data) => {
+					if (data.success) {
+						alert('Party Deleted successfully!');
+						window.location.reload()
+					}
+				}).catch(err => {
+					alert('Failed to delete party');
+					window.location.reload()
+				})
+			}
+
+			function deleteCandidate(candidateId) {
+				const electionId = document.querySelector('input[name="_id"]').value;
+				fetch(`/api/elections/temp-election/candidate/delete/${candidateId}/${electionId}`, {
+					method: 'DELETE',
+					body: JSON.stringify({redisKeys:{state: electionState, year: electionYear, type: electionType}})
+				}).then(res => res.json()).then((data) => {
+					if (data.success) {
+						alert('Candidate Deleted successfully!');
+						window.location.reload()
+					}
+				}).catch(err => {
+					alert('Failed to delete party');
+					window.location.reload()
+				})
+			}
+
+			function updatePartyVotes(partyId) {
+				// Find the row containing this party
+				const rowElement = document.querySelector(`tr[id^="party-row-"]:has(button[onclick*="${partyId}"])`);
+				if (!rowElement) {
+					alert('Party not found in the table.');
+					return;
+				}
+				// Get the party name and votes from the row
+				const partyNameInput = rowElement.querySelector('input[name^="parties"][name$="[party]"]');
+				const votesInput = rowElement.querySelector('input[name^="parties"][name$="[votes]"]');
+
+				const partyName = partyNameInput ? partyNameInput.value : '';
+				const votes = votesInput ? parseInt(votesInput.value, 10) : 0;
+
+				// Get election ID from the hidden field
+				const electionId = document.querySelector('input[name="_id"]').value;
+
+				// Create the data to send
+				const updateData = {
+					election: electionId,
+					party: partyId,
+					seatsWon: votes,
+					redisKeys:{state: electionState, year: electionYear, type: electionType}
+				};
+
+				// Send the update request
+				fetch('/api/elections/temp-election/party/update', {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(updateData)
+				})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Failed to update party data');
+							window.location.reload()
+						}
+						return response.json();
+					})
+					.then(data => {
+						alert('Party data updated successfully!');
+						window.location.reload()
+					})
+					.catch(error => {
+						alert('Failed to update party data. Please try again.');
+						window.location.reload()
+					});
+			}
+
+			// Candidate dialog elements
+			const candidateDialog = document.getElementById('candidateSelectionDialog');
+			const closeCandidateDialogBtn = document.getElementById('closeCandidateDialogBtn');
+			const addCandidateBtn = document.getElementById('addCandidateBtn');
+			const cancelCandidateSelectionBtn = document.getElementById('cancelCandidateSelectionBtn');
+			const submitCandidateSelectionBtn = document.getElementById('submitCandidateSelectionBtn');
+			const candidateOptionsContainer = document.getElementById('candidateOptionsContainer');
+			const candidateSearchInput = document.getElementById('candidateSearchInput');
+			const candidateMultiselectDropdown = document.getElementById('candidateMultiselectDropdown');
+			const candidateMultiselectOptions = document.getElementById('candidateMultiselectOptions');
+			const candidateDropdownPlaceholder = document.getElementById('candidateDropdownPlaceholder');
+			const selectedCandidatesList = document.getElementById('selectedCandidatesList');
+
+			// Track selected candidates
+			let selectedCandidates = [];
+
+			// Open dialog when Add Candidate button is clicked
+			addCandidateBtn?.addEventListener('click', function () {
+				selectedCandidates = [];
+				updateSelectedCandidatesDisplay();
+				populateCandidateOptions(allCandidatesList);
+				candidateDialog.classList.remove('hidden');
+			});
+
+			// Toggle candidate dropdown
+			candidateMultiselectDropdown.addEventListener('click', function () {
+				candidateMultiselectOptions.classList.toggle('hidden');
+			});
+
+			// Close candidate dropdown when clicking outside
+			document.addEventListener('click', function (event) {
+				if (!candidateMultiselectDropdown.contains(event.target) &&
+					!candidateMultiselectOptions.contains(event.target)) {
+					candidateMultiselectOptions.classList.add('hidden');
+				}
+			});
+
+			// Close candidate dialog when close button is clicked
+			closeCandidateDialogBtn.addEventListener('click', function () {
+				candidateDialog.classList.add('hidden');
+			});
+
+			// Close candidate dialog when cancel button is clicked
+			cancelCandidateSelectionBtn.addEventListener('click', function () {
+				candidateDialog.classList.add('hidden');
+			});
+
+			// Handle candidate search functionality
+			candidateSearchInput.addEventListener('input', function () {
+				const searchTerm = this.value.toLowerCase();
+				const filteredCandidates = allCandidatesList.filter(candidate =>
+					candidate.name.toLowerCase().includes(searchTerm) ||
+					(candidate.party && candidate.party.party &&
+						candidate.party.party.toLowerCase().includes(searchTerm)) ||
+					(candidate.constituency && candidate.constituency[0] &&
+						candidate.constituency[0].name &&
+						candidate.constituency[0].name.toLowerCase().includes(searchTerm))
+				);
+				populateCandidateOptions(filteredCandidates);
+			});
+
+			// Populate candidate options in the dropdown
+			function populateCandidateOptions(candidates) {
+				candidateOptionsContainer.innerHTML = '';
+
+				if (candidates.length === 0) {
+					candidateOptionsContainer.innerHTML = '<div class="text-gray-500 text-center py-4">No candidates found</div>';
+					return;
+				}
+
+				candidates.forEach(candidate => {
+					const isSelected = selectedCandidates.some(c => c.id === candidate._id);
+
+					const option = document.createElement('div');
+					option.className = `multiselect-option ${isSelected ? 'selected-option' : ''}`;
+
+					const checkbox = document.createElement('input');
+					checkbox.type = 'checkbox';
+					checkbox.id = `candidate-option-${candidate._id}`;
+					checkbox.className = 'mr-2';
+					checkbox.checked = isSelected;
+
+					const label = document.createElement('label');
+					label.htmlFor = `candidate-option-${candidate._id}`;
+					label.className = 'flex-1 cursor-pointer';
+
+					// Display candidate name, party, and constituency
+					const partyName = candidate.party && candidate.party.party ? ` (${candidate.party.party})` : '';
+					const constituencyName = candidate.constituency && candidate.constituency[0] && candidate.constituency[0].name ?
+						` - ${candidate.constituency[0].name}` : '';
+
+					label.textContent = `${candidate.name}${partyName}${constituencyName}`;
+
+					option.appendChild(checkbox);
+					option.appendChild(label);
+
+					option.addEventListener('click', function (e) {
+						// Toggle checkbox
+						checkbox.checked = !checkbox.checked;
+
+						if (checkbox.checked) {
+							// Add to selected candidates if not already there
+							if (!selectedCandidates.some(c => c.id === candidate._id)) {
+								selectedCandidates.push({
+									id: candidate._id,
+									name: candidate.name,
+									party: candidate.party && candidate.party.party ? candidate.party.party : '',
+									constituency: candidate.constituency && candidate.constituency[0] && candidate.constituency[0].name ?
+										candidate.constituency[0].name : ''
+								});
+							}
+							option.classList.add('selected-option');
+						} else {
+							// Remove from selected candidates
+							selectedCandidates = selectedCandidates.filter(c => c.id !== candidate._id);
+							option.classList.remove('selected-option');
+						}
+
+						updateSelectedCandidatesDisplay();
+
+						// Prevent event bubbling
+						e.stopPropagation();
+					});
+
+					candidateOptionsContainer.appendChild(option);
+				});
+			}
+
+			// Update selected candidates display
+			function updateSelectedCandidatesDisplay() {
+				selectedCandidatesList.innerHTML = '';
+
+				if (selectedCandidates.length === 0) {
+					candidateDropdownPlaceholder.textContent = 'Select candidates';
+					selectedCandidatesList.innerHTML = '<div class="text-gray-500">No candidates selected</div>';
+					return;
+				}
+
+				candidateDropdownPlaceholder.textContent = `${selectedCandidates.length} candidates selected`;
+
+				selectedCandidates.forEach(candidate => {
+					const tag = document.createElement('div');
+					tag.className = 'bg-blue-100 text-blue-800 px-2 py-1 rounded-md flex items-center text-sm';
+
+					const name = document.createElement('span');
+					// Display party and constituency info if available
+					let displayText = candidate.name;
+					if (candidate.party) displayText += ` (${candidate.party})`;
+					if (candidate.constituency) displayText += ` - ${candidate.constituency}`;
+
+					name.textContent = displayText;
+
+					const removeBtn = document.createElement('button');
+					removeBtn.className = 'ml-2 text-blue-600 hover:text-blue-800';
+					removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+					removeBtn.addEventListener('click', function () {
+						// Remove from selected candidates
+						selectedCandidates = selectedCandidates.filter(c => c.id !== candidate.id);
+						updateSelectedCandidatesDisplay();
+
+						// Update checkbox in options if visible
+						const checkbox = document.getElementById(`candidate-option-${candidate.id}`);
+						if (checkbox) {
+							checkbox.checked = false;
+							checkbox.closest('.multiselect-option').classList.remove('selected-option');
+						}
+					});
+
+					tag.appendChild(name);
+					tag.appendChild(removeBtn);
+					selectedCandidatesList.appendChild(tag);
+				});
+			}
+
+			// Submit selected candidates
+			submitCandidateSelectionBtn.addEventListener('click', function () {
+				if (selectedCandidates.length === 0) {
+					alert('Please select at least one candidate');
+					return;
+				}
+
+				addSelectedCandidates(selectedCandidates);
+			});
+
+			// Add selected candidates to the election
+			function addSelectedCandidates(selectedCandidates) {
+				const electionId = document.querySelector('input[name="_id"]').value;
+
+				// Create the data to send
+				const requestData = {
+					election: electionId,
+					candidates: selectedCandidates.map(candidate => candidate.id),
+					redisKeys:{state: electionState, year: electionYear, type: electionType}
+				};
+
+				// Send the PATCH request to add candidates
+				fetch('/api/elections/temp-election/candidate/add', {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(requestData)
+				})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Failed to add candidates');
+						}
+						return response.json();
+					})
+					.then(data => {
+						alert('Candidates added successfully!');
+						candidateDialog.classList.add('hidden');
+						window.location.reload()
+					})
+					.catch(error => {
+						alert('Failed to add candidates. Please try again.');
+						console.error('Error:', error);
+					});
+			}
+
+			// Function to edit candidate details
+			function editCandidate(candidateId) {
+				if (!isAdmin) {
+					alert('You do not have permission to edit candidate details.');
+					return;
+				}
+				window.location.href = `/edit-candidate/${candidateId}?state=${electionState}&year=${electionYear}&type=${electionType}`;
+			}
+
+			// Initialize the page
+			document.addEventListener('DOMContentLoaded', initializeForm);
+			document.addEventListener('DOMContentLoaded', function () {
+				const candidateTableSearch = document.getElementById('candidateTableSearch');
+				const candidatePartyFilter = document.getElementById('candidatePartyFilter');
+				const candidateConstituencyFilter = document.getElementById('candidateConstituencyFilter');
+				const candidatesTableBody = document.getElementById('candidatesTableBody');
+				const activeFilters = document.getElementById('activeFilters');
+				const activeFiltersText = document.getElementById('activeFiltersText');
+				const clearFiltersBtn = document.getElementById('clearFilters');
+
+				// Populate filter dropdowns
+				populateFilters();
+
+				// Add event listeners for the filters
+				candidateTableSearch.addEventListener('input', filterCandidateTable);
+				candidatePartyFilter.addEventListener('change', filterCandidateTable);
+				candidateConstituencyFilter.addEventListener('change', filterCandidateTable);
+				clearFiltersBtn.addEventListener('click', clearAllFilters);
+
+				// Function to populate the filter dropdowns
+				function populateFilters() {
+					// Create sets to track unique values
+					const parties = new Set();
+					const constituencies = new Set();
+
+					// Extract from the candidateElectionDetails array
+					const candidateDetails = <%- JSON.stringify(candidateElectionDetails || []) %>;
+
+					console.log(candidateDetails)
+
+					candidateDetails.forEach(detail => {
+						if (detail.candidate.party && detail.candidate.party.party) {
+							parties.add(detail.candidate.party.party);
+						}
+
+						if (detail.candidate.constituency && detail.candidate.constituency &&
+							detail.candidate.constituency.name) {
+							constituencies.add(detail.candidate.constituency.name);
+						}
+					});
+
+					// Populate party filter
+					Array.from(parties).sort().forEach(party => {
+						const option = document.createElement('option');
+						option.value = party;
+						option.textContent = party;
+						candidatePartyFilter.appendChild(option);
+					});
+
+					// Populate constituency filter
+					Array.from(constituencies).sort().forEach(constituency => {
+						const option = document.createElement('option');
+						option.value = constituency;
+						option.textContent = constituency;
+						candidateConstituencyFilter.appendChild(option);
+					});
+				}
+
+				// Function to filter the candidate table
+				function filterCandidateTable() {
+					const searchTerm = candidateTableSearch.value.toLowerCase();
+					const partyFilter = candidatePartyFilter.value;
+					const constituencyFilter = candidateConstituencyFilter.value;
+
+					// Get all rows in the table
+					const rows = candidatesTableBody.querySelectorAll('tr');
+
+					// Track if any filters are active
+					let hasActiveFilters = false;
+					let activeFiltersList = [];
+
+					if (searchTerm) {
+						hasActiveFilters = true;
+						activeFiltersList.push(`Search: "${searchTerm}"`);
+					}
+
+					if (partyFilter) {
+						hasActiveFilters = true;
+						activeFiltersList.push(`Party: ${partyFilter}`);
+					}
+
+					if (constituencyFilter) {
+						hasActiveFilters = true;
+						activeFiltersList.push(`Constituency: ${constituencyFilter}`);
+					}
+
+					// Update active filters display
+					if (hasActiveFilters) {
+						activeFiltersText.textContent = activeFiltersList.join(', ');
+						activeFilters.classList.remove('hidden');
+					} else {
+						activeFilters.classList.add('hidden');
+					}
+
+					// Filter each row
+					rows.forEach(row => {
+						const nameCell = row.cells[0];
+						const partyCell = row.cells[1];
+						const constituencyCell = row.cells[2];
+
+						const name = nameCell.textContent.toLowerCase();
+						const party = partyCell.textContent.toLowerCase();
+						const constituency = constituencyCell.textContent.toLowerCase();
+
+						// Check if row matches all active filters
+						const matchesSearch = !searchTerm || name.includes(searchTerm);
+						const matchesParty = !partyFilter || party.includes(partyFilter.toLowerCase());
+						const matchesConstituency = !constituencyFilter ||
+							constituency.includes(constituencyFilter.toLowerCase());
+
+						// Show or hide the row
+						if (matchesSearch && matchesParty && matchesConstituency) {
+							row.style.display = '';
+						} else {
+							row.style.display = 'none';
+						}
+					});
+				}
+
+				// Function to clear all filters
+				function clearAllFilters() {
+					candidateTableSearch.value = '';
+					candidatePartyFilter.value = '';
+					candidateConstituencyFilter.value = '';
+
+					// Reset display
+					activeFilters.classList.add('hidden');
+
+					// Show all rows
+					const rows = candidatesTableBody.querySelectorAll('tr');
+					rows.forEach(row => {
+						row.style.display = '';
+					});
+				}
+			});
+		</script>
+</body>
+
+</html>

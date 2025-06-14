@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Create New Election</title>
+	<link rel="stylesheet" href="/stylesheets/style.css">
+	<link rel="stylesheet" href="/stylesheets/tailwind.css">
+</head>
+
+<body class="bg-gray-50">
+	<%- include('navbar.ejs') %>
+
+		<div class="container mx-auto px-4 py-8">
+			<form id="electionForm" class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6"
+				method="POST">
+				<!-- Main State Info -->
+				<div class="space-y-6 mb-8">
+					<h2 class="text-2xl font-bold text-gray-800 mb-6">Create New Election</h2>
+
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label
+								class="block text-sm font-medium text-gray-700">State</label>
+							<input type="text" name="state"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+								required>
+						</div>
+
+
+
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700">Total
+								Seats</label>
+							<input type="number" name="totalSeats"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+								required>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700">Declared
+								Seats</label>
+							<input type="number" name="declaredSeats"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+								required>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700">Half Way
+								Mark</label>
+							<input type="number" name="halfWayMark"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+								required>
+						</div>
+					</div>
+				</div>
+
+				<!-- Parties Section -->
+				<div class="space-y-6">
+					<div class="flex justify-between items-center">
+						<h3 class="text-xl font-semibold text-gray-800">Parties</h3>
+						<button type="button" onclick="addParty()"
+							class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+							Add Party
+						</button>
+					</div>
+
+					<div id="partiesContainer" class="space-y-6">
+						<!-- Parties will be added here dynamically -->
+					</div>
+				</div>
+
+				<div class="mt-8">
+					<button type="submit"
+						class="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+						Create Election
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<script>
+			let partyCount = 0;
+			let subPartyCounters = {};
+
+			function addParty() {
+				const partiesContainer = document.getElementById('partiesContainer');
+				const partyId = partyCount++;
+
+				const partyHtml = `
+                <div id="party-${partyId}" class="border rounded-lg p-4 bg-gray-50">
+                    <div class="grid grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Party Name</label>
+                            <input type="text" name="parties[${partyId}][name]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Won Seats</label>
+                            <input type="number" name="parties[${partyId}][won]" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Leading Seats</label>
+                            <input type="number" name="parties[${partyId}][leading]" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Party Color</label>
+                            <input type="color" name="parties[${partyId}][color]" class="mt-1 block w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-md font-medium text-gray-700">Sub Parties</h4>
+                        <div class="space-x-2">
+                            <button type="button" onclick="addSubParty(${partyId})" class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                Add Sub Party
+                            </button>
+                            <button type="button" onclick="removeParty(${partyId})" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                Remove Party
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="subParties-${partyId}" class="space-y-4">
+                        <!-- Sub parties will be added here dynamically -->
+                    </div>
+                </div>
+            `;
+
+				partiesContainer.insertAdjacentHTML('beforeend', partyHtml);
+				subPartyCounters[partyId] = 0;
+			}
+
+			function addSubParty(partyId) {
+				const subPartiesContainer = document.getElementById(`subParties-${partyId}`);
+				const subPartyId = subPartyCounters[partyId]++;
+
+				const subPartyHtml = `
+                <div id="subParty-${partyId}-${subPartyId}" class="grid grid-cols-5 gap-4 p-4 bg-white rounded-lg border">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Sub Party Name</label>
+                        <input type="text" name="parties[${partyId}][subParties][${subPartyId}][name]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Won Seats</label>
+                        <input type="number" name="parties[${partyId}][subParties][${subPartyId}][won]" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Leading Seats</label>
+                        <input type="number" name="parties[${partyId}][subParties][${subPartyId}][leading]" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Party Color</label>
+                        <input type="color" name="parties[${partyId}][subParties][${subPartyId}][color]" class="mt-1 block w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" onclick="removeSubParty(${partyId}, ${subPartyId})" class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            `;
+
+				subPartiesContainer.insertAdjacentHTML('beforeend', subPartyHtml);
+			}
+
+			function removeParty(partyId) {
+				const party = document.getElementById(`party-${partyId}`);
+				party.remove();
+			}
+
+			function removeSubParty(partyId, subPartyId) {
+				const subParty = document.getElementById(`subParty-${partyId}-${subPartyId}`);
+				subParty.remove();
+			}
+
+			// Form submission handling
+			document.getElementById('electionForm').addEventListener('submit', function (e) {
+				e.preventDefault();
+				const formData = new FormData(this);
+				let partiesMap = new Map();
+				let subPartiesMap = new Map();
+
+				// First pass: organize the data
+				formData.forEach((value, key) => {
+					// Handle party data
+					const partyMatch = key.match(/parties\[(\d+)\]\[(\w+)\]/);
+					if (partyMatch) {
+						const [_, partyIndex, field] = partyMatch;
+						if (!partiesMap.has(partyIndex)) {
+							partiesMap.set(partyIndex, {});
+						}
+						let party = partiesMap.get(partyIndex);
+						if (field === 'color') {
+							party.partyColor = value;
+						} else {
+							party[field] = field === 'name' ? value : Number(value);
+						}
+					}
+
+					// Handle sub-party data
+					const subPartyMatch = key.match(/parties\[(\d+)\]\[subParties\]\[(\d+)\]\[(\w+)\]/);
+					if (subPartyMatch) {
+						const [_, partyIndex, subPartyIndex, field] = subPartyMatch;
+						const mapKey = `${partyIndex}-${subPartyIndex}`;
+
+						if (!subPartiesMap.has(mapKey)) {
+							subPartiesMap.set(mapKey, {partyIndex});
+						}
+						let subParty = subPartiesMap.get(mapKey);
+						if (field === 'color') {
+							subParty.partyColor = value;
+						} else {
+							subParty[field] = field === 'name' ? value : Number(value);
+						}
+					}
+				});
+
+				// Second pass: organize sub-parties into their parent parties
+				partiesMap.forEach((party, partyIndex) => {
+					party.subParties = [];
+					subPartiesMap.forEach((subParty, key) => {
+						if (subParty.partyIndex === partyIndex) {
+							const {partyIndex, ...subPartyData} = subParty;
+							party.subParties.push(subPartyData);
+						}
+					});
+					// Remove empty subParties arrays
+					if (party.subParties.length === 0) {
+						delete party.subParties;
+					}
+				});
+
+				// Create the final data structure
+				const finalData = {
+					state: formData.get('state'),
+					totalSeats: Number(formData.get('totalSeats')),
+					declaredSeats: Number(formData.get('declaredSeats')),
+					halfWayMark: Number(formData.get('halfWayMark')),
+					parties: Array.from(partiesMap.values())
+				};
+
+				// Send the data to the server
+				fetch('/api/elections', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(finalData),
+				})
+					.then(async (response) => {
+						if (!response.ok) {
+							const errorResponse = await response.json();
+							throw new Error(errorResponse.message || 'Failed to create election');
+						}
+						return response.json();
+					})
+					.then((data) => {
+						console.log('Election created successfully:', data);
+						alert('Election created successfully!');
+						window.location.replace('/dashboard')
+					})
+					.catch((error) => {
+						console.error('Error:', error);
+						alert('Failed to create election: ' + error.message);
+					});
+			});
+		</script>
+</body>
+
+</html>

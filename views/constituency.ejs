@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Constituencies</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/tailwind.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <!-- <link rel="stylesheet" href="/stylesheets/font-awesome.min.css">  -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">  -->
+  </head>
+  <body class="bg-gray-50 min-h-screen font-sans antialiased">
+    <%- include('navbar.ejs') %>
+    <div class="container mx-auto px-4 py-12">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4 md:mb-0">
+          Constituencies
+        </h1>
+        <a
+          href="/create-constituency"
+          class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow flex items-center justify-center"
+        >
+          <i class="fas fa-plus mr-2"></i> Add New
+        </a>
+      </div>
+
+      <!-- Search Input -->
+      <div class="mb-6">
+        <input
+          style="margin-left: 128px; width: 300px"
+          type="text"
+          id="searchInput"
+          placeholder="Search by constituency or state..."
+          class="md:w-1/2 block px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm text-gray-700"
+        />
+      </div>
+
+      <!-- Constituencies List -->
+      <div
+        id="constituenciesContainer"
+        class="flex flex-wrap justify-center gap-5 px-10 bg-black py-6"
+      >
+        <% constituencies.forEach(constituency => { %>
+        <div
+          style="width: 400px"
+          class="constituency-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 mb-4 mr-4"
+          data-name="<%= constituency.name.toLowerCase() %>"
+          data-state="<%= constituency.state.toLowerCase() %>"
+        >
+          <div class="w-full">
+            <div
+              class="bg-blue-50 text-blue-800 flex justify-between items-center py-4 px-6 border-b"
+            >
+              <span class="text-left text-sm uppercase tracking-wider"
+                >Name</span
+              >
+              <span class="text-left text-sm uppercase tracking-wider ml-12"
+                >State</span
+              >
+              <span class="text-center text-sm uppercase tracking-wider w-32"
+                >Actions</span
+              >
+            </div>
+            <div class="divide-y divide-gray-200">
+              <div
+                class="flex justify-between items-center py-4 px-6 hover:bg-gray-50 transition-colors duration-200"
+              >
+                <div style="width: 100px" class="flex-1">
+                  <a
+                    style="color: blue"
+                    href="/cons-candidates?cons=<%= constituency.name %>"
+                    class="text-blue-600 font-medium hover:text-blue-800 hover:underline transition-colors duration-200"
+                  >
+                    <%= constituency.name %>
+                  </a>
+                </div>
+                <div class="flex-1">
+                  <p class="text-gray-700 font-medium">
+                    <%= constituency.state %>
+                  </p>
+                </div>
+                <div class="w-32 flex justify-center space-x-4">
+                  <a
+                    href="/edit-constituency/<%= constituency._id %>"
+                    class="text-blue-500 hover:text-blue-700 transition-colors duration-200 p-2 rounded-full hover:bg-blue-50"
+                    title="Edit"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button
+                    onclick="deleteConstituency('<%= constituency._id %>')"
+                    class="text-red-500 hover:text-red-700 transition-colors duration-200 p-2 rounded-full hover:bg-red-50"
+                    title="Delete"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // Delete Function
+      function deleteConstituency(id) {
+        if (confirm("Are you sure you want to delete this constituency?")) {
+          fetch(`/api/constituency/${id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          })
+            .then((response) => {
+              if (response.ok) {
+                location.reload();
+              } else {
+                alert("Error deleting constituency.");
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Error deleting constituency.");
+            });
+        }
+      }
+
+      // Search Filter
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function (e) {
+          const searchTerm = e.target.value.toLowerCase();
+          const cards = document.querySelectorAll(".constituency-card");
+
+          cards.forEach((card) => {
+            const name = card.getAttribute("data-name");
+            const state = card.getAttribute("data-state");
+
+            if (name.includes(searchTerm) || state.includes(searchTerm)) {
+              card.style.display = "block";
+            } else {
+              card.style.display = "none";
+            }
+          });
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Carousel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-container {
+            width: 100%;
+            height: fit-content;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .carousel {
+            height: 500px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            width: 250px;
+            position: absolute;
+            left: 50%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .card.active {
+            transform: translateX(-50%) scale(1);
+            z-index: 3;
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .card.prev {
+            transform: translateX(-150%) scale(0.85);
+            z-index: 2;
+            visibility: visible;
+            opacity: 0.7;
+        }
+
+        .card.next {
+            transform: translateX(50%) scale(0.85);
+            z-index: 2;
+            visibility: visible;
+            opacity: 0.7;
+        }
+
+        .party-header {
+            height: 80px;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+        }
+
+        .profile-circle {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            overflow: hidden;
+            left: 50%;
+            bottom: -40px;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-circle svg {
+            width: 40px;
+            height: 40px;
+            color: #666;
+        }
+
+        .card-content {
+            padding: 50px 20px 20px;
+            text-align: center;
+        }
+
+        .candidate-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .candidate-details {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .party-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: bolder;
+        }
+
+        .stat-value {
+            /* font-size: 13px; */
+            font-weight: bolder;
+            color: #333;
+        }
+
+        .constituency-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .constituency-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .constituency-state {
+            font-size: 14px;
+            color: #666;
+            text-transform: capitalize;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: #f8f9fa;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-button.prev {
+            left: 20px;
+        }
+
+        .nav-button.next {
+            right: 20px;
+        }
+
+        .nav-button svg {
+            width: 20px;
+            height: 20px;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .carousel {
+                height: 450px;
+            }
+
+            .card {
+                overflow: hidden;
+                width: 280px;
+            }
+
+            .card.prev {
+                transform: translateX(-120%) scale(0.85);
+            }
+
+            .card.next {
+                transform: translateX(20%) scale(0.85);
+            }
+
+            .nav-button {
+                width: 36px;
+                height: 36px;
+            }
+
+            .nav-button.prev {
+                left: 10px;
+            }
+
+            .nav-button.next {
+                right: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .card.prev,
+            .card.next {
+                visibility: hidden;
+                opacity: 0;
+            }
+
+            .nav-button {
+                top: auto;
+                bottom: 7px;
+            }
+
+            .nav-button.prev {
+                left: 25%;
+                top: 50%;
+                border: 1px solid black;
+                transform: translateX(-60px);
+            }
+
+            .nav-button.next {
+                right: 25%;
+                top: 50%;
+                border: 1px solid black;
+                transform: translateX(60px);
+            }
+        }
+
+
+        .red {
+            color: red;
+            font-size: 12px;
+        }
+        .green {
+            color: green;
+        }
+
+        .gray {
+            color: gray;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="carousel-container" id="cn-sl-list-election-iframe">
+        <div class="carousel">
+            <div class="card-wrapper" id="cardWrapper">
+                <!-- Cards will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <button class="nav-button prev" id="prevBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <button class="nav-button next" id="nextBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        let candidates = [];
+        let autoSlideInterval;
+        let userInteracted = false;
+    
+        async function getCandidates() {
+            try {
+                const response = await fetch('/api/candidate/hot-candidates');
+                const data = await response.json();
+                candidates = data;
+                updateCarousel();
+            } catch (error) {
+                console.error('Error fetching candidates:', error);
+                candidates = [];
+            }
+        }
+    
+        function getContrastColor(hexColor) {
+            const color = hexColor.replace('#', '');
+            const r = parseInt(color.substring(0, 2), 16);
+            const g = parseInt(color.substring(2, 4), 16);
+            const b = parseInt(color.substring(4, 6), 16);
+            const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+            return luminance > 186 ? 'black' : 'white';
+        }
+    
+        function createCard(candidate) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const textColor = getContrastColor(candidate.party.color_code);
+            const won = candidate.constituency[0].won || 'awaiting';
+
+            const badgeText = won !== 'awaiting' ? ((won === 'won' && candidate.status === 'leading' ) ? "जीत" : "हार" ) : (candidate.status === 'trailing' && Number(candidate.totalVotes) > 0) ? "पीछे" : 
+                                (candidate.status === 'leading' && Number(candidate.totalVotes) > 0) ? "आगे" : "-";
+
+
+            card.innerHTML = `
+                <div class="party-header" style="background-color: ${candidate.party.color_code}">
+                    <div class="profile-circle">
+                        ${candidate.image ? `<img src="${candidate.image}" height="100%" width="100%"/>` : `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>`}
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h3 class="candidate-name">${candidate.name}</h3>
+                    <p class="candidate-details">${candidate.gender === "Male" ? "पुरुष" : 'महिला'}</p>
+                    <span class="party-badge" style="background-color: ${candidate.party.color_code}; color: ${textColor}">
+                        ${candidate.party.party}
+                    </span>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">${won === 'awaiting' ? 'आगे / पीछे' : "हार / जीत"}</div>
+                            <div class="stat-value font-bold ${
+                                (candidate.status === 'trailing' && Number(candidate.totalVotes) > 0) ? "red" :
+                                (candidate.status === 'leading' && Number(candidate.totalVotes) > 0) ? "green" : "gray"}">${
+                                badgeText}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label font-bold">कुल वोट</div>
+                            <div class="stat-value !text-[13px]">${Number(candidate.totalVotes)}</div>
+                        </div>
+                    </div>
+                    <div class="constituency-box">
+                        <div class="constituency-name">${candidate.constituency[0].name}</div>
+                        <div class="constituency-state uppercase">${candidate.constituency[0].state}</div>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+    
+        let currentIndex = 0;
+        const cardWrapper = document.getElementById('cardWrapper');
+    
+        function updateCarousel() {
+            cardWrapper.innerHTML = '';
+    
+            candidates.forEach((candidate, index) => {
+                const card = createCard(candidate);
+    
+                if (index === currentIndex) {
+                    card.classList.add('active');
+                } else if (index === currentIndex - 1 || (currentIndex === 0 && index === candidates.length - 1)) {
+                    card.classList.add('prev');
+                } else if (index === currentIndex + 1 || (currentIndex === candidates.length - 1 && index === 0)) {
+                    card.classList.add('next');
+                }
+    
+                cardWrapper.appendChild(card);
+            });
+        }
+    
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % candidates.length;
+            updateCarousel();
+        }
+    
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + candidates.length) % candidates.length;
+            updateCarousel();
+        }
+    
+        function startAutoSlide() {
+            stopAutoSlide(); // Ensure no duplicate intervals
+            autoSlideInterval = setInterval(() => {
+                if (!userInteracted) nextSlide();
+            }, 4000);
+        }
+    
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+    
+        function handleInteraction() {
+            userInteracted = true;
+            stopAutoSlide();
+    
+            // Reset auto-slide after 4 seconds of no interaction
+            setTimeout(() => {
+                userInteracted = false;
+                startAutoSlide();
+            }, 4000);
+        }
+    
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+    
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', () => {
+                handleInteraction();
+                prevSlide();
+            });
+    
+            nextBtn.addEventListener('click', () => {
+                handleInteraction();
+                nextSlide();
+            });
+        } else {
+            console.error('Prev and Next buttons are not found.');
+        }
+    
+        async function updateCandidates() {
+            await getCandidates();
+        }
+    
+        setInterval(updateCandidates, 30000); // Update data every 60 seconds without refreshing
+    
+        function sendHeight() {
+            const element = document.querySelector('#cn-sl-list-election-iframe');
+            const height = element ? element.offsetHeight : 0;
+            window.parent.postMessage({ election_iframe: height }, "*");
+        }
+    
+        window.onload = sendHeight;
+        window.onresize = sendHeight;
+    
+        // Initial setup
+        getCandidates();
+        startAutoSlide();
+    </script>
+    
+    
+    
+</body>
+
+</html>

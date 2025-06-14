@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Alliance</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/tailwind.css" />
+    <style>
+      .custom-dropdown {
+        position: relative;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        display: none;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .dropdown-menu.show {
+        display: block;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100">
+    <%- include('navbar.ejs') %>
+    <div class="container mx-auto py-8">
+      <h1 class="text-3xl font-bold mb-6 text-center">Create New Alliance</h1>
+      <form
+        action="/api/alliance"
+        method="POST"
+        enctype="multipart/form-data"
+        class="bg-white shadow-lg rounded-lg p-6"
+      >
+        <div class="mb-5">
+          <label
+            for="allianceName"
+            class="block text-sm font-medium text-gray-700"
+            >Alliance Name</label
+          >
+          <input
+            type="text"
+            id="allianceName"
+            name="allianceName"
+            required
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 py-2 px-3"
+          />
+        </div>
+
+        <!-- select election -->
+        <div class="mb-5">
+          <label for="election" class="block text-sm font-medium text-gray-700"
+            >Select Election</label
+          >
+          <select
+            onchange="handleElectionChange()"
+            id="election"
+            name="election"
+            required
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 py-2 px-3"
+          >
+            <option value="" disabled selected>Select Election</option>
+          </select>
+        </div>
+
+        <div class="mb-5">
+          <label class="block text-sm font-medium text-gray-700"
+            >Select Parties</label
+          >
+          <div class="custom-dropdown">
+            <div
+              id="partiesToggle"
+              class="mt-1 flex justify-between items-center w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 py-2 px-3 bg-white cursor-pointer"
+            >
+              <span id="selectedPartiesText">Select parties</span>
+              <svg
+                class="h-4 w-4 text-gray-400"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div
+              id="partiesMenu"
+              class="dropdown-menu mt-1 w-full border border-gray-300 rounded-md shadow-md bg-white"
+            >
+              <div class="p-2">
+                <!-- Parties will be dynamically populated here -->
+              </div>
+            </div>
+          </div>
+          <!-- Hidden validation field -->
+          <input
+            type="hidden"
+            id="partiesValidation"
+            name="partiesValidation"
+            required
+          />
+        </div>
+
+        <div class="mb-5">
+          <label
+            for="leaderParty"
+            class="block text-sm font-medium text-gray-700"
+            >Leader Party</label
+          >
+          <select
+            id="leaderParty"
+            name="leaderParty"
+            required
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 py-2 px-3"
+          >
+            <option value="" disabled selected>Select a leader</option>
+          </select>
+        </div>
+        <div class="mb-5">
+          <label for="logo" class="block text-sm font-medium text-gray-700"
+            >Alliance Logo</label
+          >
+          <input
+            required
+            type="file"
+            id="logo"
+            name="logo"
+            accept="image/*"
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+          />
+        </div>
+        <div class="flex items-center justify-between">
+          <button
+            type="submit"
+            class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
+          >
+            Create Alliance
+          </button>
+          <a
+            href="/alliances"
+            class="text-blue-500 hover:text-blue-700 transition duration-300"
+            >Back to Alliances List</a
+          >
+        </div>
+      </form>
+    </div>
+    <script>
+      const ongoingElections = <%- JSON.stringify(ongoingElections) %>
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const toggleButton = document.getElementById("partiesToggle");
+        const dropdownMenu = document.getElementById("partiesMenu");
+        const selectElection = document.getElementById('election')
+
+        // Populate elections dropdown
+        ongoingElections.forEach((elec)=>{
+          const option = document.createElement("option");
+          option.value = elec._id;
+          option.textContent = `${elec.state} ${elec.year}`;
+          selectElection.appendChild(option);
+        })
+
+        // Toggle dropdown when clicking the button
+        toggleButton.addEventListener("click", function () {
+          dropdownMenu.classList.toggle("show");
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+          if (
+            !toggleButton.contains(event.target) &&
+            !dropdownMenu.contains(event.target)
+          ) {
+            dropdownMenu.classList.remove("show");
+          }
+        });
+
+        // Initialize the dropdown
+        updateSelectedParties();
+      });
+
+      function handleElectionChange(){
+        const selectElectionValue = document.getElementById('election').value
+        const partiesContainer = document.querySelector('#partiesMenu > div')
+
+        // Clear existing parties
+        partiesContainer.innerHTML = ''
+
+        fetch(`/api/alliance/parties/${selectElectionValue}`)
+          .then((res) => res.json())
+          .then((parties) => {
+            // Dynamically render parties
+            parties.forEach(party => {
+              const partyDiv = document.createElement('div')
+              partyDiv.className = 'py-1 px-2 hover:bg-gray-100 rounded'
+
+              partyDiv.innerHTML = `
+                <label class="flex items-center w-full cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="parties[]"
+                    value="${party._id}"
+                    class="party-checkbox form-checkbox h-4 w-4 text-blue-600"
+                    onchange="updateSelectedParties()"
+                  />
+                  <span class="ml-2 text-sm">${party.party}</span>
+                </label>
+              `
+
+              partiesContainer.appendChild(partyDiv)
+            })
+
+            // Reset party selection after fetching new parties
+            updateSelectedParties()
+          })
+          .catch(error => {
+            console.error('Error fetching parties:', error)
+            const errorDiv = document.createElement('div')
+            errorDiv.textContent = 'Error loading parties. Please try again.'
+            errorDiv.className = 'text-red-500 p-2'
+            partiesContainer.appendChild(errorDiv)
+          })
+      }
+
+      function updateSelectedParties() {
+        const partyCheckboxes = document.querySelectorAll(
+          ".party-checkbox:checked"
+        );
+        const selectedPartiesText = document.getElementById(
+          "selectedPartiesText"
+        );
+        const leaderPartySelect = document.getElementById("leaderParty");
+        const validationField = document.getElementById("partiesValidation");
+
+        // Get selected parties
+        const selectedParties = Array.from(partyCheckboxes).map((checkbox) => ({
+          value: checkbox.value,
+          text: checkbox.nextElementSibling.textContent.trim(),
+        }));
+
+        // Update the dropdown text
+        if (selectedParties.length === 0) {
+          selectedPartiesText.textContent = "Select parties";
+          validationField.value = "";
+          validationField.setCustomValidity("Please select at least one party");
+        } else if (selectedParties.length === 1) {
+          selectedPartiesText.textContent = selectedParties[0].text;
+          validationField.value = "valid";
+          validationField.setCustomValidity("");
+        } else {
+          selectedPartiesText.textContent = `${selectedParties.length} parties selected`;
+          validationField.value = "valid";
+          validationField.setCustomValidity("");
+        }
+
+        // Clear existing options in leader party dropdown
+        leaderPartySelect.innerHTML =
+          '<option value="" disabled selected>Select a leader</option>';
+
+        // Populate leaderParty dropdown with selected parties
+        selectedParties.forEach((party) => {
+          const option = document.createElement("option");
+          option.value = party.value;
+          option.textContent = party.text;
+          leaderPartySelect.appendChild(option);
+        });
+
+        // If only one party is selected, auto-select it as leader
+        if (selectedParties.length === 1) {
+          leaderPartySelect.value = selectedParties[0].value;
+        }
+      }
+    </script>
+  </body>
+</html>

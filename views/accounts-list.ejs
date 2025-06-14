@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Users Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-50">
+    <%- include('navbar.ejs') %>
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Users Management</h1>
+        <button
+          id="openAddUserModal"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+        >
+          <i class="fas fa-plus"></i> Add New User
+        </button>
+      </div>
+
+      <!-- Only render alerts if they exist, using locals to check safely -->
+      <% if (locals.messages && locals.messages.success) { %>
+      <div
+        class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6"
+        role="alert"
+      >
+        <p><%= locals.messages.success %></p>
+      </div>
+      <% } %> <% if (locals.messages && locals.messages.error) { %>
+      <div
+        class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6"
+        role="alert"
+      >
+        <p><%= locals.messages.error %></p>
+      </div>
+      <% } %>
+
+      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Name
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Email
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Role
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Allowed Constituencies
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Created At
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% if (locals.users && users.length > 0) { %> <%
+              users.forEach(user => { %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">
+                    <%= user.name || 'user_name' %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">
+                    <%= user.email %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if (user.role === 'user') { %>
+                  <span
+                    class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800"
+                  >
+                    User
+                  </span>
+                  <% } else if (user.role === 'admin') { %>
+                  <span
+                    class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
+                  >
+                    Admin
+                  </span>
+                  <% } else if (user.role === 'superadmin') { %>
+                  <span
+                    class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                  >
+                    Super Admin
+                  </span>
+                  <% } %>
+                </td>
+                <td class="px-6 py-4">
+                  <% if (user.role === 'user' && user.allowedConstituencies &&
+                  user.allowedConstituencies.length > 0) { %>
+                  <div class="flex flex-wrap gap-2 mb-2">
+                    <% user.allowedConstituencies.forEach(constituency => { %>
+                    <div
+                      class="flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full"
+                    >
+                      <%= constituency.name || 'Unnamed' %>
+                      <a
+                        id="constituencyId-<%= constituency._id %>"
+                        class="ml-1 text-blue-500 hover:text-blue-700"
+                        onclick="handleRemoveConstituency('<%= constituency._id %>', '<%= user._id %>')"
+                      >
+                        <i class="fas fa-times-circle"></i>
+                      </a>
+                    </div>
+                    <% }); %>
+                  </div>
+                  <button
+                    class="text-xs bg-transparent hover:bg-blue-500 text-blue-700 hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded transition-colors add-constituency-btn"
+                    data-user-id="<%= user._id %>"
+                    data-user-email="<%= user.email %>"
+                  >
+                    <i class="fas fa-plus-circle"></i> Add More
+                  </button>
+                  <% } else if (user.role === 'user') { %>
+                  <span class="text-sm text-gray-500"
+                    >No constituencies assigned</span
+                  >
+                  <button
+                    class="ml-2 text-xs bg-transparent hover:bg-blue-500 text-blue-700 hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded transition-colors add-constituency-btn"
+                    data-user-id="<%= user._id %>"
+                    data-user-email="<%= user.email %>"
+                  >
+                    <i class="fas fa-plus-circle"></i> Add
+                  </button>
+                  <% } else { %>
+                  <span class="text-sm text-gray-500">Admin access</span>
+                  <% } %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= new Date(user.createdAt).toLocaleString() %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div class="flex space-x-2">
+                    <button
+                      class="text-amber-600 hover:text-amber-900 edit-user-btn"
+                      data-user-id="<%= user._id %>"
+                      data-user-email="<%= user.email %>"
+                      data-user-role="<%= user.role %>"
+                    >
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <a
+                      class="text-red-600 hover:text-red-900 cursor-pointer"
+                      onclick="handleDeleteUser('<%= user._id %>')"
+                    >
+                      <i class="fas fa-trash"></i> Delete
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              <% }); %> <% } else { %>
+              <tr>
+                <td
+                  colspan="5"
+                  class="px-6 py-4 text-center text-sm text-gray-500"
+                >
+                  No users found
+                </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div
+      id="addUserModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden"
+    >
+      <div
+        class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Add New User</h3>
+          <button
+            id="closeAddUserModal"
+            class="text-gray-400 hover:text-gray-500"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form action="/users/add" method="POST">
+          <div class="mb-4">
+            <label
+              for="email"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Email</label
+            >
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="role"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Role</label
+            >
+            <select
+              id="role"
+              name="role"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="superadmin">Super Admin</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button
+              type="button"
+              id="cancelAddUser"
+              class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+            >
+              Add User
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div
+      id="editUserModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden"
+    >
+      <div
+        class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Edit User</h3>
+          <button
+            id="closeEditUserModal"
+            class="text-gray-400 hover:text-gray-500"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form>
+          <input type="hidden" id="editUserId" name="userId" />
+
+          <div class="mb-4">
+            <label
+              for="editEmail"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Email</label
+            >
+            <input
+              type="email"
+              id="editEmail"
+              name="email"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="editRole"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Role</label
+            >
+            <select
+              id="editRole"
+              name="role"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="superadmin">Super Admin</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button
+              type="button"
+              id="cancelEditUser"
+              class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onclick="handleEditUser()"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Constituency Modal -->
+    <div
+      id="addConstituencyModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden"
+    >
+      <div
+        class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900">
+            Add Constituencies to User
+          </h3>
+          <button
+            id="closeAddConstituencyModal"
+            class="text-gray-400 hover:text-gray-500"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form>
+          <input type="hidden" id="constituencyUserId" name="userId" />
+          <div class="mb-4">
+            <p class="text-sm text-gray-700">
+              Adding constituencies to:
+              <span id="constituencyUserEmail" class="font-medium"></span>
+            </p>
+          </div>
+          <div class="mb-4">
+            <label
+              for="constituencySearch"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Search Constituencies</label
+            >
+            <input
+              type="text"
+              id="constituencySearch"
+              placeholder="Type to search..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mb-2"
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Select Constituencies</label
+            >
+            <div
+              class="border border-gray-300 rounded-md max-h-48 overflow-y-auto p-2"
+              id="constituencyOptionsContainer"
+            >
+              <div
+                id="noConstituenciesMessage"
+                class="text-sm text-gray-500 text-center py-2 <%= availableConstituencies && availableConstituencies.length > 0 ? 'hidden' : '' %>"
+              >
+                No available constituencies found
+              </div>
+              <% if (availableConstituencies && availableConstituencies.length)
+              { %> <% availableConstituencies.forEach((constituency) => { %>
+              <div class="flex items-center py-1">
+                <input
+                  type="checkbox"
+                  name="constituencyIds[]"
+                  value="<%= constituency._id %>"
+                  id="constituency-<%= constituency._id %>"
+                  class="constituency-checkbox mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label
+                  for="constituency-<%= constituency._id %>"
+                  class="text-sm text-gray-700 select-none cursor-pointer"
+                >
+                  <%= constituency.name %>
+                </label>
+              </div>
+              <% }); %> <% } %>
+            </div>
+
+            <div
+              id="noConstituenciesMessage"
+              class="text-sm text-gray-500 text-center py-2 <%= availableConstituencies && availableConstituencies.length > 0 ? 'hidden' : '' %>"
+            >
+              No available constituencies found
+            </div>
+
+            <div
+              id="selectedCount"
+              class="text-xs text-gray-500 mt-1 <%= availableConstituencies && availableConstituencies.length > 0 ? 'hidden' : '' %>"
+            >
+              0 constituencies selected
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button
+              type="button"
+              id="cancelAddConstituency"
+              class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onclick="handleAddConstituencies()"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+            >
+              Add Selected Constituencies
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      window.allConstituencies = <%- JSON.stringify(availableConstituencies || []) %>;
+
+      const constituencyLinks = document.querySelectorAll('[id^="constituencyId-"]');
+
+      const constituencyIds = Array.from(constituencyLinks).map(link => link.id.replace       ('constituencyId-', ''));
+
+
+      window.allConstituencies = window.allConstituencies.filter((cons) => !constituencyIds.includes(cons._id))
+
+
+      // Modal Control Functions
+      function openModal(modalId) {
+        document.getElementById(modalId).classList.remove("hidden");
+      }
+
+      function closeModal(modalId) {
+        document.getElementById(modalId).classList.add("hidden");
+      }
+
+      // Add User Modal
+      document
+        .getElementById("openAddUserModal")
+        .addEventListener("click", function () {
+          window.location.href = '/create-account'
+          // openModal("addUserModal");
+        });
+
+      document
+        .getElementById("closeAddUserModal")
+        .addEventListener("click", function () {
+          closeModal("addUserModal");
+        });
+
+      document
+        .getElementById("cancelAddUser")
+        .addEventListener("click", function () {
+          closeModal("addUserModal");
+        });
+
+      // Edit User Modal
+      const editButtons = document.querySelectorAll(".edit-user-btn");
+      editButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+          const userId = this.getAttribute("data-user-id");
+          const userEmail = this.getAttribute("data-user-email");
+          const userRole = this.getAttribute("data-user-role");
+
+          document.getElementById("editUserId").value = userId;
+          document.getElementById("editEmail").value = userEmail;
+          document.getElementById("editRole").value = userRole;
+
+          openModal("editUserModal");
+        });
+      });
+
+      document
+        .getElementById("closeEditUserModal")
+        .addEventListener("click", function () {
+          closeModal("editUserModal");
+        });
+
+      document
+        .getElementById("cancelEditUser")
+        .addEventListener("click", function () {
+          closeModal("editUserModal");
+        });
+
+      // Add Constituency Modal
+      const addConstituencyButtons = document.querySelectorAll(
+        ".add-constituency-btn"
+      );
+      addConstituencyButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+          const userId = this.getAttribute("data-user-id");
+          const userEmail = this.getAttribute("data-user-email");
+
+          document.getElementById("constituencyUserId").value = userId;
+          document.getElementById("constituencyUserEmail").textContent =
+            userEmail;
+
+          // Fetch user's current constituencies and populate options
+          fetchUserConstituencies(userId);
+
+          openModal("addConstituencyModal");
+        });
+      });
+
+      // Global variable to store user's allowed constituencies
+      let userAllowedConstituencies = [];
+
+      // Function to fetch user constituencies
+      function fetchUserConstituencies(userId) {
+        userAllowedConstituencies = [];
+        const userRow = document
+          .querySelector(`[data-user-id="${userId}"]`)
+          .closest("tr");
+        const constituencyElements = userRow.querySelectorAll(".bg-blue-100");
+
+        constituencyElements.forEach((elem) => {
+          const constituencyId = elem.querySelector("a").href.split("/").pop();
+          const constituencyName = elem.textContent
+            .trim()
+            .replace("×", "")
+            .trim();
+          userAllowedConstituencies.push({
+            _id: constituencyId,
+            name: constituencyName,
+          });
+        });
+
+        // Populate options using server-provided data
+        populateConstituencyOptions();
+      }
+
+      // Function to get all constituencies
+      function getAllConstituencies() {
+        // In a real implementation, this would be an API call
+        // For now, we'll extract from the select in the existing modal
+        let allConstituencies = [];
+        const selectOptions = document.querySelectorAll(
+          "#constituencyId option"
+        );
+
+        selectOptions.forEach((option) => {
+          if (option.value) {
+            allConstituencies.push({
+              _id: option.value,
+              name: option.textContent.trim(),
+            });
+          }
+        });
+
+        return allConstituencies;
+      }
+
+      // Function to populate constituency options in the multiselect
+      function populateConstituencyOptions(searchTerm = "") {
+        const container = document.getElementById(
+          "constituencyOptionsContainer"
+        );
+        const noConstituenciesMessage = document.getElementById(
+          "noConstituenciesMessage"
+        );
+        container.innerHTML = "";
+
+        // Use server-provided constituencies from window.allConstituencies
+
+        const constituencies = window.allConstituencies;
+
+        // Filter out already assigned constituencies and apply search
+        const availableConstituencies = constituencies.filter(
+          (constituency) => {
+            const alreadyAssigned = userAllowedConstituencies.some(
+              (uc) => uc._id === constituency._id
+            );
+            const matchesSearch =
+              !searchTerm ||
+              constituency.name
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase());
+            return !alreadyAssigned && matchesSearch;
+          }
+        );
+
+        if (availableConstituencies.length === 0) {
+          noConstituenciesMessage.classList.remove("hidden");
+        } else {
+          noConstituenciesMessage.classList.add("hidden");
+
+          availableConstituencies.forEach((constituency) => {
+            const checkboxDiv = document.createElement("div");
+            checkboxDiv.className = "flex items-center py-1";
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.name = "constituencyIds[]";
+            checkbox.value = constituency._id;
+            checkbox.id = `constituency-${constituency._id}`;
+            checkbox.className =
+              "constituency-checkbox mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500";
+
+            const label = document.createElement("label");
+            label.htmlFor = `constituency-${constituency._id}`;
+            label.className =
+              "text-sm text-gray-700 select-none cursor-pointer";
+            label.textContent = constituency.name;
+
+            checkbox.addEventListener("change", updateSelectedCount);
+
+            checkboxDiv.appendChild(checkbox);
+            checkboxDiv.appendChild(label);
+            container.appendChild(checkboxDiv);
+          });
+        }
+
+        updateSelectedCount();
+      }
+
+      // Function to update the selected count
+      function updateSelectedCount() {
+        const selectedCount = document.querySelectorAll(
+          ".constituency-checkbox:checked"
+        ).length;
+        document.getElementById(
+          "selectedCount"
+        ).textContent = `${selectedCount} ${
+          selectedCount === 1 ? "constituency" : "constituencies"
+        } selected`;
+      }
+
+      // Search input listener
+      document
+        .getElementById("constituencySearch")
+        .addEventListener("input", function (e) {
+          populateConstituencyOptions(e.target.value);
+        });
+
+      document
+        .getElementById("closeAddConstituencyModal")
+        .addEventListener("click", function () {
+          closeModal("addConstituencyModal");
+        });
+
+      document
+        .getElementById("cancelAddConstituency")
+        .addEventListener("click", function () {
+          closeModal("addConstituencyModal");
+        });
+
+      // Close modals when clicking outside
+      window.addEventListener("click", function (event) {
+        const modals = document.querySelectorAll('[id$="Modal"]');
+        modals.forEach((modal) => {
+          if (event.target === modal) {
+            closeModal(modal.id);
+          }
+        });
+      });
+
+
+
+      // handler function to add/remove constituencies
+      function handleAddConstituencies(){
+        const userId = document.getElementById("constituencyUserId").value;
+        const selectedConstituencies = document.querySelectorAll('.constituency-checkbox:checked');
+        const constituencyIds = Array.from(selectedConstituencies).map((checkbox) => checkbox.value);
+
+
+
+        fetch(`/api/user/add/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ constituencyIds }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              alert(data.error || 'An error occurred. Please try again.');
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+          });
+      }
+
+      function handleRemoveConstituency(constituencyId, userId){
+        fetch(`/api/user/remove/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ constituencyId }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              alert(data.error || 'An error occurred. Please try again.');
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+          });
+      }
+
+      function handleEditUser(){
+        const userId = document.getElementById("editUserId").value;
+        const email = document.getElementById("editEmail").value;
+        const role = document.getElementById("editRole").value;
+
+        fetch(`/api/user/details/${userId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, role }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              alert(data.error || 'An error occurred. Please try again.');
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+          });
+      }
+
+      function handleDeleteUser(userId){
+        fetch(`/api/user/delete/${userId}`, {
+          method: 'DELETE',
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              alert(data.error || 'An error occurred. Please try again.');
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+          });
+      }
+    </script>
+  </body>
+</html>

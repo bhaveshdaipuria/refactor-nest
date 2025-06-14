@@ -1,0 +1,421 @@
+	body {
+		font-family: Arial, sans-serif;
+		background-color: white;
+		margin: 0;
+		padding: 0;
+		position: relative;
+	}
+
+	.container {
+		display: flex;
+		flex-direction: column;
+		/* Stack items vertically */
+		align-items: center;
+		/* Center horizontally */
+	}
+
+	.svg_container {
+		width: auto;
+		height: auto;
+	}
+
+	svg {
+		width: auto;
+		height: auto;
+	}
+
+	/* Styling for the SVG path on hover */
+	.path {
+		transition: fill 0.3s, stroke 0.3s;
+	}
+
+	.path:hover {
+		/* stroke-width: 2px; */
+		color: #000;
+		cursor: pointer;
+	}
+
+	/* Media Queries for responsiveness */
+	@media (max-width: 768px) {
+		svg {
+			/* width: 100%; */
+			height: 100%;
+			width: 350px;
+		}
+	}
+
+	.popover-container {
+		position: relative;
+	}
+
+	.card {
+		background-color: white;
+		border-radius: 8px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		padding: 12px;
+		width: 200px;
+	}
+
+	.constituency-header {
+		font-size: 12px;
+		font-weight: 600;
+		color: #1f2937;
+		margin-bottom: 8px;
+		padding-bottom: 4px;
+		border-bottom: 1px solid #f3f4f6;
+	}
+
+	.candidate-section {
+		font-size: 12px;
+		padding-left: 8px;
+		margin-bottom: 8px;
+	}
+
+	.winner {
+		border-left: 2px solid #10b981;
+	}
+
+	.trailing {
+		border-left: 2px solid #ef4444;
+	}
+
+	.candidate-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 4px;
+	}
+
+	.candidate-name {
+		color: black;
+		font-weight: 500;
+	}
+
+	.status-badge {
+		font-size: 10px;
+		padding: 2px 6px;
+		border-radius: 9999px;
+		font-weight: 500;
+	}
+
+	.status-won {
+		background-color: #d1fae5;
+		color: #065f46;
+	}
+
+	.status-trailing {
+		background-color: #fee2e2;
+		color: #991b1b;
+	}
+
+	.party-votes {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 4px;
+	}
+
+	.party-info {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.party-symbol {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+	}
+
+	.party-name {
+		color: black;
+	}
+
+	.votes {
+		font-weight: 500;
+	}
+
+	.margin-info {
+		font-size: 10px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.margin-label {
+		color: #6b7280;
+	}
+
+	.margin-value-won {
+		color: #059669;
+		font-weight: 500;
+	}
+
+	.margin-value-trailing {
+		color: #dc2626;
+		font-weight: 500;
+	}
+
+	.tippy-box[data-theme~="light"] {
+		background-color: transparent;
+	}
+
+	.party_name_color {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+		/* margin-top: 15%; */
+	}
+
+	#loading {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 100px;
+		height: 100px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background: #f3f4f6;
+		z-index: 999999999;
+	}
+
+	.loader {
+		color: #e38d0b;
+		width: 5px;
+		aspect-ratio: 1;
+		border-radius: 50%;
+		box-shadow: 19px 0 0 7px, 38px 0 0 3px, 57px 0 0 0;
+		transform: translateX(-38px);
+		animation: l21 0.5s infinite alternate linear;
+	}
+
+	@keyframes l21 {
+		50% {
+			box-shadow: 19px 0 0 3px, 38px 0 0 7px, 57px 0 0 3px;
+		}
+
+		100% {
+			box-shadow: 19px 0 0 0, 38px 0 0 3px, 57px 0 0 7px;
+		}
+	}
+
+	body {
+		/* overflow-x: hidden; */
+		/* overflow-y: hidden; */
+		background-color: #ffffff;
+		color: #000000;
+		font-family: "Montserrat", sans-serif;
+	}
+
+	a:link {
+		color: #000000;
+	}
+
+	a:visited {
+		color: #000000;
+	}
+
+	a:hover {
+		color: #000000;
+	}
+
+	a:active {
+		color: #000000;
+	}
+
+	.electoralvote {
+		color: #000000;
+	}
+
+	.completeresults {
+		color: #333333;
+	}
+
+	.lineelect {
+		border-bottom: 1px solid #000000;
+	}
+
+	.hide-above-300 {
+		display: block;
+	}
+
+	.hide-below-300 {
+		display: none;
+	}
+
+	@media (min-width: 341px) {
+		.hide-above-300 {
+			display: none;
+		}
+
+		.hide-below-300 {
+			display: block;
+		}
+	}
+
+	.row {
+		margin: 0;
+		padding: 0 20px;
+	}
+
+	@media (max-width: 350px) {
+		.h4 {
+			font-size: 14px;
+		}
+
+		.widgetresults .col-xs-6 {
+			padding-left: 7px;
+			padding-right: 7px;
+		}
+	}
+
+	#presidency-results {
+		margin-top: 65px;
+	}
+
+	.container_comp {
+		width: 100%;
+		margin: 0 auto;
+	}
+
+	.title {
+		text-align: center;
+		font-size: clamp(18px, 4vw, 24px);
+		margin-bottom: 24px;
+		font-weight: bold;
+		padding: 0 16px;
+	}
+
+	.majority-marker {
+		text-align: center;
+		position: relative;
+		margin: 16px 0;
+	}
+
+	.majority-number {
+		font-size: clamp(24px, 6vw, 35px);
+		font-weight: bold;
+		color: black;
+	}
+
+	.majority-text {
+		font-size: clamp(14px, 3vw, 16px);
+		color: #666;
+	}
+
+	.line-container {
+		position: relative;
+		height: 40px;
+		margin: 0px 16px;
+		margin-bottom: 15px;
+	}
+
+	.line {
+		position: relative;
+		width: 100%;
+		height: 20px;
+		background: #f0f0f0;
+		overflow: hidden;
+	}
+
+	.bars-container {
+		position: relative;
+		height: 100%;
+		width: 100%;
+		display: flex;
+	}
+
+	.bar {
+		height: 100%;
+		transition: all 0.5s ease;
+	}
+
+	.center-marker {
+		position: absolute;
+		left: 50%;
+		top: -10px;
+		width: 2px;
+		height: 40px;
+		background: #666;
+	}
+
+	.results-container {
+		position: relative;
+		width: 100%;
+		height: 40px;
+		/* margin-top: 20px; */
+	}
+
+	.party-result {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		text-align: center;
+		width: auto;
+	}
+
+	.party-result.left {
+		left: 16px;
+	}
+
+	.party-result.right {
+		right: 16px;
+	}
+
+	.party-result.others {
+		top: -17px;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	@media (max-width: 768px) {
+		.party-result.others {
+			top: -1px;
+		}
+	}
+
+	.party-name-map {
+		font-size: 22px;
+		font-weight: bold;
+	}
+
+	.party-score {
+		font-size: clamp(24px, 5vw, 32px);
+		font-weight: bold;
+	}
+
+	.responsive-style {
+		/* position: relative; */
+		/* top: -300px; */
+		/* height: 100px; */
+		overflow-y: scroll;
+	}
+
+	.main_title {
+		font-size: 25px;
+	}
+
+	@media (max-width: 768px) {
+		.main_title {
+			font-size: 20px;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.results-container {
+			height: 60px;
+		}
+
+		.line-container {
+			margin-bottom: 0px;
+		}
+	}
+
+	@media (min-width: 1200px) {
+		.container_comp {
+			max-width: 1400px;
+		}
+	}

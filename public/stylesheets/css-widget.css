@@ -1,0 +1,335 @@
+body{
+	font-size:16px;
+}
+.h1{
+	font-size:16px;
+}
+.h2{
+	font-size:40px;
+}
+.h3{
+	font-size:22px;
+	margin-block-start:10px;
+	font-weight: 700;
+	/* margin-top:2px; */
+	margin-bottom:0px;
+}
+.h4{
+	font-size:17px;
+	margin-top:2px;
+	margin-bottom:2px;
+}
+.h5{
+	font-size:17px;
+	line-height: 20px;
+	margin-top: 1px;
+    margin-bottom: 1px;
+}
+.h6{
+	font-size:13px;
+	margin-top:3px;
+	margin-bottom:3px;
+}
+
+.h7{
+	font-size:9px;
+	margin-top:5px;
+	margin-bottom:3px;
+}
+
+.pull-left{
+	margin:18px 0px 0 15px;
+}
+
+.pull-right{
+	margin:18px 15px 0 0px;
+}
+
+
+.electoralvote{
+	font-weight: 700;
+	text-transform: uppercase;
+	width:100%;
+	padding:3px 0 0 0;
+}
+
+.widgetresults .col-xs-6{
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.bluecolor{
+	color:#3399cc;
+}
+
+.redcolor{
+	color:#dd0000;
+}
+
+.pictoral{
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	width:100%;
+	max-width:1170px;
+	margin-top:-80px;
+	margin-left:0;
+	margin-right:0;
+}
+
+.pictoralx{
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	width:100%;
+	max-width:1170px;
+	margin-top:5px;
+	margin-left:0;
+	margin-right:0;
+}
+
+.pictoraly{
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	width:100%;
+	max-width:1170px;
+	margin-top:37px;
+	margin-left:0;
+	margin-right:0;
+}
+
+.pictoralz{
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	width:100%;
+	max-width:1170px;
+	margin-top:55px;
+	margin-left:0;
+	margin-right:0;
+}
+
+.completeresults{
+	margin: 0;
+	text-transform: uppercase;
+	width:100%;
+	padding:2px 0 0 0;
+}
+
+.harris-left{
+padding-left:0px;
+}
+.trump-right{
+padding-right:0px;
+}
+
+.aj-avatar{
+    width:100px;
+}
+
+.headline{
+margin-top:5px;
+margin-bottom:0;
+color:#eeeeee;
+}
+
+.subheadline{
+	margin-top:0;
+	margin-bottom:0;
+	color:#eeeeee;
+	font-weight: 700;
+}
+.scorenumber{
+	font-weight: 600;
+	padding:0;
+	margin:0;
+}
+
+
+#aj-ahc{width:90px; position: absolute; visibility: hidden;}
+#aj-adt{width:90px; position: absolute; visibility: hidden;}
+
+
+.notext{
+	display:block;
+	color:#666666;
+}
+
+a{
+    color:#666666;
+    text-decoration: none;
+}
+
+.leftimage {
+	float: left;
+  }
+  .lefttext {
+	float: left;
+		padding: 25px 0px 25px 5px;
+  }
+  .leftname {
+	float: left;
+	padding: 1px;
+  }
+  
+  .rightimage {
+	float:right;
+  }
+  .righttext {
+	float:right;
+	padding: 25px 5px 25px 0;
+  }
+  .rightname {
+	float: right;
+	padding: 1px;
+  }
+
+
+
+  .president_dem_bar, .president_rep_bar, .president_ind_bar {
+    display: inline-block;
+    padding:0;
+    margin:0;
+	margin-top:8px;
+    height:10px;
+    z-index:99;
+}
+
+  @media only screen and (min-width: 768px){
+    .h1{
+        font-size:16px;
+    }
+    .h2{
+        font-size:40px;
+    }
+    .h3{
+        font-size:22px;
+    }
+    .pictoral{
+        margin-top:-85px;
+    }
+    
+    .pictoralx{
+        margin-top:10px;
+    }
+    
+    .pictoraly{
+        margin-top:42px;
+    }
+    
+    .pictoralz{
+        margin-top:60px;
+    }
+
+	/* .president_dem_bar, .president_rep_bar, .president_ind_bar {
+		margin-top:-10px;
+	} */
+
+#aj-ahc{width:110px; position: absolute;}
+#aj-adt{width:110px; position: absolute;}
+    
+}
+
+
+.linelect{
+	border-bottom:2px solid #666666;
+	margin-top:-20px;
+	height:15px !important;
+}
+
+.text10{
+	font-size:11px;
+	font-weight: 800;
+}
+
+.president_top, .house_top{
+	z-index: 999999;
+}
+
+.president_top{
+	padding-right:0 !important;
+	padding-left:0 !important;
+
+}
+
+.president_total_bar{
+	padding:0;
+	margin:0;
+	z-index: 9999;
+}
+
+
+
+.president_ind_bar {
+	width:0;
+	background:#5A5AFD;
+	float:left;
+}
+
+.president_rep_bar{
+	width:0;
+	background:#dd0000;
+	float:right;
+}
+
+.president_dem_bar {
+	width:0;
+	background:#3399cc;
+	float:left;
+}
+
+.middlebar{
+padding-bottom:0;
+margin-bottom:0;
+color:#666666;
+}
+
+
+#hc-dem-bar, #dt-rep-bar{
+	width:0;
+}
+
+
+
+
+.line-container {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    margin-top:-8px;
+    margin-bottom:7px;
+}
+
+.line {
+    position: absolute;
+    width: 100%;
+    height: 10px;
+}
+
+.line1 {
+    top: 0; 
+}
+
+.lineborder {
+    top: 0; 
+    border-bottom: 2px solid rgb(102,102,102);
+}
+
+.linetick {
+    top: 0; 
+    text-align: center;
+    width:2px;
+    height:10px;
+    /* position: absolute; */
+    background-color: rgb(102, 102, 102);
+    margin: 0 auto; 
+}
+
+.linebox{
+	margin:-60px 0 0 0;
+}
+
+.widgetbranding{
+	min-height:48px;
+}

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidates</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/tailwind.css">
+    <link rel="stylesheet" href="/stylesheets/font-awesome.min.css"> 
+    <!-- <script src="/javascripts/font-awesome.min.js"></script> -->
+
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" /> -->
+</head>
+
+<body class="bg-gray-100">
+    <%- include('navbar.ejs') %>
+    <div id="toast" class="fixed right-4 bottom-4 bg-green-500 text-white px-4 py-2 rounded shadow-md hidden">
+        All candidates details saved successfully.
+    </div>
+    <div class="container mx-auto my-6">
+        <h1 class="text-2xl font-bold mb-4 text-center">List of Candidates</h1>
+
+        <!-- Constituency Dropdown -->
+        <div class="flex justify-center mb-4">
+            <label for="constituency" class="mr-2 font-bold">Select Constituency:</label>
+            <select id="constituency" class="border px-3 py-2 rounded">
+                <option value="">-- Select Constituency --</option>
+                <% constituencies.forEach(constituency=> { %>
+                    <option value="<%= constituency.name %>" <%=constituency.name===selectedCons ? 'selected' : ''%>>
+                        <%= constituency.name %>
+                    </option>
+                <% }) %>
+            </select>
+        </div>
+
+        <!-- Universal Save Button -->
+        <div class="flex justify-end mb-4">
+            <button id="saveAllBtn" class="bg-green-500 text-white py-2 px-6 rounded hover:bg-green-700">
+                Save All Changes
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-300 shadow-md rounded-lg" id="candidateTable">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="py-2 px-4 border-b">Name</th>
+                        <th class="py-2 px-4 border-b">Gender</th>
+                        <th class="py-2 px-4 border-b">Party</th>
+                        <th class="py-2 px-4 border-b">Total Votes</th>
+                        <th class="py-2 px-4 border-b">Hot Candidate</th>
+                        <th class="py-2 px-4 border-b">Image</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% candidates.forEach(candidate=> { %>
+                        <tr class="hover:bg-gray-100" data-id="<%= candidate._id %>">
+                            <td class="py-2 px-4 border-b">
+                                <input disabled type="text" class="border p-2 rounded w-full"
+                                    value="<%= candidate.name %>" />
+                            </td>
+                            <td class="py-2 px-4 border-b">
+                                <select disabled class="border p-2 rounded w-full">
+                                    <option value="" <%=!candidate.gender ? 'selected' : '' %>>-- Select Gender --</option>
+                                    <option value="Male" <%=candidate.gender==='Male' ? 'selected' : '' %>>Male</option>
+                                    <option value="Female" <%=candidate.gender==='Female' ? 'selected' : '' %>>Female</option>
+                                    <option value="Other" <%=candidate.gender==='Other' ? 'selected' : '' %>>Other</option>
+                                </select>
+                            </td>
+                            <td class="py-2 px-4 border-b">
+                                <select disabled class="border p-2 rounded w-full">
+                                    <% parties.forEach(party=> { %>
+                                        <option value="<%= party._id %>" 
+                                            <%=candidate.party && String(candidate.party._id)===String(party._id) ? 'selected' : '' %>>
+                                            <%= party.party %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </td>
+                            <td class="py-2 px-4 border-b">
+                                <input type="number" class="border p-2 rounded w-full"
+                                    value="<%= candidate.totalVotes || 0 %>" />
+                            </td>
+                            <td class="py-2 px-4 border-b">
+                                <select class="border p-2 rounded w-full">
+                                    <option value="true" <%= candidate.hotCandidate ? 'selected' : '' %>>True</option>
+                                    <option value="false" <%= !candidate.hotCandidate ? 'selected' : '' %>>False</option>
+                                </select>
+                            </td>
+                            <td class="py-2 px-4 border-b text-center">
+                                <% if (candidate.image) { %>
+                                    <img src="<%= candidate.image %>" alt="<%= candidate.name %>" class="h-10 w-10 cursor-pointer" />
+                                <% } else { %>
+                                    <p>-</p>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const constituencyDropdown = document.getElementById('constituency');
+            const saveAllBtn = document.getElementById('saveAllBtn');
+            const toast = document.getElementById('toast');
+
+            // Redirect to selected constituency
+            constituencyDropdown.addEventListener('change', () => {
+                const selectedCons = constituencyDropdown.value;
+                window.location.href = selectedCons ? `/cons-candidates?cons=${selectedCons}` : '/cons-candidates';
+            });
+
+            // Show toast message
+            function showToast(message, isSuccess = true) {
+                toast.textContent = message;
+                toast.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
+                toast.classList.add(isSuccess ? 'bg-green-500' : 'bg-red-500');
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            }
+
+            // Save all candidates
+            async function saveAllCandidates() {
+    const rows = document.querySelectorAll('#candidateTable tbody tr');
+    const updates = [];
+
+    rows.forEach(row => {
+        const candidateId = row.getAttribute('data-id');
+        const inputs = row.querySelectorAll('input');
+        const selects = row.querySelectorAll('select');
+
+        const updatedCandidate = {
+            id: candidateId,
+            name: inputs[0].value || '',
+            gender: selects[0].value || '',
+            party: selects[1].value || '',
+            totalVotes: parseInt(inputs[1].value) || 0,
+            hotCandidate: selects[2].value === 'true',
+        };
+
+        updates.push(updatedCandidate);
+    });
+
+    try {
+        // Create fetch promises
+        const promises = updates.map(candidate =>
+            fetch(`/api/candidate/${candidate.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(candidate),
+            })
+        );
+
+        // Use Promise.all
+        const responses = await Promise.all(promises);
+
+        // Check if all responses are successful
+        const allSuccessful = responses.every(response => response.ok);
+
+        if (allSuccessful) {
+            showToast('All candidates updated successfully');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            const failedResponses = responses.filter(response => !response.ok);
+            console.error('Some updates failed:', failedResponses);
+            showToast('Some updates failed. Please try again.', false);
+        }
+    } catch (error) {
+        console.error('Error saving candidates:', error);
+        showToast('Failed to save changes. Please try again.', false);
+    }
+}
+
+            saveAllBtn.addEventListener('click', saveAllCandidates);
+        });
+    </script>
+</body>
+</html>

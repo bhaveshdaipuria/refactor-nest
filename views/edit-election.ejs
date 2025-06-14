@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Election</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1>Edit Election</h1>
+      <form action="/elections/<%= election._id %>/update" method="POST">
+        <div class="form-group">
+          <label for="state">State</label>
+          <input
+            type="text"
+            class="form-control"
+            id="state"
+            name="state"
+            value="<%= election.state %>"
+          />
+        </div>
+        <div class="form-group">
+          <label for="electionSlug">Election Slug</label>
+          <input
+            type="text"
+            class="form-control"
+            id="electionSlug"
+            name="electionSlug"
+            value="<%= election.electionSlug %>"
+          />
+        </div>
+        <div class="form-group">
+          <label for="totalSeats">Total Seats</label>
+          <input
+            type="number"
+            class="form-control"
+            id="totalSeats"
+            name="totalSeats"
+            value="<%= election.totalSeats %>"
+          />
+        </div>
+        <div class="form-group">
+          <label for="year">Year</label>
+          <input
+            type="number"
+            class="form-control"
+            id="year"
+            name="year"
+            value="<%= election.year %>"
+          />
+        </div>
+        <div class="form-group">
+          <label for="halfWayMark">Halfway Mark</label>
+          <input
+            type="number"
+            class="form-control"
+            id="halfWayMark"
+            name="halfWayMark"
+            value="<%= election.halfWayMark %>"
+          />
+        </div>
+
+        <h3>Parties</h3>
+        <% election.electionInfo.partyIds.forEach((party, index) => { %>
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Party: <%= party.party %></h5>
+            <div class="form-group">
+              <label for="party-<%= index %>-total_seat">Total Seats</label>
+              <input
+                type="number"
+                class="form-control"
+                id="party-<%= index %>-total_seat"
+                name="party[<%= index %>][total_seat]"
+                value="<%= party.total_seat %>"
+              />
+            </div>
+            <div class="form-group">
+              <label for="party-<%= index %>-total_votes">Total Votes</label>
+              <input
+                type="number"
+                class="form-control"
+                id="party-<%= index %>-total_votes"
+                name="party[<%= index %>][total_votes]"
+                value="<%= party.total_votes %>"
+              />
+            </div>
+            <div class="form-group">
+              <label for="party-<%= index %>-votes_percentage"
+                >Votes Percentage</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="party-<%= index %>-votes_percentage"
+                name="party[<%= index %>][votes_percentage]"
+                value="<%= party.votes_percentage %>"
+              />
+            </div>
+          </div>
+        </div>
+        <% }) %>
+
+        <h3>Candidates</h3>
+        <% election.electionInfo.candidates.forEach((candidate, index) => { %>
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Candidate: <%= candidate.name %></h5>
+            <div class="form-group">
+              <label for="candidate-<%= index %>-totalVotes">Total Votes</label>
+              <input
+                type="number"
+                class="form-control"
+                id="candidate-<%= index %>-totalVotes"
+                name="candidate[<%= index %>][totalVotes]"
+                value="<%= candidate.totalVotes %>"
+              />
+            </div>
+          </div>
+        </div>
+        <% }) %>
+
+        <button type="submit" class="btn btn-primary">Update Election</button>
+      </form>
+    </div>
+  </body>
+</html>

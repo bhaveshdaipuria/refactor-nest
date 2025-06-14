@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Constituency</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/tailwind.css">
+    <script src="/javascripts/choices.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/choices.min.css" />
+    <link rel="stylesheet" href="/stylesheets/font-awesome.min.css"> 
+    <!-- <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" /> -->
+</head>
+<body class="bg-gray-100">
+    <%- include('navbar.ejs') %>
+    <div class="container mx-auto my-6">
+        <h1 class="text-2xl font-bold mb-4">Edit Constituency</h1>
+
+        <% if (error) { %>
+            <div class="text-center mx-auto mt-4 text-red-500">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <form id="editConstituencyForm" method="POST" class="bg-white p-6 rounded shadow-md">
+            <div class="mb-4">
+                <label for="name" class="block text-gray-700">Constituency Name</label>
+                <input type="text" id="name" name="name" value="<%= constituency.name %>" required class="mt-1 block w-full border border-gray-300 p-2 rounded" placeholder="Enter constituency name">
+            </div>
+            <div class="mb-4">
+                <label for="state" class="block text-gray-700">State</label>
+                <input type="text" id="state" name="state" value="<%= constituency.state %>" required class="mt-1 block w-full border border-gray-300 p-2 rounded" placeholder="Enter state name">
+            </div>
+         
+                     
+            <div class="mb-4">
+                <label for="candidates" class="block text-gray-700">Select Candidates</label>
+                <select id="candidates" name="candidates" multiple class="choices-multiple-select mt-1 block w-full border border-gray-300 p-2 rounded">
+                    <% candidates.forEach(candidate => { %>
+                        <option value="<%= candidate._id %>" 
+                            <%= constituency.candidates.some(c => String(c._id) === String(candidate._id)) ? 'selected' : '' %>>
+                            <%= candidate.name %> (<%= candidate.party.party %>)
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update Constituency</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Choices('#candidates', {
+                removeItemButton: true,
+                searchPlaceholderValue: 'Search Candidates...',
+            });
+        });
+
+        document.getElementById('editConstituencyForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const selectedCandidates = formData.getAll('candidates');
+
+            const data = {
+                name: formData.get('name'),
+                state: formData.get('state'),
+                candidates: selectedCandidates.length > 0 ? selectedCandidates : [] // Ensure candidates is an array
+            };
+
+            try {
+                const response = await fetch(`/api/constituency/<%= constituency._id %>`, {
+                    method: 'PUT', // Use PUT method
+                    headers: {
+                        'Content-Type': 'application/json', // Set content type
+                    },
+                    body: JSON.stringify(data), // Convert the data to JSON
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update constituency');
+                }
+
+                // Optionally, you can redirect to the updated constituency page
+                window.location.href = `/constituency`;
+            } catch (error) {
+                console.error(error);
+                alert('An error occurred while updating the constituency.');
+            }
+        });
+    </script>
+</body>
+</html>

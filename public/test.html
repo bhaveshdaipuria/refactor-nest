@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+    }
+    
+    .container_comp {
+      width: 100%;
+      padding: 16px;
+      margin: 0 auto;
+    }
+    
+    .title {
+      text-align: center;
+      font-size: clamp(18px, 4vw, 24px);
+      margin-bottom: 24px;
+      font-weight: bold;
+      padding: 0 16px;
+    }
+    
+    .majority-marker {
+      text-align: center;
+      position: relative;
+      margin: 16px 0;
+    }
+    
+    .majority-number {
+      font-size: clamp(24px, 6vw, 35px);
+      font-weight: normal;
+      color: #666;
+    }
+    
+    .majority-text {
+      font-size: clamp(14px, 3vw, 16px);
+      color: #666;
+    }
+    
+    .line-container {
+      position: relative;
+      height: 40px;
+      margin: 20px 16px;
+    }
+    
+    .line {
+      position: relative;
+      width: 100%;
+      height: 20px;
+      background: #f0f0f0;
+      overflow: hidden;
+    }
+    
+    .bars-container {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      display: flex;
+    }
+    
+    .bar {
+      height: 100%;
+      transition: all 0.5s ease;
+    }
+
+    .center-marker {
+      position: absolute;
+      left: 50%;
+      top: -10px;
+      width: 2px;
+      height: 40px;
+      background: #666;
+    }
+    
+    .results-container {
+      position: relative;
+      width: 100%;
+      height: 40px;
+      margin-top: 20px;
+    }
+    
+    .party-result {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      text-align: center;
+      width: auto;
+    }
+
+    .party-result.left {
+      left: 16px;
+    }
+
+    .party-result.right {
+      right: 16px;
+    }
+    
+    .party-name {
+      font-size: clamp(16px, 3vw, 20px);
+      font-weight: bold;
+    }
+    
+    .party-score {
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: bold;
+      margin: 5px 0;
+    }
+
+    @media (max-width: 768px) {
+      .results-container {
+        height: 60px;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .container_comp {
+        max-width: 1400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container_comp">
+    <div class="title">झारखंड विधानसभा चुनाव परिणाम 2024 (81 सीट)</div>
+    
+    <div class="majority-marker">
+      <div class="majority-number">41</div>
+      <div class="majority-text">पर बहुमत</div>
+    </div>
+    
+    <div class="line-container">
+      <div class="center-marker"></div>
+      <div class="line">
+        <div class="bars-container" id="bars-container">
+          <!-- Bars will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="results-container">
+      <div class="party-result left">
+        <div id="jmm-name" class="party-name"></div>
+        <div id="jmm-score" class="party-score"></div>
+      </div>
+      <div class="party-result right">
+        <div id="bjp-name" class="party-name"></div>
+        <div id="bjp-score" class="party-score"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TOTAL_SEATS = 81;
+    const MAJORITY_MARK = 41;
+
+    async function getData() {
+      try {
+        const response = await fetch('/api/elections/party-summary');
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Mock data for testing
+        return {
+          parties: [
+            { name: 'JMM+', won: 45, leading: 0, partyColor: '#00FF00' },
+            { name: 'BJP+', won: 25, leading: 0, partyColor: '#FF9933' },
+            { name: 'JLKM', won: 6, leading: 0, partyColor: '#0000FF' },
+            { name: 'Others', won: 5, leading: 0, partyColor: '#808080' }
+          ],
+          declaredSeats: 81
+        };
+      }
+    }
+
+    function getPartyTotal(party) {
+      return party.won + party.leading;
+    }
+
+    function calculateBarWidths(parties) {
+      const totalSeats = TOTAL_SEATS;
+      let widths = [];
+
+        const bjpAlliance = parties.find(p => p.name === 'BJP+');
+        const jmmAlliance = parties.find(p => p.name === 'JMM+');
+        let otheParties = parties.filter(p => p.name!== bjpAlliance.name && p.name!== jmmAlliance.name);
+        let partiesList = [jmmAlliance, ...otheParties, bjpAlliance]       
+      
+      let remainingWidth = 100;
+      let currentPosition = 0;
+
+      partiesList.forEach((party, index) => {
+        const seats = getPartyTotal(party);
+        const percentageWidth = (seats / totalSeats) * 100;
+        
+        widths.push({
+          party: party,
+          width: percentageWidth,
+          position: currentPosition
+        });
+        
+        currentPosition += percentageWidth;
+      });
+
+      return widths;
+    }
+
+    async function updateResults() {
+      const data = await getData();
+      if (!data) return;
+
+      const bjpAlliance = data.parties.find(p => p.name === 'BJP+');
+      const jmmAlliance = data.parties.find(p => p.name === 'JMM+');
+      
+      // Update party names and scores
+      document.getElementById('bjp-name').textContent = bjpAlliance.name;
+      document.getElementById('jmm-name').textContent = jmmAlliance.name;
+
+      document.getElementById('bjp-score').textContent = getPartyTotal(bjpAlliance);
+      document.getElementById('bjp-score').style.color = bjpAlliance.partyColor;
+      
+      document.getElementById('jmm-score').textContent = getPartyTotal(jmmAlliance);
+      document.getElementById('jmm-score').style.color = jmmAlliance.partyColor;
+
+      // Calculate and update bars
+      const barsContainer = document.getElementById('bars-container');
+      barsContainer.innerHTML = ''; // Clear existing bars
+      
+      const barWidths = calculateBarWidths(data.parties);
+      
+      barWidths.forEach(({ party, width, position }) => {
+        console.log(barWidths);
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.backgroundColor = party.partyColor;
+        bar.style.width = `${width}%`;
+        barsContainer.appendChild(bar);
+      });
+    }
+    
+    // Initial update
+    updateResults();
+    
+    // Update every 30 seconds
+    setInterval(updateResults, 30000);
+  </script>
+</body>
+</html>

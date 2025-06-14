@@ -1,0 +1,2010 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024 Assembly Election Results</title>
+    <style type="text/css">
+        @import url("https://fonts.googleapis.com/css2?family=Rubik:400,500,600,700&display=swap");
+        /** font-family: 'Open Sans', sans-serif; **/
+        @import url("https://fonts.googleapis.com/css?family=Noto+Sans:400,400i,700,700i");
+
+        :root {
+            --theme-color: #e58416;
+        }
+
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #fff;
+        }
+
+        .highcharts-credits,
+        .highcharts-exporting-group {
+            display: none;
+        }
+
+        .lead-wins {
+            width: 185px;
+            height: 185px;
+            z-index: 0;
+            position: relative;
+            text-align: center;
+            -webkit-animation-duration: 1s;
+            animation-duration: 1s;
+            -webkit-animation-fill-mode: both;
+            animation-fill-mode: both;
+            -webkit-animation-name: bounceIn;
+            animation-name: bounceIn;
+            bottom: 4%;
+        }
+
+        @-webkit-keyframes bounceIn {
+
+            0%,
+            20%,
+            40%,
+            60%,
+            80%,
+            to {
+                -webkit-animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+                animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+            }
+
+            0% {
+                -webkit-transform: scale3d(0.3, 0.3, 0.3);
+                opacity: 0;
+                transform: scale3d(0.3, 0.3, 0.3);
+            }
+
+            20% {
+                -webkit-transform: scale3d(1.1, 1.1, 1.1);
+                transform: scale3d(1.1, 1.1, 1.1);
+            }
+
+            40% {
+                -webkit-transform: scale3d(0.9, 0.9, 0.9);
+                transform: scale3d(0.9, 0.9, 0.9);
+            }
+
+            60% {
+                -webkit-transform: scale3d(1.03, 1.03, 1.03);
+                opacity: 1;
+                transform: scale3d(1.03, 1.03, 1.03);
+            }
+
+            80% {
+                -webkit-transform: scale3d(0.97, 0.97, 0.97);
+                transform: scale3d(0.97, 0.97, 0.97);
+            }
+
+            to {
+                -webkit-transform: scaleX(1);
+                opacity: 1;
+                transform: scaleX(1);
+            }
+        }
+
+        @keyframes bounceIn {
+
+            0%,
+            20%,
+            40%,
+            60%,
+            80%,
+            to {
+                -webkit-animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+                animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+            }
+
+            0% {
+                -webkit-transform: scale3d(0.3, 0.3, 0.3);
+                opacity: 0;
+                transform: scale3d(0.3, 0.3, 0.3);
+            }
+
+            20% {
+                -webkit-transform: scale3d(1.1, 1.1, 1.1);
+                transform: scale3d(1.1, 1.1, 1.1);
+            }
+
+            40% {
+                -webkit-transform: scale3d(0.9, 0.9, 0.9);
+                transform: scale3d(0.9, 0.9, 0.9);
+            }
+
+            60% {
+                -webkit-transform: scale3d(1.03, 1.03, 1.03);
+                opacity: 1;
+                transform: scale3d(1.03, 1.03, 1.03);
+            }
+
+            80% {
+                -webkit-transform: scale3d(0.97, 0.97, 0.97);
+                transform: scale3d(0.97, 0.97, 0.97);
+            }
+
+            to {
+                -webkit-transform: scaleX(1);
+                opacity: 1;
+                transform: scaleX(1);
+            }
+        }
+
+        .highcharts-title {
+            background-color: #fff;
+            border-radius: 50%;
+            width: 158px;
+            height: 158px;
+            box-shadow: 0 0 7px rgba(0, 0, 0, 0.2);
+        }
+
+        /* svg.highcharts-root rect[class^="highcharts-"]{fill:none} */
+        .l-center {
+            position: absolute;
+            top: calc(50% - 18px);
+            left: calc(50% - 16px);
+            -webkit-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            -o-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            font-family: "Source Sans Pro", sans-serif;
+            font-size: 20px;
+            color: #565656;
+            font-weight: 300;
+        }
+
+        .l-center>span.ld {
+            width: 100%;
+            position: relative;
+            color: #000;
+            font-size: 1.7em;
+            font-weight: bold;
+            line-height: 1em;
+        }
+
+        .ld {
+            width: 100%;
+            position: relative;
+            color: #000;
+            font-size: 1em;
+            font-weight: 700;
+            line-height: 1.2em;
+        }
+
+        .ld::after {
+            content: "";
+            position: absolute;
+            height: 1px;
+            width: 2.1em;
+            background-color: #6d6d6d;
+            bottom: -3px;
+            left: 50%;
+            -webkit-transform: translatex(-50%);
+            -ms-transform: translatex(-50%);
+            -o-transform: translatex(-50%);
+            transform: translatex(-50%);
+        }
+
+        .l-center>span {
+            line-height: 1.7em;
+            font-size: 1.2em;
+        }
+
+        .l-center span {
+            display: block;
+        }
+
+        .lead-wins p {
+            margin: -0.5em;
+            font-size: 0.44em;
+            font-family: "Rubik", sans-serif;
+            text-transform: uppercase;
+            color: #565656;
+            font-weight: 900;
+            line-height: 1.2em;
+        }
+
+        .lang_hi .lead-wins p {
+            font-family: 'Noto Sans', sans-serif;
+            font-size: 14px;
+        }
+
+        .lang_hi .chartDt .dt-inner ul li span {
+            font-family: 'Noto Sans', sans-serif;
+        }
+
+        .lang_hi .chartDt .dt-inner ul li.dt-head span:nth-last-child(1) {
+            white-space: nowrap;
+        }
+
+        .ttle {
+            -ms-transform: translatex(-50%);
+            -o-transform: translatex(-50%);
+            font-size: 20px;
+            font-family: "Open Sans", sans-serif;
+            text-transform: uppercase;
+            color: #000;
+            font-weight: 700;
+            padding: 12px 20px 2px;
+            text-align: center;
+            white-space: pre-wrap;
+            line-height: 20px;
+            z-index: 23454534;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .highcharts-label tspan:last-child {
+            font-size: 18px;
+            fill: #000;
+            font-weight: bold;
+        }
+
+        .highcharts-data-label-connector {
+            stroke: #cf2504;
+        }
+
+        .highcharts-label .highcharts-text-outline {
+            display: none;
+        }
+
+        .halfway {
+            margin-bottom: 0.4em;
+        }
+
+        .halfway .h-count {
+            font-size: 1em;
+            color: var(--theme-color);
+            line-height: 1.3em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .halfway .h-label {
+            font-size: 0.7em;
+            color: #666;
+            line-height: 1em;
+            display: block;
+        }
+
+        @-webkit-keyframes fadeInUp {
+            0% {
+                -webkit-transform: translate3d(0, 100px, 0);
+                opacity: 0;
+                transform: translate3d(0, 100px, 0);
+            }
+
+            to {
+                -webkit-transform: translateZ(0);
+                opacity: 1;
+                transform: translateZ(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                -webkit-transform: translate3d(0, 100px, 0);
+                opacity: 0;
+                transform: translate3d(0, 100px, 0);
+            }
+
+            to {
+                -webkit-transform: translateZ(0);
+                opacity: 1;
+                transform: translateZ(0);
+            }
+        }
+
+        ul.parties {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+            margin-top: 12px;
+            position: relative;
+            -webkit-animation-fill-mode: both;
+            animation-duration: 1s;
+            animation-fill-mode: both;
+            padding: 0 20px;
+            grid-gap: 15px;
+        }
+
+        .swiper-slide-active ul.parties {
+            -webkit-animation-name: fadeInUp;
+            animation-name: fadeInUp;
+            -webkit-animation-duration: 1s;
+        }
+
+        ul.parties li {
+            display: inline-block;
+            position: relative;
+            font-size: 14px;
+            font-weight: 700;
+            color: #000;
+            font-family: "Open Sans", sans-serif;
+            text-transform: uppercase;
+            text-align: left;
+            text-wrap: nowrap;
+        }
+
+        ul.parties li a {
+            color: inherit;
+        }
+
+        ul.parties li span {
+            display: block;
+            margin-top: 10px;
+        }
+
+        ul.parties li::before {
+            content: "";
+            /* position: absolute;
+          top: 4px; */
+            width: 10px;
+            height: 10px;
+            /* text-align: center;
+          right: calc(100% + 5px); */
+            background-color: var(--partycolorchart);
+            display: inline-block;
+            margin-right: 5px;
+            position: relative;
+            top: -1px;
+        }
+
+        /* ul.parties li.inc::after {
+          background-color: #27a4ff;
+        }
+        ul.parties li.bjp::after {
+          background-color: #ea7c08;
+        }
+        ul.parties li.ldp::after {
+          background-color: #f90b09;
+        }
+        ul.parties li.bsp::after {
+          background-color: #4c00b3;
+        }
+        ul.parties li.trs::after {
+          background-color: #1e7f39;
+        }
+        ul.parties li.others::after {
+          background-color: #8d8d8d;
+        } */
+        .highcharts-data-label-connector {
+            stroke: #000;
+        }
+
+        #container {
+            height: 300px;
+            min-width: 320px;
+            max-width: 320px;
+            margin-top: -51px;
+        }
+
+        @-webkit-keyframes zoomIn {
+            0% {
+                -webkit-transform: scale3d(0.3, 0.3, 0.3);
+                opacity: 0;
+                transform: scale3d(0.3, 0.3, 0.3);
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            0% {
+                -webkit-transform: scale3d(0.3, 0.3, 0.3);
+                opacity: 0;
+                transform: scale3d(0.3, 0.3, 0.3);
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .chartDt {
+            margin-top: -25px;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            -webkit-animation-fill-mode: both;
+            animation-duration: 1s;
+            animation-fill-mode: both;
+        }
+
+        .swiper-slide-active .chartDt {
+            -webkit-animation-name: zoomIn;
+            animation-name: zoomIn;
+        }
+
+        .chartDt .dt-inner {
+            height: 100%;
+            min-height: 237px;
+        }
+
+        .chartDt .dt-inner ul {
+            padding: 0;
+            margin: 0;
+            line-height: none;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chartDt .dt-inner ul li {
+            width: 100%;
+            display: flex;
+            flex: 1;
+        }
+
+        .chartDt .dt-inner ul li:not(.dt-head):nth-child(even) {
+            background-color: #fbfbfb;
+        }
+
+        .chartDt .dt-inner ul li:not(.dt-head):nth-child(odd) {
+            background-color: #eef3f6;
+        }
+
+        .chartDt .dt-inner ul li a {
+            display: flex;
+            flex: 1;
+            color: inherit;
+            align-items: center;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        .chartDt .dt-inner ul li span {
+            display: flex;
+            flex: 1;
+            font-size: 20px;
+            color: #3a3a3a;
+            font-weight: 700;
+            align-items: center;
+            padding: 5px 12px;
+        }
+
+        .chartDt .dt-inner ul li>span:last-child {
+            text-align: right;
+        }
+
+        .chartDt .dt-inner ul li>span:not(:last-child) {
+            border-right: 2px solid #fff;
+        }
+
+        /* .chartDt .dt-inner ul li > span:not(:first-child),
+        .chartDt .dt-inner ul li > span:not(:last-child) {
+          text-align: center;
+        } */
+        .chartDt .dt-inner ul li>span:not(:first-child) {
+            justify-content: center;
+        }
+
+        .chartDt .dt-inner ul li.dt-head {
+            border-radius: 4px 4px 0px 0px;
+            background: rgb(62, 52, 33);
+            box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.1);
+            color: #fff;
+            max-height: 50px;
+            min-height: 37px;
+        }
+
+        .chartDt .dt-inner ul li.dt-head span {
+            font-weight: 700;
+            color: #fff;
+            font-size: 17px;
+        }
+
+        .chartDt .dt-inner ul li span>span {
+            width: 90%;
+            text-align: left;
+            font-size: 20px;
+            padding: 0;
+        }
+
+        .chartDt .dt-inner ul li .p_clr {
+            height: 10px;
+            width: 10px;
+            margin-right: 5px;
+            border-radius: 100%;
+            flex-shrink: 0;
+            max-width: 10px;
+            padding: 0;
+            min-width: 10px;
+        }
+
+        .chartDt .dt-inner ul li>span:nth-child(1) {
+            font-weight: 700;
+            flex: 0 0 28%;
+            padding-left: 12px;
+        }
+
+        .highcharts-container {
+            height: 339px !important;
+            margin: -70px auto 0px;
+        }
+
+        svg.highcharts-root {
+            height: 350px !important;
+            width: 100% !important;
+        }
+
+        .v-line {
+            height: 2.9em;
+            width: 0px;
+            border-right: 1px dashed #b00205;
+            position: absolute;
+            z-index: 100;
+            bottom: calc(100% + 5px);
+            left: 50%;
+            -webkit-transform: translatex(-50%);
+            -ms-transform: translatex(-50%);
+            -o-transform: translatex(-50%);
+            transform: translatex(-50%);
+        }
+
+        .asm-result-chart>p {
+            font-size: 12px;
+            font-family: "Rubik", sans-serif;
+            color: #9b9b9b;
+            position: relative;
+            top: 27px;
+            text-align: center;
+        }
+
+        .asm-result-chart>p span {
+            color: var(--theme-color);
+        }
+
+        @media only screen and (min-width: 600px) {
+            #elect_wdgt_slide {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                height: 100%;
+            }
+
+            .asm-result-chart {
+                height: calc(100%);
+                padding-right: 15px;
+                flex: 0 0 50%;
+                max-width: 50%;
+                position: relative;
+            }
+
+            #container {
+                height: 100%;
+                width: 100%;
+                min-width: auto;
+                max-width: none;
+            }
+
+            .highcharts-container {
+                height: 100%;
+            }
+
+            .chartDt {
+                margin-top: 0;
+                padding: 8px 0 0 0;
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+
+            .chartDt .dt-inner {
+                height: 100%;
+                min-height: 250px;
+            }
+
+            .chartDt .dt-inner h3 {
+                font-size: 19px;
+                font-weight: 700;
+                font-family: "Rubik", sans-serif;
+                text-align: center;
+                padding-bottom: 4px;
+            }
+
+            #elect_wdgt_slide .asm-result-chart ul.parties {
+                position: absolute;
+                bottom: 20px;
+                left: 50%;
+                z-index: 10;
+                display: flex;
+                width: 100%;
+                -webkit-transform: translatex(-50%);
+                -ms-transform: translatex(-50%);
+                -o-transform: translatex(-50%);
+                transform: translatex(-50%);
+                justify-content: center;
+            }
+
+            #elect_wdgt_slide .asm-result-chart ul.parties li {
+                font-size: 17px;
+                display: flex;
+                align-items: center;
+            }
+
+            .dt-inner p {
+                font-size: 11px;
+                color: #9b9b9b;
+                line-height: 14px;
+                padding: 10px 0;
+                font-family: "Rubik", sans-serif;
+            }
+
+            .chartDt .dt-inner ul li>span {
+                height: 100%;
+            }
+        }
+
+        @media only screen and (min-width: 496px) and (max-width: 767px) {
+            #elect_wdgt_slide .asm-result-chart ul.parties {
+                width: 100%;
+                bottom: 20px;
+            }
+
+            ul.parties li::after {
+                top: 1px;
+            }
+        }
+
+        @media only screen and (max-width: 600px) {
+            .asm-result-chart>div {
+                height: 240px;
+                min-width: 250px;
+                max-width: 100%;
+            }
+
+            #elect_wdgt_slide ul.parties {
+                margin-bottom: 10px;
+            }
+
+            .chartDt .dt-inner ul li span>span {
+                width: 80%;
+            }
+
+            .swiper-pagination-fraction,
+            .swiper-pagination-custom,
+            .swiper-container-horizontal>.swiper-pagination-bullets {
+                bottom: 1px;
+            }
+
+            svg.highcharts-root {
+                height: 240px !important;
+                width: 100% !important;
+            }
+
+            .highcharts-container {
+                height: 240px !important;
+            }
+
+            .highcharts-title {
+                height: 110px;
+                width: 110px;
+            }
+
+            .lead-wins {
+                height: 100%;
+                width: 100%;
+            }
+
+            .l-center {
+                font-size: 12px;
+            }
+
+            .dt-inner p {
+                font-size: 11px;
+                padding: 3px 10px 0;
+                color: #9b9b9b;
+            }
+
+            .chartDt .dt-inner ul li a{
+                font-size: 12.5px;
+            }
+            .chartDt .dt-inner ul li.dt-head span{
+                font-size: 17px;
+            }
+        }
+
+        .elecResults {
+            margin: 0px;
+            padding: 20px;
+            width: 100%;
+            border: 1px solid #e2e2e2;
+            border-top-width: 6px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .elecResults * {
+            box-sizing: border-box;
+        }
+
+        .elecResults a {
+            text-decoration: none;
+        }
+
+        .elecResults h3 {
+            margin: 0px;
+            padding: 0px 0 15px 0;
+            font-size: 22px;
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #000;
+        }
+
+        .elecResults .tabArea ul#tabs {
+            list-style-type: none;
+            margin: 0px 0 0 0;
+            padding-left: 0px;
+            position: relative;
+        }
+
+        .elecResults .tabArea ul#tabs li {
+            display: inline;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .elecResults .tabArea ul#tabs li span {
+            font-weight: 400;
+        }
+
+        .elecResults .tabArea ul#tabs li a {
+            color: #a1a5b7;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 0px 10px 6px;
+        }
+
+        .elecResults .tabArea ul#tabs li a.selected {
+            font-size: 22px;
+            border-bottom: 3px solid var(--theme-color);
+            color: #1d1d1f;
+        }
+
+        .elecResults .tabArea div.tabContent {
+            background-color: #fff;
+            margin-top: 1.5px;
+            padding: 10px 0 0;
+            overflow: hidden;
+        }
+
+        .elecResults .tabArea div.tabContent.hide {
+            display: none;
+        }
+
+        /* MAP AREA */
+        .elecResults .mapArea {
+            margin: 0px;
+            padding: 0px;
+            float: left;
+            width: 30%;
+        }
+
+        .elecResults .mapArea img {
+            width: 100%;
+        }
+
+        .halfway {
+            margin-bottom: 0.28em;
+            padding-bottom: 0.28em;
+            position: relative;
+        }
+
+        .halfway::before {
+            content: "";
+            height: 1px;
+            width: 3.6em;
+            background-color: #6d6d6d;
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            -webkit-transform: translatex(-50%);
+            -ms-transform: translatex(-50%);
+            -o-transform: translatex(-50%);
+            transform: translatex(-50%);
+        }
+
+        @media (max-width: 800px) {
+            .elecResults {
+                padding: 10px;
+            }
+
+            .chartDt .dt-inner ul li>span:nth-child(1) {
+                flex: 0 0 109px;
+            }
+
+            .chartDt .dt-inner ul li>span:nth-last-child(1) {
+                flex: 0 0 85px;
+            }
+
+            .lang_hi .lead-wins p {
+                font-size: 9px;
+            }
+
+            .lang_hi .chartDt .dt-inner ul li.dt-head span {
+                font-size: 18px;
+            }
+        }
+
+        @media (min-width:720px) and (max-width:735px) {
+            .chartDt .dt-inner ul li span {
+                padding: 5px 5px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .chartDt .dt-inner ul li span {
+                font-size: 18px;
+                flex: 1;
+            }
+
+            .chartDt .dt-inner ul li.dt-head span,
+            .chartDt .dt-inner ul li span>span {
+                font-size: 18px;
+            }
+
+            .chartDt .dt-inner ul li>span:nth-child(1) {
+                flex: 0 0 103px;
+            }
+            .lead-wins {
+                bottom: 4% !important;
+            }
+        }
+
+        /* PARTY POSITION */
+        .elecResults .partPosi {
+            margin: 0 2%;
+            padding: 0;
+            float: left;
+            width: 36%;
+        }
+
+        .elecResults .partPosi h2 {
+            margin: 0px;
+            padding: 0px 0 10px 0;
+            font-size: 20px;
+            color: #000;
+            text-align: center;
+        }
+
+        .elecResults .partPosi table {
+            margin: 0px;
+            padding: 0px;
+            font-size: 14px;
+            color: #333333;
+        }
+
+        .elecResults .partPosi table th {
+            margin: 0px;
+            padding: 5px 10px;
+            background: #f1f1f1;
+            text-align: center;
+        }
+
+        .elecResults .partPosi table th:first-child,
+        .elecResults .partPosi table td:first-child {
+            text-align: left;
+        }
+
+        .elecResults .partPosi table td {
+            margin: 0px;
+            padding: 8px 10px;
+            border-bottom: 1px solid #dbdbdb;
+            text-align: center;
+        }
+
+        .elecResults .partPosi p {
+            font-size: 11px;
+            color: #9b9b9b;
+            padding-left: 10px;
+        }
+
+        /* STORY LIST */
+        .elecResults .storyList {
+            margin: 0px;
+            padding: 0px;
+            float: left;
+            width: 100%;
+        }
+
+        .elecResults .storyList ul {
+            margin: 0px;
+            padding: 0px;
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .elecResults .storyList ul li {
+            margin: 0px;
+            padding: 10px 0px;
+            font-size: 14px;
+            color: #333333;
+            line-height: 20px;
+            width: 50%;
+            float: left;
+            padding: 0px 15px;
+        }
+
+        .elecResults .storyList ul li:last-child {
+            border-bottom: 0px;
+        }
+
+        .elecResults .storyList ul li a {
+            color: #333333;
+            border-bottom: 1px solid #dbdbdb;
+            display: flex;
+            width: 100%;
+            padding: 7px 0px;
+            min-height: 53px;
+            align-items: center;
+            font-size: 14px;
+            line-height: 19px;
+        }
+
+        .elecResults .storyList ul li:nth-last-child(1) a,
+        .elecResults .storyList ul li:nth-last-child(2) a {
+            border-bottom: none;
+        }
+
+        .elecResults .storyList .moreText {
+            float: right;
+            padding-top: 5px;
+            font-size: 12px;
+            color: #b00205;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #b00205;
+        }
+
+        .elecResults .storyList .moreText a {
+            color: #b00205;
+        }
+
+        .stateMob {
+            display: none;
+        }
+
+        .mapLeft {
+            height: 310px;
+        }
+
+        .l-center .cond-star {
+            line-height: 0px;
+            display: inline-block;
+            color: var(--theme-color);
+            font-size: 1em;
+            position: relative;
+            top: -1px;
+        }
+
+        @media screen and (max-width: 1170px) and (min-width: 992px) {
+
+            /* .mapLeft{ float: left; width:70%} */
+            .l-center span {
+                line-height: 38px;
+            }
+
+            .asm-result-chart {
+                height: 310px;
+            }
+        }
+
+        @media screen and (max-width: 1024px) and (min-width: 991px) {
+
+            /* .mapLeft{ float: left; width:70%} */
+            .l-center span {
+                line-height: 38px;
+            }
+
+            .asm-result-chart {
+                height: 330px;
+            }
+        }
+
+        @media screen and (max-width: 1024px) {
+            .elecResults .storyList ul li {
+                line-height: 18px;
+                font-size: 12px;
+            }
+
+            .elecResults .storyList ul li:first-child {
+                padding-top: 0px;
+            }
+
+            .elecResults .partPosi table {
+                font-size: 12px;
+            }
+
+            .elecResults .tabArea ul#tabs li {
+                font-size: 12px;
+            }
+
+            .elecResults .partPosi h2 {
+                font-size: 15px;
+                display: none;
+            }
+
+            .elecResults .partPosi p {
+                font-size: 10px;
+            }
+
+            .elecResults .tabArea div.tabContent {
+                margin-top: 1px;
+            }
+        }
+
+        @media screen and (max-width: 900px) and (min-width: 768px) {
+            .elecResults .storyList {
+                width: 100%;
+                margin-top: 1px;
+            }
+
+            .asm-result-chart {
+                height: 100%;
+                overflow: hidden;
+            }
+        }
+
+        @media (max-width: 800px) and (min-width: 729px) {
+            .mapLeft #elect_wdgt_slide {
+                display: grid;
+                grid-template-columns: 390px 1fr;
+            }
+
+            .asm-result-chart,
+            .chartDt {
+                width: 100%;
+                display: block;
+                max-width: 100%;
+            }
+        }
+
+        @media screen and (max-width: 728px) {
+            .elecResults .tabArea div.tabContent {
+                padding-left: 0px;
+                padding-right: 0px;
+            }
+
+            .elecResults .mapArea {
+                padding: 0px 10px;
+            }
+
+            .elecResults .mapArea {
+                float: none;
+                width: 100%;
+                margin: 0px 0 15px 0;
+            }
+
+            .elecResults .partPosi {
+                float: none;
+                width: 100%;
+                margin: 0px;
+            }
+
+            .elecResults .storyList {
+                float: none;
+                width: 100%;
+                padding: 0px 10px;
+                margin-top: 3px;
+            }
+
+            .elecResults .partPosi h2 {
+                display: block;
+                font-size: 20px;
+            }
+
+            .elecResults .partPosi table {
+                font-size: 14px;
+            }
+
+            .elecResults .storyList ul li {
+                font-size: 14px;
+                line-height: 18px;
+            }
+
+            .elecResults .storyList ul li:nth-child(3n) {
+                border-bottom: 1px solid #dbdbdb;
+            }
+
+            .elecResults .storyList ul li:nth-child(4n) {
+                display: block;
+            }
+
+            /* .elecResults .tabArea ul#tabs {
+            display: none;
+          } */
+            .stateMob {
+                display: none;
+                padding: 5px 20px;
+                border: 1px solid #d9d9d9;
+                height: 42px;
+                width: 100%;
+                border-radius: 6px;
+                background-color: #fff;
+                position: relative;
+            }
+
+            .stateMob:after {
+                content: "";
+                position: absolute;
+                right: 20px;
+                border: 2px solid #111;
+                border-width: 0 2px 2px 0;
+                display: inline-block;
+                padding: 3px;
+                transform: translateY(-50%) rotate(45deg);
+                top: calc(50% - 1px);
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+                cursor: pointer;
+            }
+
+            .stateMob select {
+                font-size: 18px;
+                color: #181c32;
+                text-transform: capitalize;
+                width: 100%;
+                display: block;
+                box-sizing: border-box;
+                background-color: #fff;
+                border: 0px;
+                font-weight: bold;
+                height: 30px;
+                -webkit-appearance: none;
+            }
+
+            .stateMob select:focus-visible {
+                outline: 0;
+            }
+
+            .elecResults .storyList ul {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .elecResults .storyList ul li:nth-child(3n) {
+                border-bottom: none;
+            }
+
+            .highcharts-title {
+                height: 130px;
+                width: 130px;
+                left: calc(50% - 65px) !important;
+                top: 151px !important;
+            }
+
+            .l-center {
+                font-size: 16px;
+                left: 50%;
+                top: 50%;
+            }
+
+            .lead-wins {
+                width: 100%;
+                height: 100%;
+            }
+
+            .v-line {
+                height: 2.8em;
+            }
+
+            .mapLeft {
+                overflow: hidden;
+            }
+
+            .elecResults .tabArea {}
+
+            .elecResults .tabArea div.tabContent {
+                border: none;
+            }
+
+            .elecResults h3 {
+                padding-bottom: 4px;
+            }
+
+            .asm-result-chart>p {
+                top: 25px;
+            }
+
+            .elecResults .storyList ul li:nth-last-child(1) a,
+            .elecResults .storyList ul li:nth-last-child(2) a {
+                border-bottom: 1px solid #dbdbdb;
+            }
+        }
+
+        @media (max-width: 728px) {
+            .elecResults .tabArea ul#tabs li a {
+                font-size: 12px;
+            }
+
+            .elecResults .tabArea ul#tabs li a.selected {
+                font-size: 18px;
+            }
+
+            .elecResults h3 {
+                font-size: 18px;
+            }
+
+            #elect_wdgt_slide {
+                flex-wrap: wrap;
+                display: flex;
+                height: 100%;
+            }
+
+            .asm-result-chart {
+                flex: 0 0 100%;
+                max-width: 100%;
+                padding: 0px;
+            }
+
+            .chartDt {
+                flex: 0 0 100%;
+                max-width: 100%;
+                padding: 0px;
+            }
+
+            .highcharts-container {
+                margin-top: -35px;
+            }
+
+            .asm-result-chart>div {
+                height: 240px;
+                min-width: 250px;
+                max-width: 100%;
+            }
+
+            #elect_wdgt_slide ul.parties {
+                margin-bottom: 10px;
+                position: absolute;
+                bottom: 20px;
+                left: 50%;
+                z-index: 10;
+                display: flex;
+                width: 100%;
+                -webkit-transform: translatex(-50%);
+                -ms-transform: translatex(-50%);
+                -o-transform: translatex(-50%);
+                transform: translatex(-50%);
+                justify-content: center;
+            }
+
+            #elect_wdgt_slide .asm-result-chart ul.parties li {
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+            }
+
+            .chartDt .dt-inner ul li span>span {
+                width: 100%;
+            }
+
+            svg.highcharts-root {
+                height: 240px !important;
+                width: 100% !important;
+            }
+
+            .highcharts-container {
+                height: 226px !important;
+            }
+
+            .highcharts-title {
+                height: 110px;
+                width: 110px;
+                left: calc(50% - 55px) !important;
+                top: 88px !important;
+            }
+
+            .lead-wins {
+                height: 100%;
+                width: 100%;
+            }
+
+            .l-center {
+                font-size: 14px;
+                left: 50%;
+                top: 50%;
+            }
+
+            .asm-result-chart {
+                height: 240px;
+                position: relative;
+            }
+
+            .asm-result-chart>p {
+                top: -25px;
+            }
+
+            .mapLeft {
+                height: auto;
+                border-bottom: none;
+            }
+
+            .chartDt {
+                margin-top: 0px;
+            }
+
+            .elecResults .storyList {
+                float: left;
+                margin-top: 10px;
+            }
+
+            .elecResults .storyList ul li {
+                width: 100%;
+                padding: 0px;
+            }
+
+            .elecResults .storyList ul li:nth-child(3n) {
+                border-bottom: 1px solid #dbdbdb;
+            }
+
+            .elecResults .storyList ul li a {
+                line-height: 18px;
+                min-height: 30px;
+            }
+        }
+
+        @media (max-width:340px) {
+            ul.parties {
+                grid-gap: 10px;
+            }
+
+            #elect_wdgt_slide .asm-result-chart ul.parties li {
+                font-size: 14px;
+            }
+
+            .chartDt .dt-inner ul li.dt-head span,
+            .chartDt .dt-inner ul li span>span {
+                font-size: 15px;
+            }
+
+            .chartDt .dt-inner ul li span {
+                font-size: 16px;
+            }
+        }
+
+        .asm-result-chart svg rect.highcharts-background {
+            fill: transparent !important;
+        }
+
+        .lang_hi p.eng_text {
+            display: none;
+        }
+
+        p.hi_text {
+            display: none;
+        }
+
+        .lang_hi p.hi_text {
+            display: block;
+        }
+
+        #state_sikkim .eng_text,
+        #state_sikkim .hi_text,
+        #state_andhra-pradesh .eng_text,
+        #state_andhra-pradesh .hi_text,
+        #state_odisha .eng_text,
+        #state_odisha .hi_text {
+            display: none;
+        }
+
+        @media (max-width:450px) {
+            .lang_hi .chartDt .dt-inner ul li.dt-head span {
+                font-size: 15px;
+            }
+        }
+
+        .remove_cursor {
+            cursor: default;
+        }
+
+        .notetext {
+            position: absolute;
+            bottom: 9px;
+            text-align: center;
+            font-size: 13px;
+            color: #7d7d7d;
+            height: auto !important;
+            width: 100%;
+        }
+
+        @media (min-width:730px) {
+            .notetext {
+                bottom: 1px;
+            }
+        }
+
+        /* .subparties-container {
+    margin-left: 20px;
+} */
+
+.subparty {
+    font-size: 0.9em;
+}
+
+.arrow {
+    display: inline-block;
+    margin-right: 5px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.hide {
+    display: none;
+}
+
+/* Optional: Style for the arrow on hover */
+.arrow:hover {
+    opacity: 0.7;
+}
+    .declared_seats {
+        position: absolute;
+        bottom: 30%;
+        left: 32%;
+    }
+
+    @media (max-width: 450px) {
+        .declared_seats {
+            bottom: 10%;
+            left: 28%;
+        }
+    }
+    </style>
+    <script src="https://akm-img-a-in.tosshub.com/sites/electiontak/js/jquery-new.min.js"></script>
+    <script src="https://akm-img-a-in.tosshub.com/sites/electiontak/js/countingdayhighcharts.js"></script>
+    <script>
+        const queryState = getQueryVariable("state_name");
+
+        const changeContentLanguage = (key) => {
+            const site = getQueryVariable("site");
+            let keyName = key;
+            if (
+                site == "at" ||
+                site == "gnt" ||
+                site == "mptak" ||
+                site == "uptak" ||
+                site == "lallantop" ||
+                site == "chattisgarhtak" ||
+                site == "crimetak" ||
+                site == "newstak" ||
+                site == "rajasthantak" ||
+                site == "ktak"
+            ) {
+                keyName += "_h";
+                document.body.classList.add('lang_hi');
+            }
+            return keyName;
+        };
+
+        $(document).ready(function () {
+            // $(window).resize(function () {
+            //   hmelectioninner();
+            // });
+            // change text as per site id
+            const site = getQueryVariable("site");
+            var device = getQueryVariable("device");
+            if (site && site.toUpperCase() == "AT") {
+                $("head").append(
+                    $(
+                        "<style>.elecResults,.halfway .h-label,.lead-wins p, .ttle, ul.parties li, .chartDt .dt-inner ul li span {font-family: 'Noto Sans', sans-serif;} .halfway .h-label{position: relative;top: -5px;}</style>"
+                    )
+                );
+                $("head").append(
+                    $(
+                        "<style>@media only screen and (min-width:463px){.chartDt .dt-inner h3{font-family:'Noto Sans',sans-serif;} .dt-inner p{font-family:'Noto Sans',sans-serif}}</style>"
+                    )
+                );
+                $("head").append(
+                    $(
+                        "<style>.elecResults .storyList .moreText {color:var(--theme-color);}.elecResults .storyList .moreText a { color:var(--theme-color)}</style>"
+                    )
+                );
+                // $('#titleheading').html('2019 विधानसभा चुनाव परिणाम');
+                $("#haryana a, #optn_state1").text("हरियाणा");
+                $("#jammu-and-kasjmir a, #optn_state2").text("जम्मू-कश्मीर");
+
+            } else {
+                $("head").append(
+                    $(
+                        "<style>.elecResults, .lead-wins p, .ttle, ul.parties li, .chartDt .dt-inner ul li span {font-family: 'Rubik', sans-serif;}</style>"
+                    )
+                );
+                $("head").append(
+                    $(
+                        "<style>@media only screen and (min-width:463px){.chartDt .dt-inner h3{font-family:'Rubik',sans-serif;} .dt-inner p{font-family:'Rubik',sans-serif}}</style>"
+                    )
+                );
+            }
+            if (device && device.toUpperCase() == "APP") {
+                $("head").append(
+                    $(
+                        "<style>.elecResults{min-height:500px} @media (max-width:300px){.elecResults .tabArea ul#tabs li a.selected,.elecResults .tabArea ul#tabs li a{ font-size:12px} #elect_wdgt_slide .asm-result-chart ul.parties li{font-size:10px}ul.parties li::before{width:6px;height:6px}.chartDt .dt-inner ul li > span:nth-child(1){flex: 0 0 75px;}.chartDt .dt-inner ul li.dt-head span, .chartDt .dt-inner ul li span > span {font-size: 12px;}.chartDt .dt-inner ul li span {font-size: 16px; flex:1 !important;}.chartDt .dt-inner ul li .p_clr{width:6px;height:6px;min-width:6px;max-width:6px}}</style>"
+                    )
+                );
+            }
+
+        });
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                if (pair[0] == variable) {
+                    return pair[1];
+                }
+            }
+            return false;
+        }
+
+        function generateHighchartsData(party_count) {
+            console.log(party_count)
+            return party_count.map((point) => {
+                if (point[0] === "") {
+                    return {
+                        y: point[1],
+                        name: point[0],
+                        dataLabels: {
+                            enabled: false,
+                            connectorWidth: 0,
+                        },
+                    };
+                } else {
+                    return {
+                        y: point[1],
+                        name: point[0],
+                        dataLabels: {
+                            enabled: true,
+                        },
+                    };
+                }
+            });
+        }
+
+        function sumCurrentTotals(parties) {
+            return parties.reduce((total, party) => total + parseInt(party.current_total, 10), 0);
+        }
+        var web = getQueryVariable("web");
+        var device = getQueryVariable("device");
+        var utm_source = getQueryVariable("utm_source");
+    </script>
+</head>
+
+<body>
+    <div class="elecResults" id="election_container">
+        <!-- <h3 id="titleheading">2019 Assembly Election Results</h3> -->
+        <div class="tabArea">
+            <div class="stateMob">
+                <select id="assembly-states"
+                    onchange="var site = (getQueryVariable('site')=='at'?'_AT':'_IT'); ga('send', 'event', {eventCategory: $(this).val()+' Seat Tally'+site, eventAction: 'Click', eventLabel: $(this).val()+' Seat Tally'+site, eventValue: 0});">
+                    <!-- <option value="haryana" data-tab-sel="state_haryana" id="optn_state1" data-id="haryana">haryana</option>
+              <option value="jammu-and-kasjmir" data-tab-sel="state_andhra" id="optn_state2" data-id="jammu-and-kasjmir">
+                Andhra Pradesh
+              </option>
+              <option
+                value="arunachal-pradesh"
+                data-tab-sel="state_arunachal"
+                id="optn_state3"
+                data-id="arunachal-pradesh"
+              >
+                Arunachal Pradesh
+              </option>
+              <option value="sikkim" data-tab-sel="state_sikkim" id="optn_state4" data-id="sikkim">Sikkim</option> -->
+                </select>
+            </div>
+            <!--end mobile tab menu -->
+
+            <ul id="tabs">
+                <!-- <li
+              id="haryana"
+              onClick="var site = (getQueryVariable('site')=='at'?'_AT':'_IT'); ga('send', 'event', {eventCategory: 'haryana Seat Tally'+site, eventAction: 'Click', eventLabel: 'haryana Seat Tally'+site, eventValue: 0});"
+            >
+              <a href="#state_haryana" data-id="haryana">haryana</a>
+            </li>
+            <li
+              id="jammu-and-kasjmir"
+              onClick="var site = (getQueryVariable('site')=='at'?'_AT':'_IT'); ga('send', 'event', {eventCategory: 'jammu-and-kasjmir Seat Tally'+site, eventAction: 'Click', eventLabel: 'jammu-and-kasjmir Seat Tally'+site, eventValue: 0});"
+            >
+              <a href="#state_andhra" data-id="jammu-and-kasjmir">Andhra Pradesh</a>
+            </li>
+            <li
+              id="arunachal-pradesh"
+              onClick="var site = (getQueryVariable('site')=='at'?'_AT':'_IT'); ga('send', 'event', {eventCategory: 'arunachal-pradesh Seat Tally'+site, eventAction: 'Click', eventLabel: 'arunachal-pradesh Seat Tally'+site, eventValue: 0});"
+            >
+              <a href="#state_arunachal" data-id="arunachal-pradesh">Arunachal Pradesh</a>
+            </li>
+            <li
+              id="sikkim"
+              onClick="var site = (getQueryVariable('site')=='at'?'_AT':'_IT'); ga('send', 'event', {eventCategory: 'sikkim Seat Tally'+site, eventAction: 'Click', eventLabel: 'sikkim Seat Tally'+site, eventValue: 0});"
+            >
+              <a href="#state_sikkim" data-id="sikkim">Sikkim</a>
+            </li> -->
+            </ul>
+            <!--end tab menu -->
+            <div id="all_content"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedTab, timer, dataTimer;
+var tabLinks = new Array();
+let contentDivs = new Array();
+let tabsDesktop = document.getElementById("tabs");
+let assemblyStates = document.getElementById("assembly-states");
+let allContentContainer = document.getElementById("all_content");
+
+function init(stateId) {
+    var tabListItems = document.getElementById("tabs").childNodes;
+    for (var i = 0; i < tabListItems.length; i++) {
+        if (tabListItems[i].nodeName == "LI") {
+            var tabLink = getFirstChildWithTagName(tabListItems[i], "A");
+            var id = getHash(tabLink.getAttribute("href"));
+            tabLinks[id] = tabLink;
+            contentDivs[id] = document.getElementById(id);
+        }
+    }
+    var i = 0;
+    for (var id in tabLinks) {
+        tabLinks[id].onclick = showTab;
+        tabLinks[id].onfocus = function () {
+            this.blur();
+        };
+        if (stateId) {
+            if (id.includes(stateId)) {
+                tabLinks[id].className = "selected";
+            }
+        } else {
+            if (i == 0) tabLinks[id].className = "selected";
+        }
+        i++;
+    }
+    var i = 0;
+    for (var id in contentDivs) {
+        if (stateId) {
+            if (!id.includes(stateId)) {
+                contentDivs[id].className = "tabContent hide";
+            }
+        } else {
+            if (i != 0) contentDivs[id].className = "tabContent hide";
+        }
+        i++;
+    }
+}
+
+function getFirstChildWithTagName(element, tagName) {
+    for (var i = 0; i < element.childNodes.length; i++) {
+        if (element.childNodes[i].nodeName == tagName) return element.childNodes[i];
+    }
+}
+
+function getHash(url) {
+    var hashPos = url.lastIndexOf("#");
+    return url.substring(hashPos + 1);
+}
+
+function toggleParty(partyId) {
+    // Get all subparties containers
+    const allSubParties = document.querySelectorAll('[id^="subparties-"]');
+    const allArrows = document.querySelectorAll('[id^="arrow-"]');
+    
+    // Get the clicked subparties container and arrow
+    const targetSubParties = document.getElementById(`subparties-${partyId}`);
+    const targetArrow = document.getElementById(`arrow-${partyId}`);
+    
+    // First close all other subparties that are not the target
+    allSubParties.forEach(subParty => {
+        if (subParty.id !== `subparties-${partyId}` && subParty.style.display === 'block') {
+            subParty.style.display = 'none';
+            // Reset corresponding arrow
+            const otherId = subParty.id.replace('subparties-', '');
+            const otherArrow = document.getElementById(`arrow-${otherId}`);
+            if (otherArrow) {
+                otherArrow.textContent = '▶';
+            }
+        }
+    });
+    
+    // Toggle the clicked subparties
+    if (targetSubParties && targetArrow) {
+        if (targetSubParties.style.display === 'none') {
+            targetSubParties.style.display = 'block';
+            targetArrow.textContent = '▼';
+        } else {
+            targetSubParties.style.display = 'none';
+            targetArrow.textContent = '▶';
+        }
+    }
+}
+
+function generateHighchartsData(data) {
+    return data.map(item => ({
+        name: item[0],
+        y: item[1]
+    }));
+}
+
+function callAjax(stateId) {
+    fetch(`/api/elections/${stateId}`)
+        .then(response => response.json())
+        .then(data => {
+            const stateData = data;
+            const totalSeats = stateData.totalSeats;
+            const Halfway = data.halfWayMark;
+            const declared_seats = stateData.declaredSeats;
+
+            let htmlContent = '';
+            const showLeadingColumn = stateData.parties.some(party => party.leading > 0);
+
+            function createPartyRow(party, indent = 0, subPartyName = false) {
+                let row = '';
+                const hasSubParties = party.subParties && party.subParties.length > 0;
+                const partyId = party.name.replace(/\s+/g, '-').toLowerCase();
+
+                row += `<li style="margin-left: ${indent}px">
+                    <span>
+                        <a class="remove_cursor" href="#" style="color: black;">`;
+                
+                if (hasSubParties) {
+                    row += `<div id="arrow-${party._id}" style="cursor: pointer; margin-right: 5px; width: fit-content;" 
+                           onclick="event.preventDefault(); toggleParty('${party._id}')">▶</div>`;
+                }
+
+                // <span class="p_clr" style="background-color: ${party.partyColor || '#000'};"></span>
+                row += `
+                        ${subPartyName ? "-" : ""}
+                        ${party.name}
+                        </a>
+                    </span>`;
+
+                // if (showLeadingColumn) {
+                    row += `<span>${party.leading || 0}</span>`;
+                // }
+                row += `<span>${party.won || 0}</span>
+                    </li>`;
+                    // <span>${(party.won || 0) + (party.leading || 0)}</span>
+
+
+                if (hasSubParties) {
+                    row += `<div id="subparties-${party._id}" style="display: none;">`;
+                    party.subParties.forEach(subParty => {
+                        row += createPartyRow(subParty, indent + 1, true);
+                    });
+                    row += '</div>';
+                }
+
+                return row;
+            }
+
+            htmlContent += '<div id="elect_wdgt_slide">';
+            htmlContent += '<div class="asm-result-chart">';
+            htmlContent += `<div id="container${stateId}" style="width:100%;"></div>`;
+            htmlContent += '<ul class="parties">';
+
+            stateData.parties.forEach(party => {
+                const partyName = party.name;
+                htmlContent += `<li class="${partyName}" style="--partycolorchart: ${party.partyColor}">`;
+                htmlContent += `<span></span>`;
+                htmlContent += `${partyName}`;
+                htmlContent += '</li>';
+            });
+
+            htmlContent += '</ul>';
+            htmlContent += '</div>';
+            htmlContent += '<div class="chartDt">';
+            htmlContent += '<div class="dt-inner">';
+            htmlContent += '<ul>';
+
+            htmlContent += '<li class="dt-head"><span><span>पार्टी</span></span>';
+            // if (showLeadingColumn) {
+                htmlContent += '<span>आगे</span>';
+            // }
+            htmlContent += `<span>जीते</span></li>`;
+            // <span>Total (${totalSeats})</span>
+
+            stateData.parties.forEach(party => {
+                htmlContent += createPartyRow(party, 0);
+            });
+
+            htmlContent += '</ul>';
+            htmlContent += '</div>';
+            htmlContent += '</div>';
+            htmlContent += '</div>';
+
+            $("#" + stateId + "-data").html(htmlContent);
+
+            const chartData = [];
+            const partyColors = [];
+            let totalWon = 0;
+
+            function processPartyForChart(party) {
+                const totalSeatsForParty = (party.won || 0) + (party.leading || 0);
+                if (totalSeatsForParty > 0) {
+                    chartData.push([`${totalSeatsForParty}`, totalSeatsForParty]);
+                    partyColors.push(party.partyColor || '#' + Math.floor(Math.random() * 16777215).toString(16));
+                }
+                totalWon += totalSeatsForParty;
+
+                // if (party.subParties && party.subParties.length > 0) {
+                //     party.subParties.forEach(processPartyForChart);
+                // }
+            }
+
+            stateData.parties.forEach(processPartyForChart);
+
+            Highcharts.chart("container" + stateId, {
+                credits: {
+                    enabled: false,
+                },
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: 0,
+                    plotShadow: false,
+                },
+                title: {
+                    align: "center",
+                    useHTML: true,
+                    text: `<div class="lead-wins">
+                        <div class="l-center">
+                            <div class="v-line"></div>
+                            <div class="halfway">
+                            </div>
+                            <span class="ld count">${Halfway}</span>
+                        </div>
+                            
+                            <span class="declared_seats">${declared_seats}/${totalSeats}</span>
+                      </div>`,
+                    verticalAlign: "middle",
+                    y: -44,
+                },
+                tooltip: {
+                    pointFormat: "{series.name}: <b>{point.y}</b>",
+                },
+                legend: {
+                    align: "center",
+                    verticalAlign: "bottom",
+                    layout: "horizontal",
+                    enabled: true,
+                },
+                plotOptions: {
+                    pie: {
+                        colors: partyColors,
+                        startAngle: -140,
+                        endAngle: 140,
+                        center: ["50%", "65%"],
+                        size: "80%",
+                        showInLegend: false,
+                    },
+                },
+                series: [{
+                    dataLabels: {
+                        connectorShape: "crookedLine",
+                        enabled: true,
+                        distance: 10,
+                        padding: 0,
+                    },
+                    type: "pie",
+                    name: "Seats",
+                    innerSize: "75%",
+                    colorByPoint: true,
+                    enableMouseTracking: false,
+                    data: generateHighchartsData(chartData),
+                }],
+            });
+
+            $(".count, .countUp").each(function () {
+                const txt = $(this).text();
+                if (txt !== "Other") {
+                    $(this).prop("Counter", 0).animate({
+                        Counter: txt,
+                    }, {
+                        duration: 1800,
+                        easing: "swing",
+                        step: function (now) {
+                            $(this).text(Math.ceil(now));
+                        },
+                    });
+                }
+            });
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function showTab(isRequestFromTab = true) {
+    var selectedId;
+    if (isRequestFromTab) selectedId = getHash(this.getAttribute("href"));
+    else selectedId = $("#assembly-states").find("option:selected").attr("data-tab-sel");
+    
+    for (var id in contentDivs) {
+        if (id == selectedId) {
+            tabLinks[id].className = "selected";
+            contentDivs[id].className = "tabContent";
+        } else {
+            tabLinks[id].className = "";
+            contentDivs[id].className = "tabContent hide";
+        }
+    }
+    return false;
+}
+
+function sendHeight() {
+    const element = document.querySelector('#election_container');
+    const height = element ? element.offsetHeight : 0;
+    window.parent.postMessage({ election_iframe: height }, "*");
+}
+
+const fetchStatesData = () => {
+    clearTimeout(timer);
+    tabsDesktop.innerHTML = ``;
+    assemblyStates.innerHTML = ``;
+    allContentContainer.innerHTML = ``;
+
+    fetch(`/api/elections/states`)
+        .then((response) => response.json())
+        .then((data) => {
+            if (Array.isArray(data.data)) {
+                let stateArrData = data.data;
+                let myState;
+
+                for (let state of stateArrData) {
+                    let stateId = state.id;
+                    let stateSlug = state.slug;
+
+                    allContentContainer.innerHTML += `<div class="tabContent" id="state_${stateId}">
+                        <div class="mapLeft" id="${stateId}-data"></div>
+                    </div>`;
+                    tabsDesktop.innerHTML += `<li id="${stateId}">
+                        <a href="#state_${stateId}" data-id="${stateId}">${state.name}</a>
+                    </li>`;
+                    assemblyStates.innerHTML += `<option value="${stateId}" data-tab-sel="state_${stateId}" id="optn_state1" data-id="${stateId}">${state.name}</option>`;
+
+                    if (!myState) {
+                        myState = stateId;
+                        selectedTab = stateId;
+                    }
+                }
+
+                if (selectedTab) {
+                    init(selectedTab);
+                    callAjax(selectedTab);
+                } else if (myState) {
+                    callAjax(myState);
+                    init(myState);
+                }
+
+                $("#tabs li").click(function () {
+                    var stateId = $(this).attr("id");
+                    selectedTab = stateId;
+                    callAjax(stateId);
+                });
+
+                timer = setTimeout(() => {
+                    fetchStatesData();
+                }, 60000);
+                sendHeight();
+            } else {
+                console.error('Failed to retrieve states:', data.message);
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+    fetchStatesData();
+    window.onload = sendHeight;
+    window.onresize = sendHeight;
+    </script>
+
+</body>
+
+</html>

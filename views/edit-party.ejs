@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Party</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/tailwind.css" />
+    <script src="/javascripts/font-awesome.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script> Font Awesome for Icons -->
+  </head>
+  <body class="bg-gray-100">
+    <%- include('navbar.ejs') %>
+
+    <div class="container mx-auto py-8">
+      <h1 class="text-2xl font-bold mb-4">Edit Party</h1>
+      <form id="editPartyForm" class="bg-white p-6 rounded-lg shadow-md">
+        <div class="mb-4">
+          <label
+            for="partyName"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Party Name:</label
+          >
+          <input
+            type="text"
+            id="partyName"
+            name="party"
+            value="<%= party.party %>"
+            required
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </div>
+
+        <!-- <div class="mb-4"> -->
+        <!--     <label for="totalSeats" class="block text-gray-700 text-sm font-bold mb-2">Total Seats:</label> -->
+        <!--     <input type="number" id="totalSeats" name="total_seat" value="<%= party.total_seat %>" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"> -->
+        <!-- </div> -->
+
+        <!-- <div class="mb-4"> -->
+        <!--     <label for="totalVotes" class="block text-gray-700 text-sm font-bold mb-2">Total Votes:</label> -->
+        <!--     <input type="number" id="totalVotes" name="total_votes" value="<%= party.total_votes %>" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"> -->
+        <!-- </div> -->
+
+        <!-- <div class="mb-4"> -->
+        <!--     <label for="electors" class="block text-gray-700 text-sm font-bold mb-2">Electors:</label> -->
+        <!--     <input type="number" id="electors" name="electors" value="<%= party.electors %>" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"> -->
+        <!-- </div> -->
+
+        <div class="mb-4">
+          <label
+            for="colorCode"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Color Code (Hex):</label
+          >
+          <input
+            type="text"
+            id="colorCode"
+            name="color_code"
+            value="<%= party.color_code %>"
+            required
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </div>
+
+        <!-- <div class="mb-4"> -->
+        <!--     <label for="votes_percentage" class="block text-gray-700 text-sm font-bold mb-2">Vote Percentage</label> -->
+        <!--     <input type="text" id="votes_percentage" name="votes_percentage" value="<%= party.votes_percentage %>" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"> -->
+        <!-- </div> -->
+
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2"
+            >Current Party Logo:</label
+          >
+          <% if (party.party_logo) { %>
+          <img
+            src="<%= party.party_logo %>"
+            alt="<%= party.party %> logo"
+            class="h-20 w-20 mb-2"
+          />
+          <% } else { %>
+          <p>No Logo Available</p>
+          <% } %>
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="partyLogo"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Upload New Logo (optional):</label
+          >
+          <input
+            type="file"
+            id="partyLogo"
+            name="party_logo"
+            accept="image/*"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <button
+            type="submit"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            <i class="fas fa-save mr-2"></i> Save Changes
+          </button>
+          <a href="/parties" class="text-gray-500 hover:text-gray-700"
+            >Cancel</a
+          >
+        </div>
+      </form>
+    </div>
+    <script>
+      document
+        .getElementById("editPartyForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent default form submission
+
+          // Gather the form data
+          const formData = new FormData();
+          formData.append("party", document.getElementById("partyName").value);
+          // formData.append('total_seat', document.getElementById('totalSeats').value);
+          // formData.append('total_votes', document.getElementById('totalVotes').value);
+          // formData.append('electors', document.getElementById('electors').value);
+          formData.append(
+            "color_code",
+            document.getElementById("colorCode").value
+          );
+          // formData.append('votes_percentage', document.getElementById('votes_percentage').value);
+
+          // Append the new logo file if it exists
+          const logoInput = document.getElementById("partyLogo");
+          if (logoInput.files.length > 0) {
+            formData.append("party_logo", logoInput.files[0]);
+          }
+
+          fetch("/api/party/<%= party._id %>", {
+            method: "PUT",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Handle successful response
+              console.log(data);
+              window.location.href = "/parties"; // Redirect after successful save
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+    </script>
+  </body>
+</html>

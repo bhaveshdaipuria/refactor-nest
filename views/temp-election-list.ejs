@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elections List</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/tailwind.css" />
+  </head>
+
+  <style>
+    thead {
+      position: sticky;
+      top: 0;
+    }
+    .scroll-container {
+      max-height: 500px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      width: 100%;
+      border-radius: 0.25rem;
+    }
+
+    .scroll-container table {
+      width: 100%;
+    }
+
+    /* Make the header row sticky */
+    .scroll-container thead {
+      position: sticky;
+      top: 0;
+      /* z-index: 1; */
+      background-color: rgb(229, 231, 235); /* bg-gray-200 equivalent */
+    }
+
+    /* Add a subtle shadow to the sticky header */
+    .scroll-container thead::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+    .hidden {
+      display: none;
+    }
+
+    .visible {
+      display: flex;
+    }
+
+    #candidatesModal {
+      transition: opacity 0.3s ease;
+    }
+
+    #candidatesModal.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #candidatesModal.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+
+  <body class="bg-gray-100">
+    <%- include('navbar.ejs') %>
+    <div class="container mx-auto w-full">
+      <% if (typeof error !=='undefined' && error) { %>
+      <div class="text-center mx-auto mt-10">
+        <h1 class="text-2xl font-bold text-red-500"><%= error %></h1>
+      </div>
+      <% } else { %>
+
+      <div class="flex justify-between items-center mt-5 mb-4">
+        <h1 class="text-2xl font-bold text-gray-800">Elections List</h1>
+        <% if (userRole==='admin' ) { %>
+        <button
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
+          onclick="window.location.href='/temp-create-election'"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+          <span>Create New Election</span>
+        </button>
+        <% } %>
+      </div>
+
+      <div id="election-table" class="overflow-x-auto w-full mt-5">
+        <!-- Table will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <div
+      id="deleteConfirmation"
+      class="fixed z-10 inset-0 overflow-y-auto"
+      style="display: none"
+    >
+      <div
+        class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+      >
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+          <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+        <span
+          class="hidden sm:inline-block sm:align-middle sm:h-screen"
+          aria-hidden="true"
+          >&#8203;</span
+        >
+        <div
+          class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-headline"
+        >
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <h3
+              class="text-lg leading-6 font-medium text-gray-900"
+              id="modal-headline"
+            >
+              Delete Confirmation
+            </h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">
+                Are you sure you want to delete this Election?
+              </p>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              id="confirmDelete"
+              type="button"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+              onclick="deleteElectionConfirmed()"
+            >
+              Delete
+            </button>
+            <button
+              id="cancelDelete"
+              type="button"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+              onclick="cancelDelete()"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Improved Candidates Modal with enhanced filtering -->
+    <div
+      id="candidatesModal"
+      class="fixed inset-0 flex items-center justify-center hidden z-50 transition-opacity duration-300"
+    >
+      <!-- Dark overlay background -->
+      <div
+        class="fixed inset-0 bg-gray-500 opacity-75"
+        onclick="closeModal()"
+      ></div>
+
+      <!-- Modal Content -->
+      <div
+        class="bg-white rounded-lg shadow-2xl w-11/12 md:w-3/4 max-w-4xl relative z-10"
+      >
+        <!-- Modal Header with filters -->
+        <div class="bg-white px-6 py-4 rounded-xl">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-xl text-black font-bold">Candidates List</h3>
+            <button
+              onclick="closeModal()"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors duration-200"
+            >
+              Close
+            </button>
+          </div>
+
+          <!-- Filter Controls -->
+          <div class="flex gap-4 mt-4">
+            <!-- Name Input Filter -->
+            <div>
+              <label
+                for="candidateNameFilter"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Candidate Name</label
+              >
+              <input
+                type="text"
+                id="candidateNameFilter"
+                placeholder="Search by name..."
+                class="w-full px-4 py-2 border-black border-2 text-gray-700 rounded-xl focus:outline-none focus:ring-0"
+                style="border: 2px solid black"
+                oninput="filterCandidates()"
+              />
+            </div>
+
+            <!-- Constituency Select Filter -->
+            <div>
+              <label
+                for="constituencyFilter"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Constituency</label
+              >
+              <select
+                id="constituencyFilter"
+                class="w-full px-4 py-2 border-black border-2 text-gray-700 rounded-xl focus:outline-none focus:ring-0"
+                style="border: 2px solid black"
+                onchange="filterCandidates()"
+              >
+                <option value="">All Constituencies</option>
+              </select>
+            </div>
+
+            <!-- Gender Select Filter -->
+            <div>
+              <label
+                for="genderFilter"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Gender</label
+              >
+              <select
+                id="genderFilter"
+                class="w-full px-4 py-2 border-black border-2 text-gray-700 rounded-xl focus:outline-none focus:ring-0"
+                style="border: 2px solid black"
+                onchange="filterCandidates()"
+              >
+                <option value="">All Genders</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Header with sort buttons -->
+        <div
+          class="bg-gray-100 px-6 py-3 grid grid-cols-5 gap-4 font-semibold text-gray-700 border-b border-gray-300"
+        >
+          <div class="flex items-center gap-1">
+            Name
+            <div class="flex flex-col ml-1">
+              <button
+                onclick="sortCandidates('name', 'asc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▲
+              </button>
+              <button
+                onclick="sortCandidates('name', 'desc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▼
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            Party
+            <div class="flex flex-col ml-1">
+              <button
+                onclick="sortCandidates('party', 'asc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▲
+              </button>
+              <button
+                onclick="sortCandidates('party', 'desc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▼
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            Constituency
+            <div class="flex flex-col ml-1">
+              <button
+                onclick="sortCandidates('constituency', 'asc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▲
+              </button>
+              <button
+                onclick="sortCandidates('constituency', 'desc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▼
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            Gender
+            <div class="flex flex-col ml-1">
+              <button
+                onclick="sortCandidates('gender', 'asc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▲
+              </button>
+              <button
+                onclick="sortCandidates('gender', 'desc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▼
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            Votes
+            <div class="flex flex-col ml-1">
+              <button
+                onclick="sortCandidates('votes', 'asc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▲
+              </button>
+              <button
+                onclick="sortCandidates('votes', 'desc')"
+                class="text-xs text-gray-500 hover:text-blue-600"
+              >
+                ▼
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidates List Content -->
+        <div id="candidatesList" style="height: 300px; overflow: scroll">
+          <!-- Candidates will be dynamically inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <% } %>
+
+    <script>
+                  let elections = <%- JSON.stringify(elections || []) %>;
+                  let electionToDelete = null;
+
+                  // Render the elections table
+                  function renderTable(elections) {
+                  	const tableDiv = document.getElementById('election-table');
+                  	tableDiv.innerHTML = `
+                                 <table class="table-auto mx-auto w-full max-w-4xl bg-white shadow-md rounded-lg mb-8">
+                                   <thead class="bg-gray-200">
+                                     <tr>
+                                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">State</th>
+                                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Year</th>
+                                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Total Seats</th>
+                                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Halfway Mark</th>
+                                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                                       <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                     </tr>
+                                   </thead>
+                                   <tbody class="bg-white">
+                                     ${elections.map((election, index) => `
+                                       <tr class="border-t border-gray-300">
+                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${election.state}</td>
+                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${election.year}</td>
+                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${election.totalSeats}</td>
+                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${election.halfWayMark}</td>
+                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${election.status}</td>
+                                         <td class="px-6 py-4 whitespace-nowrap flex items-center">
+                                           <button
+                                             class="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                                             onclick="toggleDetails('${election._id}')">
+                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                               <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                             </svg>
+                                           </button>
+
+                                           <button
+                                             class="bg-blue-500 text-white px-4 py-2 mr-2 rounded"
+                                                       onclick="viewAllianceData('${election._id}')">
+                                                       Alliances
+                                                     </button>
+                                           <button
+                                             class="bg-green-500 text-white px-4 py-2 rounded mr-2"
+                                             onclick="editElection('${election._id}')">
+                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                               <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                                             </svg>
+                                           </button>
+                    				<% if (userRole === 'admin') { %>
+                                           <button
+                                             class="bg-red-500 text-white px-4 py-2 rounded"
+                                             onclick="showDeleteConfirmation('${election._id}')">
+                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                               <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                             </svg>
+                                           </button>
+                    			<% } %>
+
+                                         </td>
+
+                                       </tr>
+                                       <!-- Collapsible Section for Party Details -->
+                                       <tr id="details-${election._id}" class="hidden">
+                                         <td colspan="5" class="bg-gray-100 px-6 py-2">
+                                           <table class="table-auto w-full">
+                                             <thead class="bg-gray-200">
+                                               <tr>
+                                                 <th class="px-6 py-2 text-left text-sm font-semibold text-gray-700">Party</th>
+                                                 <th class="px-6 py-2 text-left text-sm font-semibold text-gray-700">Logo</th>
+                                                 <th class="px-6 py-2 text-left text-sm font-semibold text-gray-700">Seats Won</th>
+                                                 <th class="px-6 py-2 text-left text-sm font-semibold text-gray-700">Votes</th>
+                                                 <th class="px-6 py-2 text-left text-sm font-semibold text-gray-700">Color</th>
+                                                 <th class="px-6 py-2 text-left text-sm font-semibold text-gray-700">Candidates</th>
+                                                 <th class="px-6 py-2 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                               </tr>
+                                             </thead>
+                                             <tbody class="bg-white">
+                                               ${election.electionInfo.partyIds.map(party => `
+                                                 <tr class="border-t border-gray-300">
+                                                   <td class="px-6 py-4 text-sm text-gray-900">${party.party}</td>
+                                                   <td class="px-6 py-4 text-sm text-gray-900">
+                                                     <img src="${party.party_logo}" alt="${party.party} Logo" class="h-8 w-8 object-contain">
+                                                   </td>
+                                                   <td class="px-6 py-4 text-sm text-gray-900">${party.seatsWon || 0}</td>
+                                                   <td class="px-6 py-4 text-sm text-gray-900">${party.votes || 0}</td>
+                                                   <td class="px-6 py-4">
+                                                     <div class="w-8 h-8 rounded-md" style="background-color: ${party.color_code || '#0000000'};"></div>
+                                                   </td>
+                                                   <td class="px-6 py-4 text-sm text-gray-900">
+                                                     ${election.electionInfo.candidates.filter(c => c.party._id === party._id).length}
+                                                   </td>
+                                                   <td class="px-6 py-4 text-sm text-gray-900">
+                                                     <button
+                                                       class="bg-blue-500 text-white px-3 py-1 rounded text-xs"
+                                                       onclick="viewCandidates('${election._id}', '${party._id}')">
+                                                       View Candidates
+                                                     </button>
+                                                   </td>
+                                                   <td class="px-6 py-4 text-sm text-gray-900">
+                                                   </td>
+                                                 </tr>
+                                               `).join('')}
+                                             </tbody>
+                                           </table>
+                                         </td>
+                                       </tr>
+                                     `).join('')}
+                                   </tbody>
+                                 </table>
+                               `;
+                  }
+
+                  function viewAllianceData(electionId) {
+                  	window.location.href = `/alliance-election/${electionId}`
+                  }
+
+                  // // Function to toggle visibility of party details
+                  // function toggleDetails(electionId) {
+                  // 	const detailsRow = document.getElementById(`details-${electionId}`);
+                  // 	detailsRow.classList.toggle('hidden');
+                  // }
+
+
+
+           // Function to toggle visibility of party details
+      function toggleDetails(electionId) {
+        const detailsRow = document.getElementById(`details-${electionId}`);
+        detailsRow.classList.toggle('hidden');
+
+        // Toggle the arrow icon
+        const toggleButton = document.querySelector(`button[onclick="toggleDetails('${electionId}')"]`);
+        const toggleIcon = toggleButton.querySelector('svg');
+
+        if (!detailsRow.classList.contains('hidden')) {
+          // Show up arrow when details are visible
+          toggleIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+          `;
+
+          // Get the table element within the details row
+          const detailsTable = detailsRow.querySelector('table');
+          // Add a container div around the table if it doesn't exist
+          if (!detailsRow.querySelector('.scroll-container')) {
+            const container = document.createElement('div');
+            container.className = 'scroll-container';
+            container.style.maxHeight = '500px';
+            container.style.overflowY = 'auto';
+            container.style.overflowX = 'hidden';
+            container.style.width = '100%';
+
+            // Move the table into the container
+            detailsTable.parentNode.insertBefore(container, detailsTable);
+            container.appendChild(detailsTable);
+          }
+        } else {
+          // Show down arrow when details are hidden
+          toggleIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          `;
+        }
+      }
+
+                  let currentCandidates = [];
+                  let sortField = 'name';
+                  let sortDirection = 'asc';
+
+                  // Updated function to view candidates with filtering and sorting
+                  function viewCandidates(electionId, partyId) {
+                  	const election = elections.find(e => e._id === electionId);
+                  	if (!election) return;
+
+                  	const party = election.electionInfo.partyIds.find(p => p._id === partyId);
+                  	if (!party) return;
+
+                  	currentCandidates = election.electionInfo.candidates.filter(c => c.party._id === partyId);
+
+                  	// Reset sort and filters
+                  	sortField = 'name';
+                  	sortDirection = 'asc';
+                  	document.getElementById('candidateNameFilter').value = '';
+                  	document.getElementById('constituencyFilter').value = '';
+                  	document.getElementById('genderFilter').value = '';
+
+                  	// Populate constituency dropdown
+                  	const constituencySelect = document.getElementById('constituencyFilter');
+                  	const uniqueConstituencies = [...new Set(currentCandidates.map(c => c.constituency.name))];
+                  	constituencySelect.innerHTML = '<option value="">All Constituencies</option>';
+                  	uniqueConstituencies.forEach(constituency => {
+                  		const option = document.createElement('option');
+                  		option.value = constituency;
+                  		option.textContent = constituency;
+                  		constituencySelect.appendChild(option);
+                  	});
+
+                  	// Render candidates
+                  	renderCandidates(currentCandidates);
+
+                  	// Show the modal
+                  	const modal = document.getElementById('candidatesModal');
+                  	modal.classList.remove('hidden');
+                  	modal.classList.add('flex');
+                  }            // Function to render candidates list
+                  function renderCandidates(candidates) {
+                  	const candidatesList = document.getElementById('candidatesList');
+
+                  	if (candidates.length === 0) {
+                  		candidatesList.innerHTML = '<div class="text-gray-500 text-center py-8 col-span-5">No candidates found</div>';
+                  		return;
+                  	}
+
+                  	candidatesList.innerHTML = candidates.map(candidate => `
+                                     <div class="grid grid-cols-5 gap-4 px-6 py-3 border-b-2 border-gray-200 hover:bg-blue-50 transition-colors duration-150">
+                                       <div class="font-medium truncate">
+                                         <a href="/edit-candidate/${candidate._id}" class="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer">
+                                           ${candidate.name}
+                                         </a>
+                                       </div>
+                                       <div class="flex items-center">
+                                         <div class="w-3 h-3 rounded-full mr-2" style="background-color: ${candidate.party.color_code || '#000'}"></div>
+                                         ${candidate.party.party}
+                                       </div>
+                                       <div class="truncate">${candidate.constituency.name}</div>
+                                       <div>${candidate.gender}</div>
+                                       <div class="text-left">${Number(candidate.votesReceived || 0).toLocaleString()}</div>
+                                     </div>
+                                   `).join('');
+                  }
+
+                  // Function to filter candidates based on search input
+                  function filterCandidates() {
+                  	const nameTerm = document.getElementById('candidateNameFilter').value.toLowerCase().trim();
+                  	const constituencyTerm = document.getElementById('constituencyFilter').value;
+                  	const genderTerm = document.getElementById('genderFilter').value.toLowerCase();
+
+                  	let filteredCandidates = currentCandidates;
+
+                  	// Apply name filter
+                  	if (nameTerm) {
+                  		filteredCandidates = filteredCandidates.filter(candidate =>
+                  			candidate.name.toLowerCase().includes(nameTerm)
+                  		);
+                  	}
+
+                  	// Apply constituency filter
+                  	if (constituencyTerm) {
+                  		filteredCandidates = filteredCandidates.filter(candidate =>
+                  			candidate.constituency.name === constituencyTerm
+                  		);
+                  	}
+
+                  	// Apply gender filter
+                  	if (genderTerm) {
+                  		filteredCandidates = filteredCandidates.filter(candidate =>
+                  			candidate.gender.toLowerCase() === genderTerm
+                  		);
+                  	}
+
+                  	// Apply current sort
+                  	sortCandidatesArray(filteredCandidates, sortField, sortDirection);
+                  	renderCandidates(filteredCandidates);
+                  }
+
+                  // Function to sort candidates
+                  function sortCandidates(field, direction, skipRender = false) {
+                  	sortField = field;
+                  	sortDirection = direction;
+
+                  	// Get currently filtered candidates
+                  	const nameTerm = document.getElementById('candidateNameFilter').value.toLowerCase().trim();
+                  	const constituencyTerm = document.getElementById('constituencyFilter').value;
+                  	const genderTerm = document.getElementById('genderFilter').value;
+
+                  	let candidatesToSort = currentCandidates;
+
+                  	// Apply filters before sorting
+                  	if (nameTerm) {
+                  		candidatesToSort = candidatesToSort.filter(candidate =>
+                  			candidate.name.toLowerCase().includes(nameTerm)
+                  		);
+                  	}
+
+                  	if (constituencyTerm) {
+                  		candidatesToSort = candidatesToSort.filter(candidate =>
+                  			candidate.constituency.name === constituencyTerm
+                  		);
+                  	}
+
+                  	if (genderTerm) {
+                  		candidatesToSort = candidatesToSort.filter(candidate =>
+                  			candidate.gender === genderTerm
+                  		);
+                  	}
+
+                  	// Sort the candidates
+                  	sortCandidatesArray(candidatesToSort, field, direction);
+
+                  	// Render if not skipped
+                  	if (!skipRender) {
+                  		renderCandidates(candidatesToSort);
+                  	}
+
+                  	return candidatesToSort;
+                  }
+
+                  // Helper function to sort candidates array
+                  function sortCandidatesArray(candidates, field, direction) {
+                  	candidates.sort((a, b) => {
+                  		let valueA, valueB;
+
+                  		switch (field) {
+                  			case 'name':
+                  				valueA = a.name.toLowerCase();
+                  				valueB = b.name.toLowerCase();
+                  				break;
+                  			case 'party':
+                  				valueA = a.party.party.toLowerCase();
+                  				valueB = b.party.party.toLowerCase();
+                  				break;
+                  			case 'constituency':
+                  				valueA = a.constituency.name.toLowerCase();
+                  				valueB = b.constituency.name.toLowerCase();
+                  				break;
+                  			case 'gender':
+                  				valueA = a.gender.toLowerCase();
+                  				valueB = b.gender.toLowerCase();
+                  				break;
+                  			case 'votes':
+                  				valueA = Number(a.votesReceived || 0);
+                  				valueB = Number(b.votesReceived || 0);
+                  				break;
+                  			default:
+                  				valueA = a.name.toLowerCase();
+                  				valueB = b.name.toLowerCase();
+                  		}
+
+                  		if (direction === 'asc') {
+                  			return valueA > valueB ? 1 : -1;
+                  		} else {
+                  			return valueA < valueB ? 1 : -1;
+                  		}
+                  	});
+
+                  	return candidates;
+                  }
+
+                  // Function to close the modal with a fade effect
+                  function closeModal() {
+                  	const modal = document.getElementById('candidatesModal');
+                  	modal.classList.add('opacity-0');
+
+                  	setTimeout(() => {
+                  		modal.classList.remove('flex');
+                  		modal.classList.add('hidden');
+                  		modal.classList.remove('opacity-0');
+                  	}, 300);
+                  }
+
+                  function editElection(electionId) {
+                  	window.location.href = `/temp-edit-election/${electionId}`;
+                  }
+
+                  // Function to show delete confirmation dialog
+                  function showDeleteConfirmation(electionId) {
+                  	electionToDelete = electionId;
+                  	document.getElementById('deleteConfirmation').style.display = 'block';
+                  }
+
+                  // Function to confirm delete
+                  function deleteElectionConfirmed() {
+                  	if (electionToDelete) {
+                  		deleteElection(electionToDelete);
+                  		electionToDelete = null;
+                  		document.getElementById('deleteConfirmation').style.display = 'none';
+                  	}
+                  }
+
+                  // Function to cancel delete
+                  function cancelDelete() {
+                  	electionToDelete = null;
+                  	document.getElementById('deleteConfirmation').style.display = 'none';
+                  }
+
+                  // Function to delete an election
+                  async function deleteElection(electionId) {
+                  	try {
+                  		const response = await fetch(`/api/elections/temp-election-delete/${electionId}`, {
+                  			method: 'DELETE'
+                  		});
+                  		const data = await response.json();
+
+                  		if (data.message === 'Election successfully deleted') {
+                  			window.location.reload()
+                  		} else {
+                  			alert('Error: ' + (data.message || 'Failed to delete election'));
+                  		}
+                  	} catch (error) {
+                  		console.error('Error deleting election:', error);
+                  		alert('Error: Failed to delete election');
+                  	}
+                  }
+
+                  // Function to fetch elections
+                  async function fetchElections() {
+                  	try {
+                  		const response = await fetch('/api/elections');
+                  		if (!response.ok) {
+                  			throw new Error('Failed to fetch elections');
+                  		}
+
+                  		const data = await response.json();
+                  		elections = data.data;
+                  		renderTable(elections);
+                  	} catch (error) {
+                  		console.error('Error fetching elections:', error);
+                  	}
+                  }
+                  // Initial page load
+                  function initPage() {
+                  	if (elections && elections.length > 0) {
+                  		renderTable(elections);
+                  	} else {
+                  		fetchElections();
+                  	}
+                  }
+
+                  // Initialize the page
+                  initPage();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bihar Election Results</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: #f0f2f5;
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #4d3c22 0%, #705c3d 100%);
+        color: white;
+        padding: 20px 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 600;
+      }
+
+      .header p {
+        margin-top: 5px;
+        opacity: 0.8;
+      }
+
+      .election-tabs {
+        display: flex;
+        border-bottom: 1px solid #eaeaea;
+        background: #fff;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .election-tabs::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      .election-tabs::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+      }
+
+      .tab {
+        padding: 15px 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+      }
+
+      .tab.active {
+        border-bottom: 3px solid #ff6a00;
+        color: #000;
+        font-weight: 600;
+      }
+
+      .tab:hover:not(.active) {
+        background-color: #f8f9fa;
+        border-bottom: 3px solid #ddd;
+      }
+
+      .election-content {
+        display: flex;
+        padding: 30px;
+        gap: 40px;
+      }
+
+      .chart-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        min-width: 320px;
+      }
+
+      .donut-chart {
+        width: 320px;
+        height: 320px;
+        position: relative;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .center-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        pointer-events: none;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 50%;
+        width: 160px;
+        height: 160px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .center-text h2 {
+        font-size: 42px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #4d3c22;
+      }
+
+      .center-text p {
+        font-size: 16px;
+        color: #666;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 8px;
+        background-color: #fafafa;
+        scrollbar-width: thin;
+      }
+
+      .legend::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .legend::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 4px;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+      }
+
+      .legend-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+      }
+
+      .results-table-container {
+        flex: 1.2;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .results-table {
+        flex: 1;
+        overflow: auto;
+        scrollbar-width: thin;
+        max-height: 500px;
+      }
+
+      .results-table::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .results-table::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      th {
+        background-color: #4d3c22;
+        color: white;
+        padding: 14px 15px;
+        text-align: left;
+        font-weight: 500;
+      }
+
+      td {
+        padding: 14px 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      tr:hover {
+        background-color: #f0f2f5;
+      }
+
+      .party-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .party-color {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .seats-won {
+        font-weight: 600;
+      }
+
+      .refresh-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #eee;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .summary-bar {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        gap: 20px;
+      }
+
+      .loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+
+      .loading.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(77, 60, 34, 0.1);
+        border-radius: 50%;
+        border-top-color: #4d3c22;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .progress-bar {
+        height: 4px;
+        width: 100%;
+        background-color: #eee;
+        position: relative;
+        margin-top: 10px;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ff6a00, #ff9d00);
+        width: 0%;
+        transition: width 0.5s ease;
+      }
+
+      @media (max-width: 992px) {
+        .election-content {
+          flex-direction: column;
+          padding: 20px;
+        }
+
+        .chart-container {
+          margin-bottom: 30px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .election-content {
+          padding: 15px;
+        }
+
+        .donut-chart {
+          width: 280px;
+          height: 280px;
+        }
+
+        .center-text h2 {
+          font-size: 36px;
+        }
+
+        .center-text {
+          width: 140px;
+          height: 140px;
+        }
+
+        .header h1 {
+          font-size: 24px;
+        }
+
+        th,
+        td {
+          padding: 12px 10px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .donut-chart {
+          width: 240px;
+          height: 240px;
+        }
+
+        .center-text {
+          width: 120px;
+          height: 120px;
+        }
+
+        .center-text h2 {
+          font-size: 32px;
+        }
+
+        .tab {
+          padding: 12px 15px;
+          font-size: 14px;
+        }
+
+        .legend-item {
+          padding: 4px 8px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <!-- <h1>बिहार विधानसभा चुनाव परिणाम</h1> -->
+        <!-- <h1>Bihar Legislative Assembly Election Results</h1> -->
+      </div>
+      <div class="election-tabs">
+        <!-- Tabs will be dynamically generated -->
+      </div>
+      <div class="election-content">
+        <div class="chart-container">
+          <div class="summary-bar">
+            <div>
+              <span id="electionYear"></span>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+              </div>
+            </div>
+            <div id="seatCounter" style="margin-bottom: 14px"></div>
+          </div>
+          <div class="donut-chart" id="donutChart"></div>
+          <div class="center-text">
+            <h2></h2>
+            <p>बहुमत</p>
+          </div>
+          <div class="legend">
+            <!-- Legend will be dynamically generated -->
+          </div>
+        </div>
+        <div class="results-table-container">
+          <div class="results-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>पार्टी</th>
+                  <th id="election_vote_status">जीते</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="refresh-info">
+            <span>Auto-refreshing every 30 seconds</span>
+            <span id="lastUpdated">Last updated: Just now</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <script>
+      let currentElectionData = null;
+      let autoRefreshInterval = null;
+      let activeTabKey = null;
+      let lastUpdatedTime = new Date();
+
+      async function fetchElectionData() {
+        showLoading(true);
+
+        try {
+          const params = new URLSearchParams(document.location.search);
+          const stateName = params.get("state") || "Bihar";
+          // This would be your actual API endpoint
+          const response = await fetch(
+            `/elections/state-elections?state=${stateName}`
+          );
+
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          const data = await response.json();
+          processElectionData(data);
+        } catch (error) {
+          console.error("Error fetching election data:", error);
+        } finally {
+          showLoading(false);
+          updateLastUpdatedTime();
+        }
+      }
+
+      function processElectionData(data) {
+        // Filter for Bihar elections
+
+        const biharElections = data.filter(
+          (election) => election.state === "Bihar"
+        );
+
+        if (!biharElections.length) {
+          console.error("No Bihar election data found");
+          return;
+        }
+
+        const electionData = {};
+
+        // Transform API data to the format needed for visualization
+        biharElections.forEach((election) => {
+          const key = `बिहार ${election.year}`;
+
+          // Add random leading counts for visualization interest (remove in production)
+          const processedParties = election.parties.map((p) => {
+            // If leading info is missing, add random leading data for visualization
+
+            return {
+              name: p.party.party,
+              won: p.seatsWon,
+              color: p.party.color_code,
+            };
+          });
+
+          // Sort parties by total seats (won + leading)
+          // processedParties.sort(
+          // 	(a, b) => b.won + b.leading - (a.won + a.leading),
+          // );
+
+          electionData[key] = {
+            totalSeats: election.totalSeats,
+            declaredSeats:
+              election.status === "completed"
+                ? election.totalSeats
+                : processedParties.reduce((sum, p) => sum + p.won, 0),
+            majorityMark: election.halfWayMark,
+            parties: processedParties,
+            status: election.status,
+          };
+        });
+
+        // Only update if data has changed or initial load
+        if (
+          !currentElectionData ||
+          JSON.stringify(currentElectionData) !== JSON.stringify(electionData)
+        ) {
+          currentElectionData = electionData;
+          updateElectionTabs(electionData);
+        }
+      }
+
+      function updateElectionTabs(electionData) {
+        const years = Object.keys(electionData)
+          .map((key) => key.split(" ")[1])
+          .sort((a, b) => b - a); // Sort years in descending order
+
+        if (years.length === 0) {
+          console.error("No election years available");
+          return;
+        }
+        // Initialize activeTabKey if it's not set (first load)
+        if (!activeTabKey) {
+          activeTabKey = `बिहार ${years[0]}`;
+        }
+
+        // If the active tab no longer exists in the data, default to the latest year
+        if (!Object.keys(electionData).includes(activeTabKey)) {
+          activeTabKey = `बिहार ${years[0]}`;
+        }
+        // Update tabs if needed
+        const tabsContainer = document.querySelector(".election-tabs");
+        const existingTabs = tabsContainer.querySelectorAll(".tab");
+        const existingYears = Array.from(existingTabs).map(
+          (tab) => tab.textContent.trim().split(" ")[1]
+        );
+
+        if (JSON.stringify(existingYears) !== JSON.stringify(years)) {
+          tabsContainer.innerHTML = "";
+          years.forEach((year, index) => {
+            const tabKey = `बिहार ${year}`;
+            const tab = document.createElement("div");
+            tab.className = `tab${tabKey === activeTabKey ? " active" : ""}`;
+            tab.textContent = `बिहार ${year}`;
+            tab.addEventListener("click", function () {
+              document.querySelector(".tab.active").classList.remove("active");
+              this.classList.add("active");
+              activeTabKey = this.textContent.trim();
+              const electionVoteStatus = document.querySelector(
+                "#election_vote_status"
+              );
+              electionVoteStatus.innerHTML =
+                electionData[activeTabKey].status === "completed"
+                  ? "जीते"
+                  : "आगे";
+              renderElectionData(activeTabKey);
+            });
+            tabsContainer.appendChild(tab);
+          });
+        }
+
+        // Render the latest election
+        renderElectionData(activeTabKey);
+
+        const electionVoteStatus = document.querySelector(
+          "#election_vote_status"
+        );
+        electionVoteStatus.innerHTML =
+          electionData[activeTabKey].status === "completed" ? "जीते" : "आगे";
+      }
+
+      function renderElectionData(key) {
+        const data = currentElectionData[key];
+        if (!data) return;
+
+        // Update center text
+        document.querySelector(".center-text h2").textContent =
+          data.majorityMark;
+
+        // Update election year and progress info
+        document.getElementById(
+          "electionYear"
+        ).textContent = `${key} (${data.declaredSeats}/${data.totalSeats} सीटें)`;
+        document.getElementById(
+          "seatCounter"
+        ).textContent = `बहुमत: ${data.majorityMark} सीटें`;
+
+        // Update progress bar
+        const progressPercentage = (data.declaredSeats / data.totalSeats) * 100;
+        document.getElementById(
+          "progressFill"
+        ).style.width = `${progressPercentage}%`;
+
+        // Update table
+        const tbody = document.querySelector("tbody");
+        tbody.innerHTML = "";
+        data.parties.forEach((party) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+					<td>
+						<div class="party-cell">
+							<span class="party-color" style="background-color: ${party.color}"></span>
+							${party.name}
+						</div>
+					</td>
+					<td class="seats-won">${party.won}</td>
+				`;
+          tbody.appendChild(row);
+        });
+
+        // Update legend
+        const legendContainer = document.querySelector(".legend");
+        legendContainer.innerHTML = "";
+        data.parties.forEach((party) => {
+          if (party.won > 0) {
+            // Only show parties with seats
+            const legendItem = document.createElement("div");
+            legendItem.className = "legend-item";
+            legendItem.innerHTML = `
+						<div class="legend-color" style="background-color: ${party.color}"></div>
+						<span>${party.name}: ${party.won}</span>
+					`;
+            legendContainer.appendChild(legendItem);
+          }
+        });
+
+        drawDonutChart(data);
+      }
+
+      function drawDonutChart(data) {
+        const container = document.getElementById("donutChart");
+        container.innerHTML = "";
+
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.setAttribute("viewBox", "0 0 100 100");
+
+        const centerX = 50;
+        const centerY = 50;
+        const radius = 40;
+        const strokeWidth = 15;
+        let startAngle = -90; // Start from top
+
+        // Calculate total seats for percentage calculation
+        const totalSeats = data.totalSeats;
+
+        // Filter out parties with zero seats and sort by won+leading
+        const activeParties = [...data.parties]
+          .filter((party) => party.won > 0)
+          .sort((a, b) => b.won + 0 - (a.won + 0));
+
+        // Add background circle (unfilled seats)
+        const bgCircle = document.createElementNS(svgNS, "circle");
+        bgCircle.setAttribute("cx", centerX);
+        bgCircle.setAttribute("cy", centerY);
+        bgCircle.setAttribute("r", radius);
+        bgCircle.setAttribute("fill", "none");
+        bgCircle.setAttribute("stroke", "#eaeaea");
+        bgCircle.setAttribute("stroke-width", strokeWidth);
+        svg.appendChild(bgCircle);
+
+        // Draw each party's arc
+        activeParties.forEach((party) => {
+          const seats = party.won;
+          if (seats === 0) return;
+
+          const percentage = seats / totalSeats;
+          const angle = percentage * 360;
+          const endAngle = startAngle + angle;
+
+          // Calculate arc path
+          const startRad = (startAngle * Math.PI) / 180;
+          const endRad = (endAngle * Math.PI) / 180;
+
+          const x1 = centerX + radius * Math.cos(startRad);
+          const y1 = centerY + radius * Math.sin(startRad);
+          const x2 = centerX + radius * Math.cos(endRad);
+          const y2 = centerY + radius * Math.sin(endRad);
+
+          const largeArc = angle > 180 ? 1 : 0;
+
+          // Create path element
+          const path = document.createElementNS(svgNS, "path");
+          const d = [
+            "M",
+            x1,
+            y1,
+            "A",
+            radius,
+            radius,
+            0,
+            largeArc,
+            1,
+            x2,
+            y2,
+          ].join(" ");
+
+          path.setAttribute("d", d);
+          path.setAttribute("stroke", party.color);
+          path.setAttribute("stroke-width", strokeWidth);
+          path.setAttribute("fill", "none");
+          path.setAttribute("stroke-linecap", "butt");
+
+          // Add hover effect
+          path.setAttribute("stroke-opacity", "0.9");
+          path.addEventListener("mouseenter", function () {
+            this.setAttribute("stroke-opacity", "1");
+            this.setAttribute("stroke-width", strokeWidth + 2);
+          });
+          path.addEventListener("mouseleave", function () {
+            this.setAttribute("stroke-opacity", "0.9");
+            this.setAttribute("stroke-width", strokeWidth);
+          });
+
+          svg.appendChild(path);
+          startAngle = endAngle;
+        });
+
+        // Add majority mark line
+        const majorityPercentage = data.majorityMark / data.totalSeats;
+        const majorityAngle = -90 + majorityPercentage * 360;
+        const majorityRad = (majorityAngle * Math.PI) / 180;
+        const majorityX =
+          centerX + (radius + strokeWidth / 2 + 2) * Math.cos(majorityRad);
+        const majorityY =
+          centerY + (radius + strokeWidth / 2 + 2) * Math.sin(majorityRad);
+        const innerX =
+          centerX + (radius - strokeWidth / 2 - 2) * Math.cos(majorityRad);
+        const innerY =
+          centerY + (radius - strokeWidth / 2 - 2) * Math.sin(majorityRad);
+
+        const majorityLine = document.createElementNS(svgNS, "line");
+        majorityLine.setAttribute("x1", innerX);
+        majorityLine.setAttribute("y1", innerY);
+        majorityLine.setAttribute("x2", majorityX);
+        majorityLine.setAttribute("y2", majorityY);
+        majorityLine.setAttribute("stroke", "#333");
+        majorityLine.setAttribute("stroke-width", "2");
+        majorityLine.setAttribute("stroke-dasharray", "2,2");
+        svg.appendChild(majorityLine);
+
+        container.appendChild(svg);
+      }
+
+      function showLoading(show) {
+        const loadingElement = document.querySelector(".loading");
+        if (show) {
+          loadingElement.classList.add("active");
+        } else {
+          loadingElement.classList.remove("active");
+        }
+      }
+
+      function updateLastUpdatedTime() {
+        lastUpdatedTime = new Date();
+        updateLastUpdatedText();
+      }
+
+      function updateLastUpdatedText() {
+        const now = new Date();
+        const diff = Math.floor((now - lastUpdatedTime) / 1000); // seconds
+
+        let text = "";
+        if (diff < 10) {
+          text = "Just now";
+        } else if (diff < 60) {
+          text = `${diff} seconds ago`;
+        } else if (diff < 3600) {
+          const minutes = Math.floor(diff / 60);
+          text = `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+        } else {
+          const hours = Math.floor(diff / 3600);
+          text = `${hours} hour${hours > 1 ? "s" : ""} ago`;
+        }
+
+        document.getElementById(
+          "lastUpdated"
+        ).textContent = `Last updated: ${text}`;
+      }
+
+      // Start auto-refresh
+      function startAutoRefresh() {
+        if (!autoRefreshInterval) {
+          autoRefreshInterval = setInterval(fetchElectionData, 30000); // Refresh every 30 seconds
+          setInterval(updateLastUpdatedText, 10000); // Update "Last updated" text every 10 seconds
+        }
+      }
+
+      // Stop auto-refresh
+      function stopAutoRefresh() {
+        if (autoRefreshInterval) {
+          clearInterval(autoRefreshInterval);
+          autoRefreshInterval = null;
+        }
+      }
+
+      // Initial load and start auto-refresh
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchElectionData();
+        startAutoRefresh();
+      });
+
+      // Cleanup on page unload
+      window.addEventListener("beforeunload", function () {
+        stopAutoRefresh();
+      });
+    </script>
+  </body>
+</html>

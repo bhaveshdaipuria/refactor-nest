@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Right-Side Overlay Sidebar</title>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> -->
+    <link rel="stylesheet" href="/stylesheets/font-awesome.min.css" />
+    <style>
+      /* General styles */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f4f8;
+        /* Light background for better contrast */
+        margin: 0;
+      }
+
+      nav {
+        background: #ffffff;
+        /* Nav background */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 10px 20px;
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        /* Align to the right */
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Semi-transparent background */
+        display: none;
+        /* Hidden by default */
+        justify-content: flex-start;
+        /* Align items to the right */
+        align-items: center;
+      }
+
+      .sidebar {
+        background: #ffffff;
+        /* Sidebar background */
+        width: 300px;
+        /* Width of sidebar */
+        height: 100%;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+        /* Shadow to the left */
+        transition: transform 0.3s ease;
+        transform: translateX(-100%);
+        /* Initially hidden off-screen */
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+        /* Show sidebar when active */
+      }
+
+      .sidebar h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+        /* Header color */
+      }
+
+      .sidebar ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .sidebar li {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        /* Padding for each item */
+        border-bottom: 1px solid #eaeaea;
+        /* Bottom border for partition */
+      }
+
+      .sidebar li:last-child {
+        border-bottom: none;
+        /* Remove border from last item */
+      }
+
+      .sidebar a {
+        text-decoration: none;
+        color: #333;
+        /* Link color */
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        gap: 20px;
+        padding: 10px;
+        /* Padding for link */
+        transition: background-color 0.3s;
+        /* Transition effect for background */
+      }
+
+      .sidebar a:hover {
+        background-color: #f1f1f1;
+        /* Background color on hover */
+        border-radius: 4px;
+        /* Rounded corners on hover */
+      }
+
+      .sidebar i {
+        margin-right: 10px;
+        /* Space between icon and text */
+        color: #007bff;
+        /* Icon color */
+      }
+
+      .logout-button {
+        background-color: #dc3545;
+        /* Logout button background */
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .logout-button:hover {
+        background-color: #c82333;
+        /* Logout button hover */
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="relative w-full">
+      <div class="w-full flex justify-center items-center mt-4">
+        <nav class="flex justify-between items-center mx-4 w-full">
+          <div class="flex gap-3">
+            <button
+              onclick="toggleSidebar()"
+              class="text-gray-700 hover:text-gray-900 font-bold text-xl"
+            >
+              ☰
+            </button>
+            <!-- Button to open sidebar -->
+            <div
+              class="flex items-center cursor-pointer"
+              onclick="window.location.href='/dashboard'"
+            >
+              <p class="text-xl font-bold">Election</p>
+            </div>
+          </div>
+
+          <div class="flex justify-end items-center gap-2">
+            <button
+              onclick="window.location.href='/api/auth/logout'"
+              class="logout-button"
+            >
+              Logout
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Overlay Sidebar -->
+      <div class="overlay" id="overlay" onclick="toggleSidebar()">
+        <div class="sidebar" id="sidebar" onclick="event.stopPropagation()">
+          <!-- Prevent overlay click when clicking sidebar -->
+          <h2>Election</h2>
+          <ul id="partyList" class="space-y-2">
+            <% if (userRole==='admin' || userRole==='superadmin' ) { %>
+            <!-- <li> -->
+            <!--   <a href="/create-election" -->
+            <!--     ><i class="fas fa-plus"></i>Create Election</a -->
+            <!--   > -->
+            <!-- </li> -->
+            <% } %> <% if (userRole==='admin' || userRole==='superadmin' ) { %>
+            <li>
+              <a href="/parties"><i class="fas fa-users"></i>Parties</a>
+            </li>
+            <% } %> <% if (userRole==='admin' || userRole==='superadmin' ) { %>
+            <li>
+              <a href="/constituency"><i class="fas fa-map"></i>Constituency</a>
+            </li>
+            <% } %>
+            <li>
+              <a href="/assembly-election"
+                ><i class="fas fa-balance-scale"></i>Assembly Election</a
+              >
+            </li>
+            <% if (userRole==='admin' || userRole==='superadmin' ) { %>
+            <li>
+              <a href="/candidates"><i class="fas fa-user"></i>Candidate</a>
+            </li>
+            <% } %>
+            <li>
+              <a href="/temp-election-list"
+                ><i class="fas fa-list"></i>Election List</a
+              >
+            </li>
+            <% if (userRole==='admin' || userRole==='superadmin' ) { %>
+            <li>
+              <a href="/alliances"><i class="fas fa-handshake"></i>Alliance</a>
+            </li>
+            <% } %> <% if (userRole==='admin' || userRole==='superadmin' ) { %>
+            <li>
+              <a href="/temp-create-election"
+                ><i class="fas fa-plus"></i>Create Election</a
+              >
+            </li>
+            <% } %> <% if (userRole==='admin' || userRole==='superadmin' ) { %>
+            <li>
+              <a href="/create-account"
+                ><i class="fas fa-plus"></i> Create New Account</a
+              >
+            </li>
+            <% } %> <% if (userRole==='admin' || userRole==='superadmin' ) { %>
+            <li>
+              <a href="/accounts-list"
+                ><i class="fas fa-list"></i> Accounts List</a
+              >
+            </li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function toggleSidebar() {
+        const overlay = document.getElementById("overlay");
+        const sidebar = document.getElementById("sidebar");
+        overlay.style.display =
+          overlay.style.display === "flex" ? "none" : "flex";
+        sidebar.classList.toggle("active");
+      }
+    </script>
+  </body>
+</html>

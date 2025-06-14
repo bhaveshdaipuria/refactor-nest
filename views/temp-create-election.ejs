@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Create New Election</title>
+	<link rel="stylesheet" href="/stylesheets/style.css" />
+	<link rel="stylesheet" href="/stylesheets/tailwind.css" />
+</head>
+
+<body class="bg-gray-50">
+	<%- include('navbar.ejs') %>
+
+		<div class="container mx-auto px-4 py-8">
+			<form id="electionForm" class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6"
+				method="POST">
+				<!-- Main State Info -->
+				<div class="space-y-6 mb-8">
+					<h2 class="text-2xl font-bold text-gray-800 mb-6">
+						Create New Election
+					</h2>
+
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label
+								class="block text-sm font-medium text-gray-700">State</label>
+							<input type="text" name="state"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+								required />
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700">Total
+								Seats</label>
+							<input type="number" name="totalSeats"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+								required />
+						</div>
+
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700">Election
+								Type</label>
+							<select id="election-type" name="election-type"
+								class="mt-1 block w-full border border-gray-300 p-2 rounded"
+								required>
+								<option value="general">General Election</option>
+								<option value="assembly">Assembly Election</option>
+							</select>
+						</div>
+
+						<div>
+							<label
+								class="block text-sm font-medium text-gray-700">Year</label>
+							<input type="number" name="year"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+								required />
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700">Half Way
+								Mark</label>
+							<input type="number" name="halfWayMark"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+								required />
+						</div>
+					</div>
+				</div>
+
+				<!-- Single Election Info Section -->
+				<div class="space-y-6">
+					<div class="flex justify-between items-center">
+						<h3 class="text-xl font-semibold text-gray-800">
+							Election Information
+						</h3>
+					</div>
+
+					<div id="electionInfoContainer" class="border rounded-lg p-4 bg-gray-50">
+						<!-- Parties Selection -->
+						<div class="mb-4">
+							<label class="block text-sm font-medium text-gray-700 mb-2">Select
+								Parties</label>
+							<div class="custom-dropdown">
+								<div id="partiesToggle"
+									class="flex justify-between items-center w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 py-2 px-3 bg-white cursor-pointer">
+									<span id="selectedPartiesText">Select
+										parties</span>
+									<svg class="h-4 w-4 text-gray-400"
+										xmlns="http://www.w3.org/2000/svg"
+										viewBox="0 0 20 20" fill="currentColor">
+										<path fill-rule="evenodd"
+											d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+											clip-rule="evenodd" />
+									</svg>
+								</div>
+								<div id="partiesMenu"
+									class="dropdown-menu mt-1 w-full border border-gray-300 rounded-md shadow-md bg-white hidden">
+									<div class="p-2">
+										<% parties.forEach(function(party) { %>
+											<div
+												class="py-1 px-2 hover:bg-gray-100 rounded">
+												<label
+													class="flex items-center w-full cursor-pointer">
+													<input type="checkbox"
+														name="electionInfo[partyIds][]"
+														value="<%= party._id %>"
+														class="party-checkbox form-checkbox h-4 w-4 text-blue-600"
+														data-party-name="<%= party.party %>"
+														onchange="handlePartySelection()" />
+													<span
+														class="ml-2 text-sm">
+														<%= party.party
+															%>
+													</span>
+												</label>
+											</div>
+											<% }); %>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Candidates Selection -->
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-2">Select
+								Candidates</label>
+							<div class="custom-dropdown">
+								<div id="candidatesToggle"
+									class="flex justify-between items-center w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 py-2 px-3 bg-white cursor-pointer">
+									<span id="selectedCandidatesText">Select
+										candidates</span>
+									<svg class="h-4 w-4 text-gray-400"
+										xmlns="http://www.w3.org/2000/svg"
+										viewBox="0 0 20 20" fill="currentColor">
+										<path fill-rule="evenodd"
+											d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+											clip-rule="evenodd" />
+									</svg>
+								</div>
+								<div id="candidatesMenu"
+									class="dropdown-menu mt-1 w-full border border-gray-300 rounded-md shadow-md bg-white hidden">
+									<div class="p-2" id="candidatesContainer">
+										<div
+											class="text-sm text-gray-500 py-2 text-center">
+											Please select parties first
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="mt-8">
+					<button type="submit"
+						class="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+						Create Election
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<script>
+			const candidates = <%- JSON.stringify(candidates || []) %>;
+			const parties = <%- JSON.stringify(parties || []) %>;
+			// Add this function to run when the page loads
+			document.addEventListener('DOMContentLoaded', function () {
+				// Check if any party checkboxes are already checked (happens after page refresh)
+				const checkedParties = document.querySelectorAll('#partiesMenu .party-checkbox:checked');
+
+				if (checkedParties.length > 0) {
+					// Update the parties text display
+					updateSelectedPartiesText(checkedParties);
+
+					// Get the selected party IDs
+					const selectedPartyIds = Array.from(checkedParties).map(cb => cb.value);
+
+					// Filter and show the candidates based on these parties
+					filterCandidatesByParties(selectedPartyIds);
+				}
+			});
+
+			// Add dropdown toggle listeners
+			document.getElementById('partiesToggle').addEventListener('click', () =>
+				document.getElementById('partiesMenu').classList.toggle('hidden')
+			);
+
+			document.getElementById('candidatesToggle').addEventListener('click', () =>
+				document.getElementById('candidatesMenu').classList.toggle('hidden')
+			);
+
+			function handlePartySelection() {
+				const checkboxes = document.querySelectorAll('#partiesMenu .party-checkbox:checked');
+				const selectedPartyIds = Array.from(checkboxes).map(cb => cb.value);
+				updateSelectedPartiesText(checkboxes);
+				filterCandidatesByParties(selectedPartyIds);
+			}
+
+			function updateSelectedPartiesText(checkboxes) {
+				const textElement = document.getElementById('selectedPartiesText');
+				if (checkboxes.length === 0) {
+					textElement.textContent = 'Select parties';
+				} else {
+					const names = Array.from(checkboxes).map(cb => cb.dataset.partyName);
+					textElement.textContent = names.join(', ');
+				}
+			}
+
+			function filterCandidatesByParties(selectedPartyIds) {
+				const container = document.getElementById('candidatesContainer');
+
+				if (selectedPartyIds.length === 0) {
+					container.innerHTML = '<div class="text-sm text-gray-500 py-2 text-center">Please select parties first</div>';
+					return;
+				}
+
+				const filtered = candidates.filter(c =>
+					selectedPartyIds.includes(c.party._id.toString())
+				);
+
+				if (filtered.length === 0) {
+					container.innerHTML = '<div class="text-sm text-gray-500 py-2 text-center">No candidates found</div>';
+					return;
+				}
+
+				container.innerHTML = filtered.map(c => `
+            					<div class="py-1 px-2 hover:bg-gray-100 rounded">
+            						<label class="flex items-center w-full cursor-pointer">
+            							<input
+            								type="checkbox"
+            								name="electionInfo[candidates][]"
+                            data-constituency-id="${c.constituency[0]._id}"
+            								value="${c._id}"
+            								class="candidate-checkbox form-checkbox h-4 w-4 text-blue-600"
+            								onchange="updateSelectedCandidates()"
+            							/>
+            							<span class="ml-2 text-sm">${c.name} (${parties.find(p => p._id.toString() === c.party._id.toString())?.party || 'Unknown'} - ${c.constituency[0].name})</span>
+            						</label>
+            					</div>
+            				`).join('');
+			}
+
+			function updateSelectedCandidates() {
+				const checkboxes = document.querySelectorAll('#candidatesContainer .candidate-checkbox:checked');
+				const textElement = document.getElementById('selectedCandidatesText');
+				textElement.textContent = checkboxes.length > 0
+					? `${checkboxes.length} selected`
+					: 'Select candidates';
+			}
+
+			// Close dropdowns when clicking outside
+			document.addEventListener('click', (e) => {
+				if (!e.target.closest('.custom-dropdown')) {
+					document.querySelectorAll('.dropdown-menu').forEach(menu =>
+						menu.classList.add('hidden')
+					);
+				}
+			});
+
+			// Form submission
+			document.getElementById('electionForm').addEventListener('submit', function (e) {
+				e.preventDefault();
+				const formData = new FormData(this);
+
+
+				// Get all checked candidate checkboxes
+				const candidateCheckboxes = document.querySelectorAll('#candidatesContainer .candidate-checkbox:checked');
+
+				// Get array of candidate IDs
+				const candidateIds = Array.from(candidateCheckboxes).map(cb => cb.value);
+
+				// Get array of unique constituency IDs from selected candidates
+				const constituencyIds = [...new Set(
+					Array.from(candidateCheckboxes).map(cb => cb.getAttribute('data-constituency-id'))
+				)];
+
+				const data = {
+					state: formData.get('state'),
+					electionSlug: formData.get('state').toLowerCase().replace(/\s+/g, '-'),
+					totalSeats: parseInt(formData.get('totalSeats')),
+					electionType: formData.get('election-type'),
+					year: parseInt(formData.get('year')),
+					halfWayMark: parseInt(formData.get('halfWayMark')),
+					electionInfo: {
+						partyIds: formData.getAll('electionInfo[partyIds][]'),
+						candidates: formData.getAll('electionInfo[candidates][]')
+					},
+					constituencies: constituencyIds
+				};
+
+				// Submit data
+				fetch('/api/elections/temp-elections', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify(data)
+				})
+					.then(response => response.json())
+					.then(data => {
+						if (data) window.location.href = '/temp-election-list';
+						else alert('Error: ' + data.message);
+					})
+					.catch(error => console.error('Error:', error));
+			});
+			// search box for candidates selection
+			// Simplified function to add candidate search
+			function addCandidateSearch() {
+				// Function to filter candidates based on search term
+				function filterCandidates(searchTerm) {
+					const items = document.querySelectorAll('#candidatesContainer .py-1.px-2');
+					searchTerm = searchTerm.toLowerCase();
+
+					items.forEach(item => {
+						// Skip if this is the search container
+						if (item.classList.contains('search-container')) return;
+
+						const text = item.textContent.toLowerCase();
+						item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+					});
+				}
+
+				// Override the original filterCandidatesByParties function
+				const originalFilter = filterCandidatesByParties;
+				window.filterCandidatesByParties = function (selectedPartyIds) {
+					// Call the original function
+					originalFilter(selectedPartyIds);
+
+					// Add search input if candidates are loaded
+					if (selectedPartyIds.length > 0) {
+						const container = document.getElementById('candidatesContainer');
+
+						// Only add search if it doesn't exist yet
+						if (!document.getElementById('candidateSearchInput')) {
+							// Create search box
+							const searchDiv = document.createElement('div');
+							searchDiv.className = 'py-1 px-2 search-container mb-2';
+							searchDiv.innerHTML = `
+                <input
+                  type="text"
+                  id="candidateSearchInput"
+                  placeholder="Search candidates..."
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3"
+                >
+              `;
+
+							// Add to top of container
+							container.insertBefore(searchDiv, container.firstChild);
+
+							// Add event listener
+							document.getElementById('candidateSearchInput').addEventListener('input', function () {
+								filterCandidates(this.value);
+							});
+						}
+					}
+				};
+			}
+
+			// Initialize on page load
+			document.addEventListener('DOMContentLoaded', addCandidateSearch);
+		</script>
+</body>
+
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Candidates</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/tailwind.css" />
+    <link rel="stylesheet" href="/stylesheets/font-awesome.min.css" />
+    <script src="/javascripts/font-awesome.min.js"></script>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" /> -->
+  </head>
+
+  <body class="bg-gray-100">
+    <%- include('navbar.ejs') %>
+    <div class="container mx-auto my-6">
+      <h1 class="text-2xl font-bold mb-4 text-center">List of Candidates</h1>
+      <div class="flex justify-between mb-4">
+        <!-- Search Bar -->
+        <form method="get" action="/candidates" class="flex items-center">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search candidates"
+            value="<%= search || '' %>"
+            class="border border-gray-300 rounded-l px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-r"
+          >
+            Search
+          </button>
+        </form>
+
+        <!-- Add Candidate Button -->
+        <div class="flex gap-4">
+          <div class="flex gap-4">
+            <input
+              style="width: 256px"
+              id="input-file"
+              type="file"
+              accept=".xls,.xlsx"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
+            />
+            <button
+              onclick="handleFileUpload()"
+              style="background-color: purple"
+              class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded flex items-center"
+            >
+              Submit File
+            </button>
+          </div>
+          <a
+            href="/create-candidate"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center"
+          >
+            <span class="mr-2">+</span> Add Candidate
+          </a>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table
+          class="min-w-full bg-white border border-gray-300 shadow-md rounded-lg"
+        >
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="py-2 px-4 border-b">Name</th>
+              <th class="py-2 px-4 border-b">Age</th>
+              <th class="py-2 px-4 border-b">Gender</th>
+              <th class="py-2 px-4 border-b">Party</th>
+              <th class="py-2 px-4 border-b">Constituency</th>
+
+              <th class="py-2 px-4 border-b">Hot Candidate</th>
+              <th class="py-2 px-4 border-b">Image</th>
+              <th class="py-2 px-4 border-b">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% candidates.forEach(candidate=> { %>
+            <tr class="hover:bg-gray-100" data-id="<%= candidate._id %>">
+              <td class="py-2 px-4 border-b text-center">
+                <%= candidate.name %>
+              </td>
+              <td class="py-2 px-4 border-b text-center">
+                <%= candidate.age || 'N/A' %>
+              </td>
+              <td class="py-2 px-4 border-b text-center">
+                <%= candidate.gender || 'N/A' %>
+              </td>
+              <td class="py-2 px-4 border-b text-center">
+                <%= candidate.party ? candidate.party.party : 'N/A' %>
+              </td>
+              <td class="py-2 px-4 border-b text-center">
+                <%= candidate.constituency && candidate.constituency.length> 0 ?
+                candidate.constituency.map(cons => cons.name).join(', ') : 'N/A'
+                %>
+              </td>
+
+              <td class="py-2 px-4 border-b text-center">
+                <%= candidate.hotCandidate || false %>
+              </td>
+              <td class="py-2 px-4 border-b text-center">
+                <% if (candidate.image) { %>
+                <a
+                  href="<%= candidate.image %>"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src="<%= candidate.image %>"
+                    alt="<%= candidate.name %> logo"
+                    class="h-10 w-10 cursor-pointer"
+                  />
+                </a>
+                <% } else { %> No Logo <% } %>
+              </td>
+              <td class="py-2 px-4 border-b text-center">
+                <a
+                  href="/edit-candidate/<%= candidate._id %>"
+                  class="text-blue-500 hover:text-blue-700"
+                >
+                  <i class="fas fa-edit"></i>
+                </a>
+                <button class="delete-btn text-red-500 hover:text-red-700 ml-4">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="flex justify-between items-center mt-4">
+        <% if (currentPage> 1) { %>
+        <a
+          href="/candidates?page=<%= currentPage - 1 %>&limit=<%= limit %>"
+          class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700"
+          >Previous</a
+        >
+        <% } %>
+        <span>Page <%= currentPage %> of <%= totalPages %></span>
+        <% if (currentPage < totalPages) { %>
+        <a
+          href="/candidates?page=<%= currentPage + 1 %>&limit=<%= limit %>"
+          class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700"
+          >Next</a
+        >
+        <% } %>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const deleteButtons = document.querySelectorAll(".delete-btn");
+
+        deleteButtons.forEach((button) => {
+          button.addEventListener("click", async (event) => {
+            const row = event.target.closest("tr");
+            const candidateId = row.getAttribute("data-id");
+
+            if (confirm("Are you sure you want to delete this candidate?")) {
+              try {
+                const response = await fetch(`/api/candidate/${candidateId}`, {
+                  method: "DELETE",
+                });
+
+                if (response.ok) {
+                  row.remove(); // Remove row from the table
+                  // alert('Candidate deleted successfully.');
+                } else {
+                  alert("Failed to delete candidate.");
+                }
+              } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+              }
+            }
+          });
+        });
+      });
+
+      function handleFileUpload() {
+        const file = document.getElementById("input-file").files[0];
+        console.log(file);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        console.log(formData.has("file"));
+
+        fetch("/api/candidate/file-upload", {
+          body: formData,
+          method: "POST",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Candidates Added Successfully");
+              window.location.reload();
+            }
+          })
+          .catch((err) => alert(`Error: ${err}`));
+      }
+    </script>
+  </body>
+</html>

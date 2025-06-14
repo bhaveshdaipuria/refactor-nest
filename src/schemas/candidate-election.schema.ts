@@ -1,4 +1,4 @@
-import { Schema, Types } from 'mongoose';
+import { Schema } from "mongoose";
 
 export const ElectionCandidateSchema = new Schema({
   election: {
@@ -21,4 +21,4 @@ export const ElectionCandidateSchema = new Schema({
     type: String,
     enum: ["Won", "Lost", "Winning", "Trailing"],
   },
-}); 
+});

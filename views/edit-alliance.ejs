@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Edit Alliance</title>
+	<link rel="stylesheet" href="/stylesheets/style.css">
+	<link rel="stylesheet" href="/stylesheets/tailwind.css">
+	<script src="/javascripts/font-awesome.min.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script> Font Awesome for Icons -->
+</head>
+
+<body class="bg-gray-100">
+	<%- include('navbar.ejs') %>
+
+		<div class="container mx-auto py-8">
+			<h1 class="text-2xl font-bold mb-4">Edit Alliance</h1>
+			<form id="editAllianceForm" class="bg-white p-6 rounded-lg shadow-md">
+				<div class="mb-4">
+					<label for="allianceName"
+						class="block text-gray-700 text-sm font-bold mb-2">Alliance
+						Name:</label>
+					<input type="text" id="allianceName" name="allianceName"
+						value="<%= alliance.name %>" required
+						class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+				</div>
+
+				<div class="mb-4">
+					<label for="leaderParty"
+						class="block text-gray-700 text-sm font-bold mb-2">Leader Party</label>
+					<select id="leaderParty" name="leaderParty" required
+						class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+						<option value="">Select Leader Party</option>
+						<% alliance.parties.forEach(function(party) { %>
+							<option value="<%= party._id %>" <%=(alliance.leaderParty &&
+								alliance.leaderParty._id.toString()===party._id.toString())
+								? 'selected' : '' %>>
+								<%= party.party %>
+							</option>
+							<% }); %>
+					</select>
+				</div>
+
+				<div class="mb-4 relative">
+					<label for="partiesDropdown"
+						class="block text-gray-700 text-sm font-bold mb-2">Parties</label>
+					<div class="relative">
+						<div id="partiesDropdownButton"
+							class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex justify-between items-center cursor-pointer">
+							<span id="selectedPartiesText">Select parties</span>
+							<i class="fas fa-chevron-down"></i>
+						</div>
+
+						<!-- Custom Dropdown Menu with Checkboxes -->
+						<div id="partiesMenu"
+							class="hidden dropdown-menu mt-1 w-full border border-gray-300 rounded-md shadow-md bg-white absolute z-10">
+							<div class="p-2">
+								<% allParties.forEach(function(party) { %>
+									<% let isSelected=false; if (alliance.parties &&
+										alliance.parties.length> 0) {
+										alliance.parties.forEach(function(p) {
+										if (p._id && p._id.toString() ===
+										party._id.toString()) {
+										isSelected = true;
+										}
+										});
+										}
+										%>
+										<div
+											class="py-1 px-2 hover:bg-gray-100 rounded">
+											<label
+												class="flex items-center w-full cursor-pointer">
+												<input type="checkbox"
+													name="parties[]"
+													value="<%= party._id %>"
+													class="party-checkbox form-checkbox h-4 w-4 text-blue-600"
+													onchange="updateSelectedParties()"
+													<%=isSelected
+													? 'checked' : ''
+													%>>
+												<span
+													class="ml-2 text-sm">
+													<%= party.party
+														%>
+												</span>
+											</label>
+										</div>
+										<% }); %>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="mb-4">
+					<label class="block text-gray-700 text-sm font-bold mb-2">Current Alliance
+						Logo:</label>
+					<% if (alliance.logo) { %>
+						<img src="<%= alliance.logo %>" alt="<%= alliance.name %> logo"
+							class="h-20 w-20 mb-2">
+						<% } else { %>
+							<p>No Logo Available</p>
+							<% } %>
+				</div>
+
+				<div class="mb-4">
+					<label for="logo" class="block text-gray-700 text-sm font-bold mb-2">Upload New
+						Logo (optional):</label>
+					<input type="file" id="logo" name="logo" accept="image/*"
+						class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+				</div>
+
+				<div class="flex items-center justify-between">
+					<button type="submit"
+						class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+						<i class="fas fa-save mr-2"></i> Save Changes
+					</button>
+					<a href="/alliances" class="text-gray-500 hover:text-gray-700">Cancel</a>
+				</div>
+			</form>
+
+		</div>
+		<script>
+			// Toggle parties dropdown
+			document.getElementById('partiesDropdownButton').addEventListener('click', function () {
+				document.getElementById('partiesMenu').classList.toggle('hidden');
+			});
+
+			// Close dropdown when clicking outside
+			document.addEventListener('click', function (event) {
+				const dropdown = document.getElementById('partiesMenu');
+				const dropdownButton = document.getElementById('partiesDropdownButton');
+
+				if (!dropdown.contains(event.target) && !dropdownButton.contains(event.target)) {
+					dropdown.classList.add('hidden');
+				}
+			});
+
+			// Initialize the selected parties text
+			document.addEventListener('DOMContentLoaded', function () {
+				updateSelectedParties();
+			});
+
+			// Function to update the selected parties text
+			function updateSelectedParties() {
+				const checkboxes = document.querySelectorAll('.party-checkbox:checked');
+				const selectedPartiesText = document.getElementById('selectedPartiesText');
+
+				if (checkboxes.length === 0) {
+					selectedPartiesText.textContent = 'Select parties';
+				} else if (checkboxes.length === 1) {
+					const partyName = checkboxes[0].nextElementSibling.textContent.trim();
+					selectedPartiesText.textContent = partyName;
+				} else {
+					selectedPartiesText.textContent = `${checkboxes.length} parties selected`;
+				}
+			}
+
+			document.getElementById('editAllianceForm').addEventListener('submit', function (event) {
+				event.preventDefault(); // Prevent default form submission
+
+				// Gather the form data
+				const formData = new FormData();
+				formData.append('allianceName', document.getElementById('allianceName').value);
+
+				// Add leaderParty to formData
+				const leaderParty = document.getElementById('leaderParty').value;
+				if (leaderParty) {
+					formData.append('leaderParty', leaderParty);
+				}
+
+				// Add selected parties to formData
+				const partyCheckboxes = document.querySelectorAll('.party-checkbox:checked');
+				if (partyCheckboxes.length > 0) {
+					partyCheckboxes.forEach(checkbox => {
+						formData.append('parties[]', checkbox.value);
+					});
+				}
+
+				// Append the new logo file if it exists
+				const logoInput = document.getElementById('logo');
+				if (logoInput.files.length > 0) {
+					formData.append('logo', logoInput.files[0]);
+				}
+
+				fetch("/api/alliance/<%= alliance._id %>", {
+					method: 'PUT',
+					body: formData,
+				})
+					.then(response => response.json())
+					.then(data => {
+						// Handle successful response
+						console.log(data);
+						window.location.href = "/alliances"; // Redirect after successful save
+					})
+					.catch(error => console.error('Error:', error));
+			});
+		</script>
+</body>
+
+</html>

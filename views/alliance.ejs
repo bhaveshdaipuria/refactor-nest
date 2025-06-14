@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Party List</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/tailwind.css" />
+    <script src="/javascripts/font-awesome.min.js"></script>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script> -->
+    <!-- Font Awesome for Icons -->
+    <style>
+      .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100">
+    <%- include('navbar.ejs') %>
+
+    <div class="container mx-auto py-8">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Alliance List</h1>
+        <!-- Button to Add Party -->
+        <a
+          href="/create-alliance"
+          class="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center hover:bg-blue-600 transition duration-300"
+        >
+          <i class="fas fa-plus mr-2"></i> Add Alliance
+        </a>
+      </div>
+
+      <% if (alliances.length===0) { %>
+      <p class="text-center text-gray-500">No alliances available.</p>
+      <% } else { %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+          <thead class="bg-gray-800 text-white">
+            <tr>
+              <th class="py-3 px-2 md:px-4 text-left">Alliance Name</th>
+              <th class="py-3 px-2 md:px-4 text-left">Leader Party</th>
+              <th class="py-3 px-2 md:px-4 text-left">Logo</th>
+              <th class="py-3 px-2 md:px-4 text-left">Parties</th>
+              <th class="py-3 px-2 md:px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% alliances.forEach((alliance, allianceIndex)=> { %>
+            <tr class="hover:bg-gray-100">
+              <td class="py-3 px-2 md:px-4 border-b">
+                <%= alliance.name %> (<%=
+                alliance.election.electionSlug.replace('_',' ') %>)
+              </td>
+              <td class="py-3 px-2 md:px-4 border-b">
+                <%= alliance.leaderParty.party %>
+              </td>
+              <td class="py-3 px-2 md:px-4 border-b">
+                <% if (alliance.logo) { %>
+                <a
+                  href="<%= alliance.logo %>"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src="<%= alliance.logo %>"
+                    alt="<%= alliance.name %> logo"
+                    class="h-10 w-10 cursor-pointer"
+                  />
+                </a>
+                <% } else { %> No Logo <% } %>
+              </td>
+              <td class="py-3 px-2 md:px-4 border-b">
+                <% if (alliance.parties && alliance.parties.length> 0) { %> <%
+                const displayCount=Math.min(3, alliance.parties.length); const
+                hasMore=alliance.parties.length> 3; %> <% for(let i=0; i <
+                displayCount; i++) { %>
+                <span
+                  class="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-700 mr-1 mb-1"
+                >
+                  <%= alliance.parties[i].party %>
+                </span>
+                <% } %> <% if (hasMore) { %>
+                <button
+                  onclick="openPartiesModal('<%= allianceIndex %>')"
+                  class="text-blue-500 text-xs font-semibold hover:text-blue-700 ml-1 cursor-pointer"
+                >
+                  + <%= alliance.parties.length - 3 %> more
+                </button>
+
+                <!-- Hidden modal content for this alliance -->
+                <div
+                  id="partiesModal<%= allianceIndex %>"
+                  class="modal-backdrop hidden"
+                >
+                  <div class="modal-content">
+                    <div class="flex justify-between items-center mb-4">
+                      <h3 class="text-lg font-semibold">
+                        <%= alliance.name %> - All Parties
+                      </h3>
+                      <button
+                        onclick="closePartiesModal('<%= allianceIndex %>')"
+                        class="text-gray-500 hover:text-gray-700"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                    <div class="flex flex-wrap">
+                      <% alliance.parties.forEach(party=> { %>
+                      <span
+                        class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
+                      >
+                        <%= party.party %>
+                      </span>
+                      <% }); %>
+                    </div>
+                  </div>
+                </div>
+                <% } %> <% } else { %> No parties <% } %>
+              </td>
+              <td class="py-3 px-2 md:px-4 border-b flex space-x-4">
+                <!-- Edit Button with Icon -->
+                <a
+                  href="/edit-alliance/<%= alliance._id %>"
+                  class="text-blue-500 hover:text-blue-700 transition duration-300 flex items-center"
+                >
+                  <i class="fas fa-edit mr-1"></i>
+                  Edit
+                </a>
+                <p
+                  onclick="deleteAlliance('<%= alliance._id %>')"
+                  class="text-red-500 cursor-pointer hover:text-red-700 transition duration-300 flex items-center"
+                >
+                  <i class="fas fa-edit mr-1"></i>
+                  Delete
+                </p>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </div>
+
+    <script>
+      function deleteAlliance(id) {
+        // show alert to confirm
+        if (confirm("Are you sure you want to delete this alliance?")) {
+          fetch(`/api/alliance/${id}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => {
+              console.log("Response Status:", response.status); // Log the status
+              return response.json();
+            })
+            .then((data) => {
+              console.log("Delete Response:", data); // Log the data returned
+              window.location.reload(); // Reload the page
+            })
+            .catch((error) => console.error("Delete Error:", error));
+        }
+      }
+
+      function openPartiesModal(index) {
+        document
+          .getElementById(`partiesModal${index}`)
+          .classList.remove("hidden");
+        document.body.style.overflow = "hidden"; // Prevent background scrolling
+      }
+
+      function closePartiesModal(index) {
+        document.getElementById(`partiesModal${index}`).classList.add("hidden");
+        document.body.style.overflow = ""; // Restore scrolling
+      }
+
+      // Close modal when clicking outside the content
+      document.addEventListener("click", function (event) {
+        const modals = document.querySelectorAll(
+          ".modal-backdrop:not(.hidden)"
+        );
+        modals.forEach((modal) => {
+          if (event.target === modal) {
+            modal.classList.add("hidden");
+            document.body.style.overflow = "";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

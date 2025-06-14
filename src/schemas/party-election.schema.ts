@@ -1,4 +1,4 @@
-import {Schema} from "mongoose";
+import { Schema } from "mongoose";
 
 export const ElectionPartyResultSchema = new Schema({
   election: { type: Schema.Types.ObjectId, ref: "Election", required: true },

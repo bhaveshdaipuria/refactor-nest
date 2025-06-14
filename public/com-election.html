@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="robots" content="noindex, nofollow">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  <title>Live results 2024</title>
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+  <meta name="author" content="Deepanshu Sharma">
+  <link rel="stylesheet" href="/stylesheets/css-normalize.css">
+  <link href="/stylesheets/css-bootstrap.min.css" rel="stylesheet">
+  <link href="/stylesheets/css-widget.css" rel="stylesheet">
+  <!-- <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&amp;display=swap" rel="stylesheet"> -->
+  <style>
+    body {
+      overflow-x: hidden;
+      overflow-y: hidden;
+      background-color: #ffffff;
+      color: #000000;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    a:link {
+      color: #000000;
+    }
+
+    a:visited {
+      color: #000000;
+    }
+
+    a:hover {
+      color: #000000;
+    }
+
+    a:active {
+      color: #000000;
+    }
+
+    .electoralvote {
+      color: #000000;
+    }
+
+    .completeresults {
+      color: #333333;
+    }
+
+    .lineelect {
+      border-bottom: 1px solid #000000;
+    }
+
+    .hide-above-300 {
+      display: block;
+    }
+
+    .hide-below-300 {
+      display: none;
+    }
+
+
+
+    @media (min-width: 341px) {
+      .hide-above-300 {
+        display: none;
+      }
+
+      .hide-below-300 {
+        display: block;
+      }
+
+    }
+
+    @media (max-width:350px) {
+      .h4 {
+        font-size: 14px;
+      }
+
+      .widgetresults .col-xs-6 {
+        padding-left: 7px;
+        padding-right: 7px;
+      }
+    }
+
+    #presidency-results {
+      margin-top: 65px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- head end -->
+  <!-- <a href="https://www.aljazeera.com/us-election-2024/results/" target="_blank"> -->
+  <div id="content">
+    <!-- live results start -->
+    <section id="presidency-results">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 harris-left text-left">
+            <div id="aj-ahc"></div>
+            <!-- <img class="aj-avatar" src="images/img-harris.png" height="auto"> -->
+          </div>
+          <div class="col-xs-6 trump-right text-right">
+            <div id="aj-adt"></div>
+            <!-- <img class="aj-avatar" src="images/img-trump.png" height="auto"> -->
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="linebox col-xs-12 text-center">
+            <!-- <img class="widgetbranding" src="images/img-brandwhite.png" height="48px" width="auto"> -->
+            <h5 class="h5 electoralvote text-center hide-below-300">81 Seats<br>to win</h5>
+            <h5 class="h5 electoralvote text-center hide-above-300">81<br>to win</h5>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="line-container">
+            <div class="linetick"></div>
+            <div class="line lineborder"></div>
+            <div class="line line1">
+              <div class="president_total_bar">
+                <div role="img" id="hc-dem-bar" aria-label="Bar showing the number of president seats for Democrats"
+                  class="president_dem_bar"> </div>
+                <div role="img" id="dt-rep-bar" aria-label="Bar showing the number of president seats for Republicans"
+                  class="president_rep_bar"> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row widgetresults">
+          <div class="col-xs-6 text-left">
+            <h3 class="h3 f-party"></h3>
+            <h6 class="h6">WON</h6>
+            <h3 class="h2 f-party-scorenumber bluecolor" style="margin-top: 0px;" id="hc-electwon">0</h3>
+            <!-- <h4 class="h4"><span id="hc-popvote"></span> | <span id="hc-poppct"> %</span></h4> -->
+            <!-- <h6 class="h6">VOTES</h6> -->
+          </div>
+          <div class="col-xs-6 text-right">
+            <h3 class="h3 s-party"></h3>
+            <h6 class="h6">WON</h6>
+            <h3 class="h2 s-party-scorenumber redcolor" style="margin-top: 0px;" id="dt-electwon">0</h3>
+            <!-- <h4 class="h4"><span id="dt-popvote"> </span> | <span id="dt-poppct">  %</span></h4> -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <!-- </a> -->
+  <script src="/javascripts/js-jquery.min.js"></script>
+  <!-- <script src="assets/js/bootstrap.min.js"></script> -->
+  <script src="/javascripts/js-widget2024.js"></script>
+</body>
+
+</html>

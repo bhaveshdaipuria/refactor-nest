@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Constituency</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/tailwind.css">
+    <!-- <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script> -->
+    <script src="/javascripts/choices.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/choices.min.css" />
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" /> -->
+</head>
+
+<body class="bg-gray-100">
+    <%- include('navbar.ejs') %>
+    <div class="container mx-auto my-6">
+        <h1 class="text-2xl font-bold mb-4">Create Constituency</h1>
+        
+        <% if (error) { %>
+            <div class="text-center mx-auto mt-4 text-red-500">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <form id="constituencyForm" action="/api/constituency" method="POST" class="bg-white p-6 rounded shadow-md">
+            <div class="mb-4">
+                <label for="name" class="block text-gray-700">Constituency Name</label>
+                <input type="text" id="name" name="name" required class="mt-1 block w-full border border-gray-300 p-2 rounded" placeholder="Enter constituency name">
+            </div>
+            <div class="mb-4">
+                <label for="state" class="block text-gray-700">State</label>
+                <input type="text" id="state" name="state" required class="mt-1 block w-full border border-gray-300 p-2 rounded" placeholder="Enter state name">
+            </div>
+            <div class="mb-4">
+                <label for="totalVotes" class="block text-gray-700">Total Votes</label>
+                <input type="number" id="totalVotes" name="totalVotes" required class="mt-1 block w-full border border-gray-300 p-2 rounded" placeholder="Enter total votes">
+            </div>
+            <div class="mb-4">
+                <label for="constituencyId" class="block text-gray-700">Constituency Id</label>
+                <input type="number" id="totalVotes" name="constituencyId" required class="mt-1 block w-full border border-gray-300 p-2 rounded" placeholder="Enter Id">
+            </div>
+            <div class="mb-4">
+                <label for="candidates" class="block text-gray-700">Select Candidates</label>
+                <select id="candidates" name="candidates[]" multiple class="choices-multiple-select mt-1 block w-full border border-gray-300 p-2 rounded">
+                    <% candidates.forEach(candidate => { %>
+                        <option value="<%= candidate._id %>"><%= candidate.name %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create Constituency</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Choices('#candidates', {
+                removeItemButton: true,
+                searchPlaceholderValue: 'Search Candidates...',
+            });
+        });
+
+        const form = document.getElementById('constituencyForm');
+
+        form.addEventListener('submit', function(event) {
+            // Prevent the default form submission
+            event.preventDefault();
+
+            // Gather form data
+            const name = document.getElementById('name').value;
+            const state = document.getElementById('state').value;
+            const totalVotes = document.getElementById('totalVotes').value;
+            const constituencyId = document.getElementById('constituencyId').value;
+
+            // Gather selected candidates
+            const selectedCandidates = Array.from(document.getElementById('candidates').selectedOptions).map(option => option.value);
+
+            // Prepare data to send
+            const data = {
+                name,
+                state,
+                totalVotes: Number(totalVotes),
+                candidates: selectedCandidates,  // This will send an array of selected candidate IDs
+		constituencyId
+            };
+
+            // Send the form data using fetch
+            fetch(form.action, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data) // Send data as JSON
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Assuming the response is in JSON format
+            })
+            .then(data => {
+                window.location.href = '/constituency'; // Change as needed
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message);
+            });
+        });
+    </script>
+</body>
+
+</html>

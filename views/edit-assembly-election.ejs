@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Assembly Election</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/tailwind.css">
+    <script src="/javascripts/choices.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/choices.min.css" />
+    <!-- <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" /> -->
+</head>
+
+<body class="bg-gray-100">
+    <%- include('navbar.ejs') %>
+
+    <div class="container mx-auto py-8">
+        <h1 class="text-3xl font-bold mb-6 text-center">Edit Assembly Election</h1>
+
+        <form id="assemblyElectionForm" class="bg-white shadow-lg rounded-lg p-6 max-w-lg mx-auto">
+            <div class="mb-5">
+                <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
+                <input type="text" id="year" name="year" value="<%= assemblyElection.year %>" required
+                    class="mt-1 block w-full border rounded-md px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+
+            <div class="mb-5">
+                <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                <input type="text" id="state" name="state" value="<%= assemblyElection.state %>" required
+                    class="mt-1 block w-full border rounded-md px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+
+            <div class="mb-5">
+                <label for="constituencies" class="block text-sm font-medium text-gray-700">Select Constituencies</label>
+                <select id="constituencies" name="constituencies[]" multiple class="choices-multiple-select">
+                    <% constituencies.forEach(function(constituency) { %>
+                        <option value="<%= constituency.id %>" <%= assemblyElection.constituencies.includes(constituency.id) ? 'selected' : '' %>><%= constituency.name %></option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="mb-5">
+                <label for="total_seat" class="block text-sm font-medium text-gray-700">Total Seats</label>
+                <input type="number" id="total_seat" name="total_seat" value="<%= assemblyElection.total_seat %>" min="0" required
+                    class="mt-1 block w-full border rounded-md px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+
+            <div class="mb-5">
+                <label for="total_votes" class="block text-sm font-medium text-gray-700">Total Votes</label>
+                <input type="number" id="total_votes" name="total_votes" value="<%= assemblyElection.total_votes %>" min="0" required
+                    class="mt-1 block w-full border rounded-md px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+
+            <div class="mb-5">
+                <label for="total_candidate" class="block text-sm font-medium text-gray-700">Total Candidates</label>
+                <input type="number" id="total_candidate" name="total_candidate" value="<%= assemblyElection.total_candidate %>" min="0" required
+                    class="mt-1 block w-full border rounded-md px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            </div>
+
+            <div class="flex items-center justify-between mt-6">
+                <button type="button" id="updateButton"
+                    class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50">Update
+                    Assembly Election</button>
+                <a href="/assembly-election" class="text-blue-500 hover:text-blue-700 transition duration-300">Back to Assembly Elections List</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Choices('#constituencies', {
+                removeItemButton: true,
+                searchPlaceholderValue: 'Search Constituencies...',
+            });
+
+            const updateButton = document.getElementById('updateButton');
+            const form = document.getElementById('assemblyElectionForm');
+
+            updateButton.addEventListener('click', async () => {
+                const formData = new FormData(form);
+                const year = formData.get('year');
+                const state = formData.get('state');
+                const constituencies = formData.getAll('constituencies[]');
+                const total_seat = formData.get('total_seat');
+                const total_votes = formData.get('total_votes');
+                const total_candidate = formData.get('total_candidate');
+
+                const requestBody = {
+                    year,
+                    state,
+                    constituencies,
+                    total_seat,
+                    total_votes,
+                    total_candidate
+                };
+
+                try {
+                    const response = await fetch(`/api/assembly-elections/<%= assemblyElection._id %>`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    if (response.ok) {
+                        const updatedElection = await response.json();
+                        window.location.replace('/assembly-election')
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Error updating election: ${errorData.message}`);
+                    }
+                } catch (error) {
+                    alert('There was a problem with the update request.');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
