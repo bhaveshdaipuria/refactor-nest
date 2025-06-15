@@ -1,4 +1,7 @@
-import { Controller, Get, Query, Res, Req, HttpStatus, Param, Next, Render } from "@nestjs/common";
+import { Controller, Get, Query, Res, Req, HttpStatus, Param, Next, Render, UseGuards } from "@nestjs/common";
+import { AdminGuard } from "src/guards/admin.guard";
+import { UserGuard } from "src/guards/user.guard";
+import { LoggedInGuard } from "src/guards/logged-in.guard";
 import { Response, Request } from "express";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, PipelineStage } from "mongoose";
@@ -35,6 +38,8 @@ export class DashBoardController {
         }
 
         @Get('edit-election/:id')
+        @UseGuards(LoggedInGuard)
+        @UseGuards(AdminGuard)
         @Render('edit-election')
         async editElection(
             @Req() req: Request & { session: { user?: any } },
