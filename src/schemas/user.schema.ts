@@ -22,12 +22,14 @@ export const userSchema = new mongoose.Schema(
       type: [mongoose.Schema.Types.ObjectId],
       ref: "Constituency",
       validate: {
-        validator: function (value: "user") {
+        validator: function (value) {
           return this.role === "user" || !value || value.length === 0;
         },
         message: "Only users can have allowedConstituencies",
       },
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
+
+

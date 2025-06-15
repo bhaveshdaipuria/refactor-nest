@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { WidgetsModule } from "./widgets/election.module";
 import { DashBoardModule } from "./dashboard/dashboard.module";
 import { RedisModule } from "@nestjs-modules/ioredis";
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
 	imports: [
@@ -25,7 +26,8 @@ import { RedisModule } from "@nestjs-modules/ioredis";
 		}),
 
 		WidgetsModule,
-		DashBoardModule
+		DashBoardModule,
+		AuthModule
 	],
 	controllers: [AppController],
 	providers: [AppService],
