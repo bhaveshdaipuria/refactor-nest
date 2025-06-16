@@ -7,29 +7,31 @@ import { WidgetsModule } from "./widgets/election.module";
 import { DashBoardModule } from "./dashboard/dashboard.module";
 import { RedisModule } from "@nestjs-modules/ioredis";
 import { AuthModule } from "./auth/auth.module";
+import { CandidateModule } from "./candidates/candidate.module";
 
 @Module({
-	imports: [
-		ConfigModule.forRoot({ isGlobal: true }),
-		MongooseModule.forRootAsync({
-			imports: [ConfigModule],
-			useFactory: async (configService: ConfigService) => ({
-				uri: configService.get<string>("MONGO_URI"),
-				dbName: configService.get<string>("DATABASE_NAME"),
-			}),
-			inject: [ConfigService],
-		}),
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>("MONGO_URI"),
+        dbName: configService.get<string>("DATABASE_NAME"),
+      }),
+      inject: [ConfigService],
+    }),
 
-		RedisModule.forRoot({
-		type: "single",
-		url: process.env.REDIS_URL || "redis://localhost:6379",
-		}),
+    RedisModule.forRoot({
+      type: "single",
+      url: process.env.REDIS_URL || "redis://localhost:6379",
+    }),
 
-		WidgetsModule,
-		DashBoardModule,
-		AuthModule
-	],
-	controllers: [AppController],
-	providers: [AppService],
+    WidgetsModule,
+    DashBoardModule,
+    AuthModule,
+    CandidateModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

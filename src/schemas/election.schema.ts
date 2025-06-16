@@ -64,7 +64,7 @@ export class Party extends Document {
   subParties: SubParty[];
 }
 
-export const PartySchema = SchemaFactory.createForClass(Party);
+const PartySchema = SchemaFactory.createForClass(Party);
 
 @Schema({ timestamps: true })
 export class Election extends Document {
