@@ -8,6 +8,12 @@ import { DashBoardModule } from "./dashboard/dashboard.module";
 import { RedisModule } from "@nestjs-modules/ioredis";
 import { AuthModule } from "./auth/auth.module";
 import { CandidateModule } from "./candidates/candidate.module";
+import { PartyModule } from "./parties/party.module";
+import { ConstituencyModule } from "./constituencies/constituency.module";
+import { AllianceModule } from "./alliances/alliance.module";
+import { UserModule } from "./users/user.module";
+import { AssemblyElectionModule } from "./assembly-elections/assemby-election.module";
+import { ElectionModule } from "./elections/election.module";
 
 @Module({
   imports: [
@@ -30,6 +36,12 @@ import { CandidateModule } from "./candidates/candidate.module";
     DashBoardModule,
     AuthModule,
     CandidateModule,
+    PartyModule,
+    ConstituencyModule,
+    AllianceModule,
+    UserModule,
+    AssemblyElectionModule,
+    ElectionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
