@@ -13,6 +13,7 @@ import {
   Delete,
   Post,
   UseGuards,
+  Res,
 } from "@nestjs/common";
 
 import { InjectModel } from "@nestjs/mongoose";
@@ -30,6 +31,7 @@ import { ConstituencyElectionSchema } from "src/schemas/constituency-election.sc
 import { candidateSchema } from "src/schemas/candidates.schema";
 import { partySchema } from "src/schemas/party.schema";
 import { AdminGuard } from "src/guards/admin.guard";
+import { Response } from "express";
 
 @Controller("api/candidate")
 export class CandidateController {
@@ -47,6 +49,65 @@ export class CandidateController {
     @InjectModel("Party") private partyModel: Model<typeof partySchema>,
     @InjectRedis() private readonly redis: Redis,
   ) {}
+
+  @Get("hot-candidates")
+  async getHotCandidates(@Res() res: Response) {
+    try {
+      const cachedData = await this.redis.get(cachedKeys.HOT_CANDIDATES);
+
+      if (cachedData) {
+        return res.json(cachedData);
+      }
+
+      // If not in cache, query the database
+      const candidates: any = await this.candidateModel
+        .find({ hotCandidate: true })
+        .populate("party constituency")
+        .sort({ totalVotes: -1 });
+
+      const hotCandidates = await Promise.all(
+        candidates.map(async (candidate) => {
+          const constituencyId = candidate.constituency[0]?._id;
+
+          if (constituencyId) {
+            // Get all candidates in the same constituency, sorted by total votes
+            const candidatesInConstituency = await this.candidateModel
+              .find({
+                constituency: { $eq: constituencyId },
+              })
+              .populate("constituency")
+              .sort({ totalVotes: -1 });
+
+            // Check if the current candidate is leading or trailing
+            const isLeading = candidatesInConstituency[0]._id.equals(
+              candidate._id,
+            );
+
+            return {
+              ...candidate.toObject(),
+              status: isLeading ? "leading" : "trailing",
+            };
+          } else {
+            return {
+              ...candidate.toObject(),
+              status: "no constituency", // Handle missing constituency
+            };
+          }
+        }),
+      );
+
+      // Cache the result for 1 hour
+      // await this.redis.setWithTTL(cachedKeys.HOT_CANDIDATES, hotCandidates, 3600);
+      // Send the result as a response
+      res.json(hotCandidates);
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  }
 
   @Get("cn-list")
   async getCandidateList(
@@ -283,7 +344,7 @@ export class CandidateController {
   }
 
   @Delete(":id")
-  //   @UseGuards(AdminGuard) // Admin authentication
+  @UseGuards(AdminGuard) // Admin authentication
   async deleteCandidate(@Param("id") id: string) {
     // Delete candidate and handle result
     const deletedCandidate = await this.candidateModel
