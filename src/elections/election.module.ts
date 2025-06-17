@@ -8,17 +8,23 @@ import { candidateSchema } from "src/schemas/candidates.schema";
 import { ElectionCandidateSchema } from "src/schemas/candidate-election.schema";
 import { partySchema } from "src/schemas/party.schema";
 import { electionSchema } from "src/schemas/assembly-election.schema";
+import { ElectionPartyResultSchema } from "src/schemas/party-election.schema";
+import { userSchema } from "src/schemas/user.schema";
+import { ElectionSchema } from "src/schemas/election.schema";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: "TempElection", schema: TempElectionSchema },
-      { name: "Election", schema: electionSchema },
+      { name: "Election", schema: ElectionSchema },
       { name: "Constituency", schema: constituencySchema },
       { name: "ElectionConstituency", schema: ConstituencyElectionSchema },
       { name: "Candidate", schema: candidateSchema },
       { name: "ElectionCandidate", schema: ElectionCandidateSchema },
       { name: "Party", schema: partySchema },
+      { name: "ElectionPartyResult", schema: ElectionPartyResultSchema },
+      { name: "User", schema: userSchema },
+      { name: "AssemblyElection", schema: electionSchema }
     ]),
   ],
   controllers: [ElectionController],

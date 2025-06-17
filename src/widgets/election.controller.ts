@@ -1,5 +1,5 @@
-import { Controller, Get, Query, Res, HttpStatus, Param } from "@nestjs/common";
-import { Response } from "express";
+import { Controller, Get, Query, Res, HttpStatus, Param, Req } from "@nestjs/common";
+import { Response, Request } from "express";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, PipelineStage } from "mongoose";
 import { InjectRedis } from "@nestjs-modules/ioredis";
@@ -8,7 +8,7 @@ import { ElectionCandidateSchema } from "../schemas/candidate-election.schema";
 import { TempElectionSchema } from "../schemas/temp-election.schema";
 import { ElectionPartyResultSchema } from "../schemas/party-election.schema";
 
-@Controller()
+@Controller('api/election')
 export class ElectionController {
 	constructor(
 		@InjectModel("ElectionCandidate")
@@ -850,5 +850,17 @@ export class ElectionController {
 			message: "Internal server error",
 		});
 		}
+	}
+
+	@Get(':electionId/candidates')
+	async getCandidateDetails(@Req() req: Request & { userRole: string, allowedConst: string[] }, @Param('electionId') electionId: string) {
+		const query: any = { electionId };
+
+		// If user is not admin/superadmin, restrict to their allowed constituencies
+		if (req.userRole === 'user' && req.allowedConst?.length) {
+			query.constituencyId = { $in: req.allowedConst };
+		}
+
+		return this.electionCandidateModel.find(query).exec();
 	}
 }

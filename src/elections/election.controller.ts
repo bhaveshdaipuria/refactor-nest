@@ -2,13 +2,16 @@ import { Controller, Get, Req, Res } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Request, Response } from "express";
 import { Model } from "mongoose";
-import { ElectionCandidateSchema } from "src/schemas/candidate-election.schema";
-import { candidateSchema } from "src/schemas/candidates.schema";
-import { ConstituencyElectionSchema } from "src/schemas/constituency-election.schema";
-import { constituencySchema } from "src/schemas/constituency.schema";
-import { ElectionSchema } from "src/schemas/election.schema";
-import { partySchema } from "src/schemas/party.schema";
 import { TempElectionSchema } from "src/schemas/temp-election.schema";
+import { constituencySchema } from "src/schemas/constituency.schema";
+import { ConstituencyElectionSchema } from "src/schemas/constituency-election.schema";
+import { candidateSchema } from "src/schemas/candidates.schema";
+import { ElectionCandidateSchema } from "src/schemas/candidate-election.schema";
+import { partySchema } from "src/schemas/party.schema";
+import { electionSchema } from "src/schemas/assembly-election.schema";
+import { ElectionPartyResultSchema } from "src/schemas/party-election.schema";
+import { userSchema } from "src/schemas/user.schema";
+import { ElectionSchema } from "src/schemas/election.schema";
 
 @Controller("api/election")
 export class ElectionController {
@@ -20,13 +23,19 @@ export class ElectionController {
     @InjectModel("Constituency")
     private constituencyModel: Model<typeof constituencySchema>,
     @InjectModel("ElectionConstituency")
-    private electionConstituencyModel: Model<typeof ConstituencyElectionSchema>,
+    private electionConsituencyModel: Model<typeof ConstituencyElectionSchema>,
     @InjectModel("Candidate")
     private candidateModel: Model<typeof candidateSchema>,
     @InjectModel("ElectionCandidate")
     private electionCandidateModel: Model<typeof ElectionCandidateSchema>,
     @InjectModel("Party")
-    private PartyModel: Model<typeof partySchema>,
+    private partyModel: Model<typeof partySchema>,
+    @InjectModel("ElectionPartyResult")
+    private electionPartyResultModel: Model<typeof ElectionPartyResultSchema>,
+    @InjectModel("User")
+    private userModel: Model<typeof userSchema>,
+    @InjectModel("AssemblyElection")
+    private assemblyElectionModel: Model<typeof electionSchema>,
   ) {}
 
   @Get("party-summary")
