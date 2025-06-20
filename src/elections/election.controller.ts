@@ -39,6 +39,7 @@ export class ElectionController {
     private userModel: Model<typeof userSchema>,
     @InjectModel("AssemblyElection")
     private assemblyElectionModel: Model<typeof electionSchema>,
+    @InjectModel("Alliance")
     private allianceModel: Model<typeof allianceSchema>,
     private readonly redisManager: RedisManager,
   ) {}
