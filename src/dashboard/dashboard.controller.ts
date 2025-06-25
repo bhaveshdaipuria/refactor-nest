@@ -19,6 +19,7 @@ import { userSchema } from "src/schemas/user.schema";
 import { ElectionSchema } from "src/schemas/election.schema";
 import mongoose from 'mongoose'
 import { allianceSchema } from "src/schemas/alliance.schema";
+import { RedisManager } from "../config/redis.manager";
 
 
 
@@ -49,7 +50,7 @@ export class DashBoardController {
     private assemblyElectionModel: Model<typeof electionSchema>,
     @InjectModel("Alliance")
     private allianceModel: Model<typeof allianceSchema>,
-	@InjectRedis() private readonly redis: Redis,
+    private readonly redisManager: RedisManager,
 
 	) {}
 
@@ -876,7 +877,7 @@ export class DashBoardController {
 		const cacheKey = `candidates:${page}:${limit}:${search}`; // Cache key based on page, limit, and search term
 
 		// Try to fetch data from Redis cache
-		const cachedData: any = await this.redis.get(cacheKey);
+		const cachedData: any = await this.redisManager.get(cacheKey);
 
 		if (cachedData) {
 			// If data is found in the cache, return it
@@ -917,7 +918,7 @@ export class DashBoardController {
 			candidates,
 			totalPages,
 		};
-		await this.redis.setex(cacheKey, 3600, JSON.stringify(dataToCache));
+		await this.redisManager.setWithTTL(cacheKey, dataToCache, 3600);
 
 		return res.render("candidate.ejs", {
 			candidates: candidates || [],

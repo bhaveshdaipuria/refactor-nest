@@ -8,6 +8,7 @@ import { candidateSchema } from "src/schemas/candidates.schema";
 import { ConstituencyElectionSchema } from "src/schemas/constituency-election.schema";
 import { constituencySchema } from "src/schemas/constituency.schema";
 import { TempElectionSchema } from "src/schemas/temp-election.schema";
+import { RedisManager } from "../config/redis.manager";
 
 @Controller("api/constituency")
 export class ConstituencyController {
@@ -20,7 +21,7 @@ export class ConstituencyController {
     private electionConstituencyModel: Model<typeof ConstituencyElectionSchema>,
     @InjectModel("Candidate")
     private candidateModel: Model<typeof candidateSchema>,
-    @InjectRedis() private readonly redis: Redis,
+    private readonly redisManager: RedisManager,
   ) {}
 
   @Post()
@@ -48,7 +49,7 @@ export class ConstituencyController {
         }
       }
 
-      await this.redis.flushall();
+      await this.redisManager.clearAllKeys();
 
       return res.status(200).json(constituency);
     } catch (error) {
@@ -64,7 +65,7 @@ export class ConstituencyController {
 
       const key = `widget_cn_election_constituencies_${state}_${year}`;
 
-      const cachedResult = await this.redis.get(key);
+      const cachedResult = await this.redisManager.get(key);
       if (cachedResult) {
         return res.json(cachedResult);
       }
@@ -99,7 +100,7 @@ export class ConstituencyController {
         .lean()
         .then((results: any) => results.map((result) => result.constituency));
 
-      this.redis.set(key, JSON.stringify(constituencies));
+      this.redisManager.set(key, JSON.stringify(constituencies));
 
       return res.json(constituencies);
     } catch (error) {
@@ -155,7 +156,7 @@ export class ConstituencyController {
           { new: true },
         );
 
-      await this.redis.flushall();
+      await this.redisManager.clearAllKeys();
       res.json(updatedConstituency);
     } catch (error) {
       console.error(error, "updated");
@@ -173,7 +174,7 @@ export class ConstituencyController {
       if (!constituency) {
         return res.status(404).send("Constituency not found");
       }
-      await this.redis.flushall();
+      await this.redisManager.clearAllKeys();
 
       res.json({ message: "Constituency deleted successfully" });
     } catch (error) {

@@ -5,6 +5,7 @@ import { ElectionController } from "./election.controller";
 import { RedisModule } from "@nestjs-modules/ioredis";
 import { ElectionPartyResultSchema } from "../schemas/party-election.schema";
 import { TempElectionSchema } from "../schemas/temp-election.schema";
+import { RedisManager } from '../config/redis.manager';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { TempElectionSchema } from "../schemas/temp-election.schema";
     }),
   ],
   controllers: [ElectionController],
-  providers: [],
+  providers: [RedisManager],
 })
 export class WidgetsModule {}

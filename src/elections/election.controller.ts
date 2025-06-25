@@ -16,7 +16,7 @@ import { cachedKeys } from "src/utils";
 import { RedisManager } from "src/config/redis.manager";
 import { allianceSchema } from "src/schemas/alliance.schema";
 
-@Controller("api/election")
+@Controller("api/elections")
 export class ElectionController {
   constructor(
     @InjectModel("TempElection")
@@ -373,6 +373,56 @@ export class ElectionController {
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
+
+  }
+
+  @Patch('temp-election/main-info-update/:id')
+  async mainInfoUpdate(@Req() req: Request, @Res() res: Response, @Param('id') id: string){
+
+  try {
+    const { status, state, halfWayMark, totalSeats, year, electionType } =
+      req.body;
+    console.log(req.body);
+
+    const electionSlug = `${state.toLowerCase()}_${year}`;
+
+    const updatedElectionInfo = await this.tempElectionModel.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          status: status.toLowerCase(),
+          state,
+          halfWayMark,
+          totalSeats,
+          year,
+          electionSlug,
+          electionType,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedElectionInfo) {
+      return res.status(400).json({ message: "Bad Request" });
+    }
+
+    // clear the election widgets cached result from redis
+    this.redisManager.delete(`widget_election_widget`);
+    this.redisManager.delete(`widget_bihar_election_map_${state}_${year}_${electionType}`);
+    this.redisManager.delete(
+      `widget_cn_election_constituencies_${state}_${year}_${electionType}`
+    );
+    this.redisManager.deleteByPattern(
+      `widget_cn_election_candidates_*_${state}_${year}_${electionType}`
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Updated Successfully" });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
 
   }
 

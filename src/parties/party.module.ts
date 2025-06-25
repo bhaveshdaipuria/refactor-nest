@@ -6,6 +6,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { partySchema } from "src/schemas/party.schema";
 import { constituencySchema } from "src/schemas/constituency.schema";
 import { candidateSchema } from "src/schemas/candidates.schema";
+import { RedisManager } from "src/config/redis.manager";
 
 const partyMulterConfig = createMulterConfig({
   destination: "public/uploads/party_logos",
@@ -21,5 +22,6 @@ const partyMulterConfig = createMulterConfig({
     ]),
   ],
   controllers: [PartyController],
+  providers: [RedisManager],
 })
 export class PartyModule {}

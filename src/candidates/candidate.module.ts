@@ -9,6 +9,7 @@ import { constituencySchema } from "src/schemas/constituency.schema";
 import { ConstituencyElectionSchema } from "src/schemas/constituency-election.schema";
 import { candidateSchema } from "src/schemas/candidates.schema";
 import { partySchema } from "src/schemas/party.schema";
+import { RedisManager } from "src/config/redis.manager";
 
 const candidateMulterConfig = createMulterConfig({
   destination: "public/uploads/candidates",
@@ -28,5 +29,6 @@ const candidateMulterConfig = createMulterConfig({
     ]),
   ],
   controllers: [CandidateController],
+  providers: [RedisManager]
 })
 export class CandidateModule {}

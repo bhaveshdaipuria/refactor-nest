@@ -19,8 +19,7 @@ import {
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 
-import { InjectRedis } from "@nestjs-modules/ioredis";
-import Redis from "ioredis";
+import { RedisManager } from "../config/redis.manager";
 import { TempElectionSchema } from "src/schemas/temp-election.schema";
 
 import { ElectionCandidateSchema } from "src/schemas/candidate-election.schema";
@@ -47,13 +46,13 @@ export class CandidateController {
     @InjectModel("Candidate")
     private candidateModel: Model<typeof candidateSchema>,
     @InjectModel("Party") private partyModel: Model<typeof partySchema>,
-    @InjectRedis() private readonly redis: Redis,
+    private readonly redisManager: RedisManager,
   ) {}
 
   @Get("hot-candidates")
   async getHotCandidates(@Res() res: Response) {
     try {
-      const cachedData = await this.redis.get(cachedKeys.HOT_CANDIDATES);
+      const cachedData = await this.redisManager.get(cachedKeys.HOT_CANDIDATES);
 
       if (cachedData) {
         return res.json(cachedData);
@@ -123,7 +122,7 @@ export class CandidateController {
     }
 
     const key = `widget_cn_election_candidates_${constituencyName}_${state}_${year}`;
-    const cachedResult = await this.redis.get(key);
+    const cachedResult = await this.redisManager.get(key);
     if (cachedResult) {
       return JSON.parse(cachedResult);
     }
@@ -179,7 +178,7 @@ export class CandidateController {
         })),
       );
 
-    await this.redis.set(key, JSON.stringify(candidates));
+    await this.redisManager.set(key, JSON.stringify(candidates));
 
     return candidates;
   }
@@ -229,7 +228,7 @@ export class CandidateController {
     await constituency.save();
 
     // Clear cache
-    await this.redis.flushall();
+    await this.redisManager.clearAllKeys();
 
     return newCandidate;
   }
@@ -272,7 +271,7 @@ export class CandidateController {
       .exec();
 
     // Clear Redis cache
-    await this.redis.flushall();
+    await this.redisManager.clearAllKeys();
 
     return updatedCandidate;
   }
@@ -294,7 +293,7 @@ export class CandidateController {
     if (constituency) {
       // Check if the constituency list is cached
 
-      const cachedData = await this.redis.get(
+      const cachedData = await this.redisManager.get(
         `${cachedKeys.CANDIDATES}:${constituency}`,
       );
       if (cachedData) {
@@ -362,7 +361,7 @@ export class CandidateController {
     }
 
     // Clear Redis cache
-    await this.redis.flushall();
+    await this.redisManager.clearAllKeys();
 
     return {
       success: true,

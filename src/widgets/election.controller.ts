@@ -2,13 +2,12 @@ import { Controller, Get, Query, Res, HttpStatus, Param, Req } from "@nestjs/com
 import { Response, Request } from "express";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, PipelineStage } from "mongoose";
-import { InjectRedis } from "@nestjs-modules/ioredis";
-import Redis from "ioredis";
+import { RedisManager } from "../config/redis.manager";
 import { ElectionCandidateSchema } from "../schemas/candidate-election.schema";
 import { TempElectionSchema } from "../schemas/temp-election.schema";
 import { ElectionPartyResultSchema } from "../schemas/party-election.schema";
 
-@Controller('api/election')
+@Controller('')
 export class ElectionController {
 	constructor(
 		@InjectModel("ElectionCandidate")
@@ -17,7 +16,7 @@ export class ElectionController {
 		private partyElectionModel: Model<typeof ElectionPartyResultSchema>,
 		@InjectModel("TempElection")
 		private tempElectionModel: Model<typeof TempElectionSchema>,
-		@InjectRedis() private readonly redis: Redis,
+		private readonly redisManager: RedisManager
 	) { }
 
 	@Get("election/hot-candidate/result")
@@ -44,7 +43,7 @@ export class ElectionController {
 				key += `_${candidateName}`;
 			}
 
-			const cachedResults = await this.redis.get(key);
+			const cachedResults = await this.redisManager.get(key);
 
 			if (cachedResults) {
 				return res.json(JSON.parse(cachedResults));
@@ -146,7 +145,7 @@ export class ElectionController {
 				data: results,
 			};
 
-			await this.redis.set(key, JSON.stringify(response));
+			await this.redisManager.set(key, JSON.stringify(response));
 
 			return res.status(HttpStatus.OK).json(response);
 		} catch (error) {
@@ -381,7 +380,7 @@ export class ElectionController {
 			}
 
 			const key = `widget_bihar_hot_candidate_${state}_${year}`;
-			const cachedResults = await this.redis.get(key);
+			const cachedResults = await this.redisManager.get(key);
 
 			if (cachedResults) {
 				return res.json(JSON.parse(cachedResults));
@@ -462,7 +461,7 @@ export class ElectionController {
 					message: "Election not found",
 				});
 			}
-			this.redis.set(
+			this.redisManager.set(
 				key,
 				JSON.stringify({
 					success: true,
@@ -498,7 +497,7 @@ export class ElectionController {
 			}
 
 			const key = `widget_bihar_election_map_${state}_${year}`;
-			const cachedResults = await this.redis.get(key);
+			const cachedResults = await this.redisManager.get(key);
 
 			if (cachedResults) {
 				return res.json(JSON.parse(cachedResults));
@@ -601,7 +600,7 @@ export class ElectionController {
 				},
 			]);
 
-			this.redis.set(
+			this.redisManager.set(
 				key,
 				JSON.stringify({
 					success: true,
@@ -646,7 +645,7 @@ export class ElectionController {
 			return res.status(400).json({ message: "State parameter is required" });
 		}
 
-		const cachedResults = await this.redis.get("widget_election_widget");
+		const cachedResults = await this.redisManager.get("widget_election_widget");
 
 		if (cachedResults) {
 			return res.json(cachedResults);
@@ -764,7 +763,7 @@ export class ElectionController {
 				.json({ message: "No elections found for the specified state" });
 		}
 
-		this.redis.set("widget_election_widget", results);
+		this.redisManager.set("widget_election_widget", results);
 
 		res.json(results);
 		} catch (error) {
@@ -788,7 +787,7 @@ export class ElectionController {
 			});
 		}
 		const key = `election_state_years:${state}`;
-		const cachedResults = await this.redis.get(key);
+		const cachedResults = await this.redisManager.get(key);
 
 		if (cachedResults) {
 			return res.json(JSON.parse(cachedResults));
@@ -819,7 +818,7 @@ export class ElectionController {
 			},
 		]);
 
-		this.redis.set(key, JSON.stringify({
+		this.redisManager.set(key, JSON.stringify({
 			success: true,
 			data: {
 				state: state,

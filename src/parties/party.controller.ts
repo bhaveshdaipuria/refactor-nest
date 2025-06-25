@@ -17,10 +17,9 @@ import { partySchema } from "src/schemas/party.schema";
 import { constituencySchema } from "src/schemas/constituency.schema";
 import { candidateSchema } from "src/schemas/candidates.schema";
 import { cachedKeys, getFullImagePath } from "src/utils";
-import { InjectRedis } from "@nestjs-modules/ioredis";
-import Redis from "ioredis";
 import { AdminGuard } from "src/guards/admin.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { RedisManager } from "../config/redis.manager";
 
 @Controller("api/party")
 export class PartyController {
@@ -30,7 +29,7 @@ export class PartyController {
     private constituencyModel: Model<typeof constituencySchema>,
     @InjectModel("Candidate")
     private candidateModel: Model<typeof candidateSchema>,
-    @InjectRedis() private readonly redis: Redis,
+    private readonly redisManager: RedisManager,
   ) {}
 
   @Get("top-parties")
@@ -269,7 +268,7 @@ export class PartyController {
       // Create a new party and save it
       await this.partyModel.create(partyData);
 
-      await this.redis.flushall();
+      await this.redisManager.clearAllKeys();
 
       // Redirect to the list of parties (or return response if desired)
       res.redirect("/parties");
@@ -282,7 +281,7 @@ export class PartyController {
   @Get()
   async getAllParties(@Req() req: Request, @Res() res: Response) {
     try {
-      const cachedData = await this.redis.get(cachedKeys.PARTY);
+      const cachedData = await this.redisManager.get(cachedKeys.PARTY);
       if (cachedData) {
         return res.json(JSON.parse(cachedData));
       }
@@ -290,7 +289,7 @@ export class PartyController {
       const parties = await this.partyModel.find();
 
       // Convert to JSON string before caching
-      await this.redis.set(cachedKeys.PARTY, JSON.stringify(parties));
+      await this.redisManager.set(cachedKeys.PARTY, JSON.stringify(parties));
 
       console.log(parties);
       return res.json(parties);
@@ -307,7 +306,7 @@ export class PartyController {
   @Get(":id")
   async getPartyById(@Req() req: Request, @Res() res: Response) {
     try {
-      const cachedData = await this.redis.get(
+      const cachedData = await this.redisManager.get(
         cachedKeys.PARTY + ":" + req.params.id,
       );
       if (cachedData) {
@@ -319,7 +318,7 @@ export class PartyController {
         return res.status(404).json({ message: "Party not found" });
       }
 
-      await this.redis.set(
+      await this.redisManager.set(
         cachedKeys.PARTY + ":" + req.params.id,
         JSON.stringify(party),
       ); // Cache the result
@@ -361,7 +360,7 @@ export class PartyController {
         return res.status(404).json({ message: "Party not found" });
       }
 
-      await this.redis.flushall(); // Clear Redis cache when a party is updated or deleted
+      await this.redisManager.clearAllKeys(); // Clear Redis cache when a party is updated or deleted
 
       res.json(party);
     } catch (err) {
@@ -378,7 +377,7 @@ export class PartyController {
       if (!party) {
         return res.status(404).json({ message: "Party not found" });
       }
-      await this.redis.flushall();
+      await this.redisManager.clearAllKeys();
       return res.status(200).json({ message: "Deleted party" });
     } catch (err) {
       console.error(err); // Log the error for debugging

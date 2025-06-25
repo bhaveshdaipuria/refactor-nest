@@ -7,6 +7,7 @@ import { Model } from "mongoose";
 import { electionSchema } from "src/schemas/assembly-election.schema";
 import { candidateSchema } from "src/schemas/candidates.schema";
 import { cachedKeys } from "src/utils";
+import { RedisManager } from "../config/redis.manager";
 
 @Controller("api/assembly-election")
 export class AssemblyElectionController {
@@ -15,7 +16,7 @@ export class AssemblyElectionController {
     private assemblyElectionModel: Model<typeof electionSchema>,
     @InjectModel("Candidate")
     private candidateModel: Model<typeof candidateSchema>,
-    @InjectRedis() private readonly redis: Redis,
+    private readonly redisManager: RedisManager,
   ) {}
 
   @Post()
@@ -23,7 +24,7 @@ export class AssemblyElectionController {
     try {
       const election = await this.assemblyElectionModel.insertOne(req.body);
 
-      await this.redis.flushall();
+      await this.redisManager.clearAllKeys();
 
       return res.status(201).redirect("/assembly-election");
     } catch (error) {
@@ -36,7 +37,7 @@ export class AssemblyElectionController {
   async getAllAssemblyElection(@Res() res: Response, @Req() req: Request) {
     try {
       // Fetch from cache if available
-      const cachedData = await this.redis.get(cachedKeys.ASSEMBLY_ELECTION);
+      const cachedData = await this.redisManager.get(cachedKeys.ASSEMBLY_ELECTION);
       if (cachedData) {
         return res.json(cachedData);
       }
@@ -46,11 +47,10 @@ export class AssemblyElectionController {
       const elections = await this.assemblyElectionModel
         .find()
         .populate("constituencies");
-      await this.redis.set(
+      await this.redisManager.setWithTTL(
         cachedKeys.ASSEMBLY_ELECTION,
         JSON.stringify(elections),
-        "EX",
-        3600,
+        3600
       ); // Cache for 5 minutes
 
       res.json(elections);
@@ -63,7 +63,7 @@ export class AssemblyElectionController {
   @Get(":id")
   async getAssemblyElectionById(@Res() res: Response, @Req() req: Request) {
     try {
-      const cachedData = await this.redis.get(
+      const cachedData = await this.redisManager.get(
         cachedKeys.ASSEMBLY_ELECTION + ":" + req.params.id,
       );
       if (cachedData) {
@@ -74,11 +74,10 @@ export class AssemblyElectionController {
         .findById(req.params.id)
         .populate("constituencies");
       if (!election) return res.status(404).send("Election not found");
-      await this.redis.set(
+      await this.redisManager.setWithTTL(
         cachedKeys.ASSEMBLY_ELECTION + ":" + req.params.id,
         JSON.stringify(election),
-        "EX",
-        3600,
+        3600
       ); // Cache the result
       res.json(election);
     } catch (error) {
@@ -97,7 +96,7 @@ export class AssemblyElectionController {
       );
       if (!election) return res.status(404).send("Election not found");
 
-      await this.redis.flushall();
+      await this.redisManager.clearAllKeys();
       res.json(election);
     } catch (error) {
       console.error(error);
@@ -113,7 +112,7 @@ export class AssemblyElectionController {
       );
       if (!election) return res.status(404).send("Election not found");
 
-      await this.redis.flushall();
+      await this.redisManager.clearAllKeys();
 
       res.json({ message: "Election deleted successfully" });
     } catch (error) {
@@ -127,7 +126,7 @@ export class AssemblyElectionController {
     try {
       const stateName = req.params.name;
 
-      const cachedData = await this.redis.get(
+      const cachedData = await this.redisManager.get(
         cachedKeys.ASSEMBLY_ELECTION + `:${stateName}`,
       );
 
@@ -217,18 +216,10 @@ export class AssemblyElectionController {
 
       // Send the response with structured data
 
-      await this.redis.set(
+      await this.redisManager.setWithTTL(
         cachedKeys.ASSEMBLY_ELECTION + `:${stateName}`,
-        JSON.stringify({
-          state: elections.state,
-          year: elections.year,
-          total_seat: elections.total_seat,
-          total_votes: elections.total_votes,
-          total_candidate: elections.total_candidate,
-          constituency: constituencies,
-        }),
-        "EX",
-        3600,
+        { elections: constituencies },
+        3600
       );
 
       res.json({

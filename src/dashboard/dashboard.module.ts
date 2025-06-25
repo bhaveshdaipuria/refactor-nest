@@ -1,4 +1,3 @@
-
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { DashBoardController } from "./dashboard.controller";
@@ -13,6 +12,7 @@ import { ElectionPartyResultSchema } from "src/schemas/party-election.schema";
 import { userSchema } from "src/schemas/user.schema";
 import { electionSchema } from "src/schemas/assembly-election.schema";
 import { allianceSchema } from "src/schemas/alliance.schema";
+import { RedisManager } from '../config/redis.manager';
 
 @Module({
   imports: [
@@ -31,6 +31,6 @@ import { allianceSchema } from "src/schemas/alliance.schema";
     ]),
   ],
   controllers: [DashBoardController],
-  providers: [],
+  providers: [RedisManager],
 })
 export class DashBoardModule {}

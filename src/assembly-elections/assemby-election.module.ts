@@ -11,6 +11,7 @@ import { partySchema } from "src/schemas/party.schema";
 import { ElectionPartyResultSchema } from "src/schemas/party-election.schema";
 import { userSchema } from "src/schemas/user.schema";
 import { electionSchema } from "src/schemas/assembly-election.schema";
+import { RedisManager } from '../config/redis.manager';
 
 @Module({
   imports: [
@@ -28,5 +29,6 @@ import { electionSchema } from "src/schemas/assembly-election.schema";
     ]),
   ],
   controllers: [AssemblyElectionController],
+  providers: [RedisManager],
 })
 export class AssemblyElectionModule {}

@@ -11,6 +11,7 @@ import { ElectionSchema } from "../schemas/election.schema";
 import * as bcrypt from 'bcrypt';
 import { userSchema } from '../schemas/user.schema';
 import { AdminGuard } from "src/guards/admin.guard";
+import { RedisManager } from "../config/redis.manager";
 
 @Controller('api/auth')
 export class AuthController {
@@ -25,7 +26,7 @@ export class AuthController {
 		private electionModel: Model<typeof ElectionSchema>,
 		@InjectModel("User")
 		private userModel: Model<typeof userSchema>,
-		@InjectRedis() private readonly redis: Redis,
+		private readonly redisManager: RedisManager,
 	) {}
 
     @Post('register')
