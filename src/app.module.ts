@@ -20,7 +20,7 @@ import { ElectionModule } from "./elections/election.module";
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>("MONGO_URI"),
         dbName: configService.get<string>("DATABASE_NAME"),
       }),
@@ -29,7 +29,7 @@ import { ElectionModule } from "./elections/election.module";
 
     RedisModule.forRoot({
       type: "single",
-      url: process.env.REDIS_URL || "redis://localhost:6379",
+      url: process.env.REDIS_URL,
     }),
 
     WidgetsModule,

@@ -5,6 +5,7 @@ import { createMulterConfig } from "src/config/multer-config.factory";
 import { allianceSchema } from "src/schemas/alliance.schema";
 import { TempElectionSchema } from "src/schemas/temp-election.schema";
 import { AllianceController } from "./alliance.controller";
+import { AllianceService } from "./alliance.service";
 
 const candidateMulterConfig = createMulterConfig({
   destination: "public/uploads/alliance_logos",
@@ -19,5 +20,6 @@ const candidateMulterConfig = createMulterConfig({
     ]),
   ],
   controllers: [AllianceController],
+  providers: [AllianceService],
 })
 export class AllianceModule {}

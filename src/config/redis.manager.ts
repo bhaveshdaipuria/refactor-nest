@@ -1,7 +1,7 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
-import { cachedKeys } from '../utils';
+import { Injectable } from "@nestjs/common";
+import { InjectRedis } from "@nestjs-modules/ioredis";
+import Redis from "ioredis";
+import { cachedKeys } from "../utils";
 
 @Injectable()
 export class RedisManager {
@@ -54,4 +54,3 @@ export class RedisManager {
     }
   }
 }
-

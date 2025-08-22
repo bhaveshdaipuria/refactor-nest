@@ -6,6 +6,7 @@ import { constituencySchema } from "src/schemas/constituency.schema";
 import { TempElectionSchema } from "src/schemas/temp-election.schema";
 import { ConstituencyController } from "./constituency.controller";
 import { RedisManager } from '../config/redis.manager';
+import { ConstituencyService } from "./constituency.service";
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { RedisManager } from '../config/redis.manager';
     ]),
   ],
   controllers: [ConstituencyController],
-  providers: [RedisManager],
+  providers: [RedisManager, ConstituencyService],
 })
 export class ConstituencyModule {}

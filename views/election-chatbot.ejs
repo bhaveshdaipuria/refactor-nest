@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Election Chatbot</title>
+	<link rel="stylesheet" href="/stylesheets/style.css" />
+	<link rel="stylesheet" href="/stylesheets/tailwind.css" />
+	<script src="/javascripts/font-awesome.min.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script> Font Awesome for Icons -->
+</head>
+
+<body class="bg-gray-100">
+	<%- include('navbar.ejs') %>
+
+		<div class="container mx-auto py-8 px-8">
+			<h1 class="text-2xl font-bold mb-4">Ask Bihar Election Chatbot</h1>
+			<div class="mb-4">
+				<label for="chatbot-question"
+					class="block text-gray-700 text-sm font-bold mb-2">Question:
+				</label>
+				<input type="text" id="chatbot-question" name="party" required
+					class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+				<div class="mt-8 flex justify-center">
+					<button id="ask-btn">Ask</button>
+				</div>
+			</div>
+			<div class="mb-4 bg-white" id="chatbot-response">
+			</div>
+		</div>
+		<script>
+			const responseDiv = document.getElementById('chatbot-response');
+			const questionInput = document.getElementById('chatbot-question');
+			function askChatbot() {
+				responseDiv.innerHTML = "...";
+
+				fetch('/api/elections/ask-chatbot', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						question: questionInput.value
+					})
+				})
+					.then(data => data.json())
+					.then(res => {
+						responseDiv.innerHTML = res.response;
+					})
+					.catch(err => {
+						console.error(err);
+						responseDiv.innerHTML = "⚠️ Something went wrong. Please try again.";
+					});
+			}
+
+			document.getElementById('ask-btn').addEventListener('click', askChatbot);
+		</script>
+</body>
+
+</html>

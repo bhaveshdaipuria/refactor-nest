@@ -7,6 +7,7 @@ import { ElectionPartyResultSchema } from '../schemas/party-election.schema';
 import { TempElectionSchema } from '../schemas/temp-election.schema';
 import { ElectionSchema } from '../schemas/election.schema';
 import { RedisManager } from '../config/redis.manager';
+import { AuthService } from './auth.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { RedisManager } from '../config/redis.manager';
     ])
   ],
   controllers: [AuthController],
-  providers: [RedisManager],
+  providers: [RedisManager, AuthService],
 })
 export class AuthModule {}

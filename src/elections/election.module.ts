@@ -14,6 +14,8 @@ import { ElectionSchema } from "src/schemas/election.schema";
 import { RedisManager } from "src/config/redis.manager";
 import { RedisModule } from "@nestjs-modules/ioredis";
 import { allianceSchema } from "src/schemas/alliance.schema";
+import { chatbotQuestionSchema } from "src/schemas/chatbot-question.schema";
+import { ElectionService } from "./election.service";
 
 @Module({
   imports: [
@@ -28,11 +30,12 @@ import { allianceSchema } from "src/schemas/alliance.schema";
       { name: "ElectionPartyResult", schema: ElectionPartyResultSchema },
       { name: "User", schema: userSchema },
       { name: "AssemblyElection", schema: electionSchema },
-      { name: 'Alliance', schema: allianceSchema }
+      { name: "Alliance", schema: allianceSchema },
+      { name: "ChatbotQuestion", schema: chatbotQuestionSchema },
     ]),
     RedisModule,
   ],
   controllers: [ElectionController],
-  providers: [RedisManager],
+  providers: [RedisManager, ElectionService],
 })
 export class ElectionModule {}

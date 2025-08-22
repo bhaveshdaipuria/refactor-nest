@@ -12,7 +12,8 @@ import { ElectionPartyResultSchema } from "src/schemas/party-election.schema";
 import { userSchema } from "src/schemas/user.schema";
 import { electionSchema } from "src/schemas/assembly-election.schema";
 import { allianceSchema } from "src/schemas/alliance.schema";
-import { RedisManager } from '../config/redis.manager';
+import { RedisManager } from "../config/redis.manager";
+import { DashBoardService } from "./dashboard.service";
 
 @Module({
   imports: [
@@ -27,10 +28,10 @@ import { RedisManager } from '../config/redis.manager';
       { name: "ElectionPartyResult", schema: ElectionPartyResultSchema },
       { name: "User", schema: userSchema },
       { name: "AssemblyElection", schema: electionSchema },
-      { name: 'Alliance', schema: allianceSchema }
+      { name: "Alliance", schema: allianceSchema },
     ]),
   ],
   controllers: [DashBoardController],
-  providers: [RedisManager],
+  providers: [RedisManager, DashBoardService],
 })
 export class DashBoardModule {}
