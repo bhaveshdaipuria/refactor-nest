@@ -18,7 +18,7 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import { AdminGuard } from "src/guards/admin.guard";
 import { Response, Request } from "express";
-import { CandidateService } from "./controller.service";
+import { CandidateService } from "./candidate.service";
 
 @Controller("api/candidate")
 export class CandidateController {
