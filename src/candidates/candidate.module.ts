@@ -13,8 +13,7 @@ import { RedisManager } from "src/config/redis.manager";
 import { CandidateService } from "./candidate.service";
 
 const candidateMulterConfig = createMulterConfig({
-  destination: "public/uploads/candidates",
-  useOriginalName: true, // Uses timestamp-only filename
+    inMemory: true,
 });
 
 @Module({

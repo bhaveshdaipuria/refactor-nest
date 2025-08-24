@@ -2,11 +2,13 @@ import {
   Injectable,
   HttpException,
   HttpStatus,
+  UploadedFile,
+  BadRequestException,
+  InternalServerErrorException
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { RedisManager } from "../config/redis.manager";
-
 import { TempElectionSchema } from "src/schemas/temp-election.schema";
 import { constituencySchema } from "src/schemas/constituency.schema";
 import { ConstituencyElectionSchema } from "src/schemas/constituency-election.schema";
@@ -15,6 +17,7 @@ import { candidateSchema } from "src/schemas/candidates.schema";
 import { partySchema } from "src/schemas/party.schema";
 import { cachedKeys, getFullImagePath } from "src/utils";
 import { Request } from "express";
+import xlsx from "xlsx";
 
 @Injectable()
 export class CandidateService {
@@ -31,7 +34,7 @@ export class CandidateService {
     private candidateModel: Model<typeof candidateSchema>,
     @InjectModel("Party") private partyModel: Model<typeof partySchema>,
     private readonly redisManager: RedisManager,
-  ) {}
+  ) { }
 
   async getHotCandidates() {
     const cachedData = await this.redisManager.get(cachedKeys.HOT_CANDIDATES);
@@ -230,5 +233,45 @@ export class CandidateService {
       message: "Candidate deleted successfully",
       deletedId: deletedCandidate._id,
     };
+  }
+
+  async addCandidatesFromExcel(file: Express.Multer.File) {
+    try {
+      const workBook = xlsx.read(file.buffer, { type: "buffer" });
+      const sheet = workBook.SheetNames[0];
+      const jsonData = xlsx.utils.sheet_to_json(workBook.Sheets[sheet]);
+
+      const formattedJsonData = await Promise.all(
+        jsonData.map(async (elem: any) => {
+          const constituency = await this.constituencyModel.findOne({
+            name: elem.constituency,
+          });
+          const party = await this.partyModel.findOne({ party: elem.party });
+
+          if (!constituency || !party) {
+            throw new BadRequestException("Bad Request. Check Your File Data And Try Again");
+          }
+
+          return new this.candidateModel({
+            name: elem.name,
+            constituency: [constituency._id],
+            age: elem.age,
+            party: party._id,
+            hotCandidate: elem.hotCandidate,
+            gender: elem.gender,
+          });
+        })
+      );
+
+      const bulkSaveCandidates = await this.candidateModel.bulkSave(formattedJsonData);
+      console.log(bulkSaveCandidates.insertedCount);
+      if (bulkSaveCandidates.insertedCount === 0) {
+        throw new BadRequestException("Bad Request. Check Your File Data And Try Again");
+      }
+      return { succcess: true }
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(error);
+    }
   }
 }

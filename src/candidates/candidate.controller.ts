@@ -22,7 +22,7 @@ import { CandidateService } from "./candidate.service";
 
 @Controller("api/candidate")
 export class CandidateController {
-  constructor(private readonly candidateService: CandidateService) {}
+  constructor(private readonly candidateService: CandidateService) { }
 
   @Get("hot-candidates")
   async getHotCandidates(@Res() res: Response) {
@@ -81,5 +81,12 @@ export class CandidateController {
   @UseGuards(AdminGuard)
   async deleteCandidate(@Param("id") id: string) {
     return this.candidateService.deleteCandidate(id);
+  }
+
+  @Post("file-upload")
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadCandidateFile(@Req() req: Request, @Res() res: Response, @UploadedFile() file: Express.Multer.File) {
+    await this.candidateService.addCandidatesFromExcel(file)
+    res.status(200).json({ success: true })
   }
 }
