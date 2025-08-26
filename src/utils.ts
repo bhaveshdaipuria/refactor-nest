@@ -47,7 +47,7 @@ export async function generateChatbotResponse(prompt: string, modelUsed: string,
 
 	}else{
 
-      const response = await this.electionChatbot.models.generateContent({
+      const response = await chatbotInstance.models.generateContent({
         model: process.env.GEMINI_MODEL as string,
         contents: [
           {
