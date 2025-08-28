@@ -16,6 +16,7 @@ import { RedisModule } from "@nestjs-modules/ioredis";
 import { allianceSchema } from "src/schemas/alliance.schema";
 import { chatbotQuestionSchema } from "src/schemas/chatbot-question.schema";
 import { ElectionService } from "./election.service";
+import { ChromaModule } from "src/chroma/chroma.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ElectionService } from "./election.service";
       { name: "ChatbotQuestion", schema: chatbotQuestionSchema },
     ]),
     RedisModule,
+    ChromaModule
   ],
   controllers: [ElectionController],
   providers: [RedisManager, ElectionService],

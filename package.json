@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@chroma-core/default-embed": "^0.1.8",
     "@google/genai": "^1.14.0",
     "@nestjs-modules/ioredis": "^2.0.2",
     "@nestjs/common": "^11.0.1",
@@ -29,7 +30,9 @@
     "@nestjs/platform-express": "^11.0.1",
     "@types/bcrypt": "^5.0.2",
     "@types/connect-flash": "^0.0.40",
+    "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
+    "chromadb": "^3.0.14",
     "compute-cosine-similarity": "^1.1.0",
     "connect-flash": "^0.1.1",
     "express-session": "^1.18.1",

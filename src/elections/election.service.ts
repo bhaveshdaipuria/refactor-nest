@@ -14,17 +14,19 @@ import { ElectionSchema } from "src/schemas/election.schema";
 import { cachedKeys } from "src/utils";
 import { RedisManager } from "src/config/redis.manager";
 import { allianceSchema } from "src/schemas/alliance.schema";
-import { GenerateContentResponse, GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { ConfigService } from "@nestjs/config";
 import { chatbotQuestionSchema } from "src/schemas/chatbot-question.schema";
 import { getEmbedding, measureSimilarity, generateChatbotResponse } from "src/utils";
 import OpenAI from "openai";
+import { ChromaService } from "src/chroma/chroma.service";
 
 @Injectable()
 export class ElectionService {
   private electionChatbot: GoogleGenAI | OpenAI;
 
   constructor(
+    private readonly chromaService: ChromaService,
     private readonly configService: ConfigService,
     @InjectModel("TempElection")
     private tempElectionModel: Model<typeof TempElectionSchema>,
@@ -52,15 +54,15 @@ export class ElectionService {
     private chatbotQuestionModel: Model<typeof chatbotQuestionSchema>,
     private readonly redisManager: RedisManager,
   ) {
-	if(this.configService.get<string>("CURRENT_CHATBOT") === "OPENAI") {
-	      this.electionChatbot = new OpenAI({
+    if (this.configService.get<string>("CURRENT_CHATBOT") === "OPENAI") {
+      this.electionChatbot = new OpenAI({
         apiKey: this.configService.get<string>("OPENAI_KEY"),
-	})
-	}else{
-	    this.electionChatbot = new GoogleGenAI({
-	      apiKey: this.configService.get<string>("GEMINI_API_KEY"),
-	    });
-	}
+      })
+    } else {
+      this.electionChatbot = new GoogleGenAI({
+        apiKey: this.configService.get<string>("GEMINI_API_KEY"),
+      });
+    }
   }
 
   async getElectionPartySummary(referer: string) {
@@ -70,7 +72,7 @@ export class ElectionService {
       : stateName["jharkhand"];
 
     const election: any = await this.electionModel.findOne({ state });
-    
+
     if (!election) {
       throw new NotFoundException("Election not found");
     }
@@ -499,46 +501,41 @@ export class ElectionService {
 
   async askChatBot(question: string) {
     try {
-      // Using Gemini Bot
       const questionEmedding = await getEmbedding(question, this.electionChatbot, this.configService.get<string>("CURRENT_CHATBOT") as string)
-      const storedQuestions: any = await this.chatbotQuestionModel.find().lean()
-      let bestMatch: any = null;
-      let bestScore = -1;
+      const chromaClient = this.chromaService.getClient();
+      const collection = await chromaClient.getOrCreateCollection({
+        name: 'chatbot_questions',
+        metadata: { source: 'chatbot' }
+      });
+      const results = await collection.query({
+        queryEmbeddings: [questionEmedding],
+        nResults: 1,
+        include: ['distances', 'documents', 'metadatas'],
+      })
 
-      for (const q of storedQuestions) {
-        const sim: any = measureSimilarity(questionEmedding, q.embedding);
-        if (sim > bestScore) {
-          bestScore = sim;
-          bestMatch = q;
-        }
+      console.log('Results from chromadb:', results);
+
+      const bestMatch = results.documents[0]?.[0] || null;
+      const bestAnswer = results.metadatas[0]?.[0]?.answer || null;
+      const bestScore = results.distances[0]?.[0] ?? -1;
+
+      if (bestMatch && bestScore <= 0.2) {
+        console.log('Got answer from ChromaDB');
+        return { response: bestAnswer, fromDb: true, similarity: bestScore };
       }
 
-      // 3. If similarity is high enough, return the stored answer
-      if (bestMatch && bestScore >= 0.8) {
-        console.log('got answer from the db')
-        return { response: bestMatch.answer, fromDb: true, similarity: bestScore };
-      }
 
-      const answer: string = await generateChatbotResponse(question, this.configService.get<string>("CURRENT_CHATBOT") as string, this.electionChatbot) 
 
-      await this.chatbotQuestionModel.create({
-        question,
-        embedding: questionEmedding,
-        answer,
+      const answer: string = await generateChatbotResponse(question, this.configService.get<string>("CURRENT_CHATBOT") as string, this.electionChatbot)
+
+      await collection.add({
+        ids: [Date.now().toString()], 
+        embeddings: [questionEmedding],
+        documents: [question],
+        metadatas: [{ answer }],
       });
 
       return { response: answer, fromDb: false, similarity: null };
-
-
-      // Alternative OpenAI implementation (commented out)
-      // const response = await this.openaiChatbot.chat.completions.create({
-      //   model: this.configService.get<string>('OPENAI_MODEL') as string,
-      //   messages: [
-      //     { role: "system", content: `You are a Bihar election assistant. Answer only questions related to Bihar elections factually and concisely. If the question is unrelated to Bihar elections, reply with: "I can only answer questions about the Bihar elections".` },
-      //     { role: "user", content: question }
-      //   ]
-      // });
-      // return { response: response.choices[0].message.content };
 
     } catch (error) {
       throw new Error(`Failed to generate response from chatbot: ${error.message}`);
@@ -547,7 +544,7 @@ export class ElectionService {
 
   private async clearElectionCache(redisKeys: { state: string; year: string; type: string }) {
     const { state, year, type } = redisKeys;
-    
+
     await Promise.all([
       this.redisManager.delete('widget_election_widget'),
       this.redisManager.delete(`widget_bihar_election_map_${state}_${year}_${type}`),

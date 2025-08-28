@@ -14,7 +14,6 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from 'express';
 import { ElectionService } from './election.service';
-import { getEmbedding } from "src/utils";
 
 @Controller("api/elections")
 export class ElectionController {
